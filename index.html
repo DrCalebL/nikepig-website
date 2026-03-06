@@ -252,13 +252,13 @@ section{position:relative}
 .gif-grid img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:12px;transition:transform 0.3s ease;cursor:pointer}
 .gif-grid img:hover{transform:scale(1.05);z-index:2}
 .gif-buttons{display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap}
-.gif-btn{display:flex;align-items:center;gap:1.2rem;padding:1.5rem 2.5rem;border-radius:20px;border:2px solid rgba(123,104,168,0.15);background:white;transition:all 0.4s cubic-bezier(0.16,1,0.3,1);min-width:260px;box-shadow:0 4px 20px rgba(90,72,128,0.06)}
-.gif-btn:hover{transform:translateY(-6px);box-shadow:0 15px 40px rgba(123,104,168,0.12);border-color:var(--purple)}
-.gif-btn-icon{font-family:'More Sugar',sans-serif;font-size:1.6rem;background:linear-gradient(135deg,var(--purple),var(--sunset-deep));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:900;letter-spacing:1px}
+.gif-btn{display:flex;align-items:center;gap:1.2rem;padding:1.5rem 2.5rem;border-radius:20px;border:2px solid rgba(212,184,106,0.15);background:linear-gradient(135deg,var(--wheat-deep),var(--wheat),var(--wheat-light));background-size:200% 200%;animation:gradShift 3s ease-in-out infinite;transition:all 0.4s cubic-bezier(0.16,1,0.3,1);min-width:260px;box-shadow:0 4px 20px rgba(212,184,106,0.06)}
+.gif-btn:hover{transform:translateY(-6px);box-shadow:0 15px 40px rgba(212,184,106,0.12);border-color:var(--wheat)}
+.gif-btn-icon{font-family:'More Sugar',sans-serif;font-size:1.6rem;color:var(--navy);-webkit-text-fill-color:var(--navy);font-weight:900;letter-spacing:1px}
 .gif-btn-text{display:flex;flex-direction:column;text-align:left}
-.gif-btn-title{font-family:'More Sugar',sans-serif;font-size:1.3rem;color:var(--wheat-light);letter-spacing:1px}
-.gif-btn-sub{font-size:0.8rem;color:var(--wheat-pale);opacity:1;font-weight:600}
-.gif-btn-arrow{font-size:1.4rem;color:var(--purple);margin-left:auto;transition:transform 0.3s ease}
+.gif-btn-title{font-family:'More Sugar',sans-serif;font-size:1.3rem;color:var(--navy);letter-spacing:1px}
+.gif-btn-sub{font-size:0.8rem;color:var(--navy);opacity:0.7;font-weight:600}
+.gif-btn-arrow{font-size:1.4rem;color:var(--navy);margin-left:auto;transition:transform 0.3s ease}
 .gif-btn:hover .gif-btn-arrow{transform:translateX(5px)}
 
 /* =========== HOW TO BUY (sunset pale) =========== */

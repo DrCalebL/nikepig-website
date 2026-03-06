@@ -76,14 +76,14 @@ body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backgr
 /* =========== NAV =========== */
 nav{position:fixed;top:0;left:0;width:100%;z-index:1000;padding:1rem 2.5rem;display:flex;justify-content:space-between;align-items:center;background:rgba(30,40,56,0.75);backdrop-filter:blur(24px) saturate(1.4);border-bottom:1px solid rgba(212,184,106,0.15);transition:all 0.4s ease}
 nav.scrolled{padding:0.6rem 2.5rem;background:rgba(30,40,56,0.95)}
-.nav-logo{font-family:'More Sugar',sans-serif;font-size:2rem;letter-spacing:2px;background:linear-gradient(135deg,var(--wheat-light),var(--sunset-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.nav-logo{font-family:'More Sugar',sans-serif;font-size:2rem;letter-spacing:2px;background:linear-gradient(135deg,var(--wheat-light),var(--sunset-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:flex;align-items:center}
 .nav-logo span{font-family:'Nunito',sans-serif;font-size:0.85rem;font-weight:700;-webkit-text-fill-color:var(--purple-pale);opacity:1;letter-spacing:1px}
 .nav-links{display:flex;gap:2rem;align-items:center}
 .nav-links a{font-weight:700;font-size:0.95rem;color:var(--wheat-pale);transition:all 0.3s ease;position:relative;letter-spacing:0.5px}
 .nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:2px;background:var(--wheat);border-radius:2px;transition:width 0.3s ease}
 .nav-links a:hover::after{width:100%}
 .nav-links a:hover{color:var(--wheat-light)}
-.nav-cta{background:linear-gradient(135deg,var(--wheat-deep),var(--wheat))!important;padding:0.6rem 1.6rem;border-radius:50px;font-weight:800!important;color:var(--navy)!important;-webkit-text-fill-color:var(--navy)!important;box-shadow:0 4px 20px rgba(212,184,106,0.25);transition:all 0.3s ease}
+.nav-cta{background:linear-gradient(135deg,var(--wheat-deep),var(--wheat))!important;padding:0.6rem 1.6rem;border-radius:50px;font-weight:800!important;color:var(--navy)!important;-webkit-text-fill-color:var(--navy)!important;box-shadow:0 4px 20px rgba(212,184,106,0.25);transition:all 0.3s ease;white-space:nowrap;width:fit-content}
 .nav-cta:hover{transform:scale(1.05);box-shadow:0 6px 30px rgba(212,184,106,0.4)}
 .nav-cta::after{display:none!important}
 .nav-toggle{display:none;flex-direction:column;gap:5px;cursor:pointer;z-index:1001}
@@ -368,7 +368,7 @@ section{position:relative;z-index:1}
   .nav-links{width:85%}
   .nav-logo img{height:28px!important}
   /* HERO */
-  .hero{padding:5rem 1.2rem 3rem;min-height:auto}
+  .hero{padding:5rem 1.2rem 3rem;min-height:auto;border-radius:0;margin:0}
   .hero-pig{width:220px;height:220px;margin:3.5rem auto 1.5rem}
   .hero-subtitle{font-size:1.2rem;margin-bottom:0.3rem}
   .hero-tagline{font-size:0.9rem;margin-bottom:1.2rem;line-height:1.6}
@@ -388,7 +388,7 @@ section{position:relative;z-index:1}
   .section-sub{font-size:1rem;line-height:1.6}
   .cta-btn{padding:0.9rem 2rem;font-size:1.1rem}
   /* STATS */
-  .stats{padding:2.5rem 1rem;border-radius:16px;margin:0.6rem}
+  .stats{padding:2.5rem 1rem;border-radius:0;margin:0}
   .stats-grid{grid-template-columns:repeat(2,1fr);gap:0.8rem}
   .stat-card{padding:1.5rem 1rem;border-radius:14px}
   .stat-number{font-size:2rem}
@@ -532,7 +532,7 @@ section{position:relative;z-index:1}
     <p class="hero-subtitle">The OG Pig of Cardano</p>
     <p class="hero-tagline">Born from the legend of Charles Hoskinson's pet pig Nike. Built on Cardano. Oinking to the moon.</p>
     <div class="social-links">
-      <a href="https://linktr.ee/nikepig" target="_blank" class="social-link social-link--primary" title="Buy $NIKEPIG"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>Buy $NIKEPIG</a>
+      <a href="#buy" class="social-link social-link--primary" title="Buy $NIKEPIG"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>Buy $NIKEPIG</a>
       <a href="https://www.taptools.io/charts/token/f5808c2c990d86da54bfc97d89cee6efa20cd8461616359478d96b4c.1cc9abfd664f73f4c2d2659382d6fef77b1cb3fbcac784de9bfbaf075454e102" target="_blank" class="social-link social-link--chart" title="Live Chart"><svg viewBox="0 0 24 24"><path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/></svg>Live Chart</a>
       <a href="https://hub.cnft.tools/staking/nike" target="_blank" class="social-link" title="Stake"><svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>Stake</a>
       <a href="https://x.com/NikePig_ADA" target="_blank" class="social-link" title="X"><svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>X</a>

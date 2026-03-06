@@ -254,7 +254,7 @@ section{position:relative}
 .gif-buttons{display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap}
 .gif-btn{display:flex;align-items:center;gap:1.2rem;padding:1.5rem 2.5rem;border-radius:20px;border:2px solid rgba(212,184,106,0.15);background:linear-gradient(135deg,var(--wheat-deep),var(--wheat),var(--wheat-light));background-size:200% 200%;animation:gradShift 3s ease-in-out infinite;transition:all 0.4s cubic-bezier(0.16,1,0.3,1);min-width:260px;box-shadow:0 4px 20px rgba(212,184,106,0.06)}
 .gif-btn:hover{transform:translateY(-6px);box-shadow:0 15px 40px rgba(212,184,106,0.12);border-color:var(--wheat)}
-.gif-btn-icon{font-family:'More Sugar',sans-serif;font-size:1.6rem;color:var(--navy);-webkit-text-fill-color:var(--navy);font-weight:900;letter-spacing:1px}
+.gif-btn-icon{width:40px;height:40px;border-radius:10px;object-fit:cover;flex-shrink:0}
 .gif-btn-text{display:flex;flex-direction:column;text-align:left}
 .gif-btn-title{font-family:'More Sugar',sans-serif;font-size:1.3rem;color:var(--navy);letter-spacing:1px}
 .gif-btn-sub{font-size:0.8rem;color:var(--navy);opacity:0.7;font-weight:600}
@@ -439,7 +439,7 @@ section{position:relative;z-index:1}
   .gif-grid img{border-radius:8px}
   .gif-btn{min-width:auto;width:100%;padding:1rem 1.5rem;border-radius:14px;gap:0.8rem}
   .gif-btn-title{font-size:1.1rem}
-  .gif-btn-icon{font-size:1.3rem}
+  .gif-btn-icon{width:32px;height:32px;border-radius:8px}
   .gif-buttons{gap:0.8rem}
   /* HOW TO BUY */
   .how-to-buy{padding:3rem 1.2rem}
@@ -669,8 +669,8 @@ section{position:relative;z-index:1}
       <img loading="lazy" src="assets/gifs/disappear.gif" alt="Disappear"><img loading="lazy" src="assets/gifs/nervous.gif" alt="Nervous"><img loading="lazy" src="assets/gifs/sup.gif" alt="Sup"><img loading="lazy" src="assets/gifs/shrek.gif" alt="Shrek"><img loading="lazy" src="assets/gifs/fomo.gif" alt="FOMO">
     </div>
     <div class="gif-buttons reveal">
-      <a href="https://giphy.com/Nikepignet" target="_blank" class="gif-btn"><span class="gif-btn-icon">GIF</span><span class="gif-btn-text"><span class="gif-btn-title">GIPHY</span><span class="gif-btn-sub">100+ GIFs</span></span><span class="gif-btn-arrow">→</span></a>
-      <a href="https://tenor.com/users/nike_pig" target="_blank" class="gif-btn"><span class="gif-btn-icon">GIF</span><span class="gif-btn-text"><span class="gif-btn-title">Tenor</span><span class="gif-btn-sub">Stickers & GIFs</span></span><span class="gif-btn-arrow">→</span></a>
+      <a href="https://giphy.com/Nikepignet" target="_blank" class="gif-btn"><img src="icons/giphy-logo.jpg" alt="GIPHY" class="gif-btn-icon"><span class="gif-btn-text"><span class="gif-btn-title">GIPHY</span><span class="gif-btn-sub">100+ GIFs</span></span><span class="gif-btn-arrow">→</span></a>
+      <a href="https://tenor.com/users/nike_pig" target="_blank" class="gif-btn"><img src="icons/tenor-logo.jpg" alt="Tenor" class="gif-btn-icon"><span class="gif-btn-text"><span class="gif-btn-title">Tenor</span><span class="gif-btn-sub">Stickers & GIFs</span></span><span class="gif-btn-arrow">→</span></a>
     </div>
     <p class="reveal" style="margin-top:1.5rem;font-size:0.9rem;color:var(--wheat-pale);opacity:1">Search "nikepig" on GIPHY or Tenor in any app</p>
   </div>

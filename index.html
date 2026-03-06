@@ -148,7 +148,9 @@ section{position:relative}
 .stats-grid{max-width:1000px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.5rem}
 .stat-card{text-align:center;padding:2.5rem 1.5rem;background:rgba(255,255,255,0.5);border:2px solid rgba(212,184,106,0.15);border-radius:20px;transition:all 0.4s ease;backdrop-filter:blur(10px)}
 .stat-card:hover{transform:translateY(-6px);border-color:var(--wheat);box-shadow:0 15px 40px rgba(212,184,106,0.1)}
+.icon-inline{width:1.2em;height:1.2em;vertical-align:middle;display:inline-block;margin-right:0.3em}
 .stat-icon{font-size:2.5rem;margin-bottom:0.8rem}
+.stat-icon .icon-inline{width:2.5rem;height:2.5rem;margin-right:0}
 .stat-number{font-family:'More Sugar',sans-serif;font-size:2.8rem;letter-spacing:1px;color:var(--sunset-light)}
 .stat-label{font-weight:700;color:var(--wheat-pale);opacity:1;margin-top:0.3rem;font-size:0.85rem;text-transform:uppercase;letter-spacing:2px}
 
@@ -394,6 +396,7 @@ section{position:relative;z-index:1}
   .stat-number{font-size:2rem}
   .stat-label{font-size:0.7rem;letter-spacing:1.5px}
   .stat-icon{font-size:2rem;margin-bottom:0.5rem}
+  .stat-icon .icon-inline{width:2rem;height:2rem}
   /* ABOUT */
   .about{padding:3rem 1.2rem}
   .about-container{gap:2rem}
@@ -549,10 +552,10 @@ section{position:relative;z-index:1}
 </section>
 <section class="stats wheat-section">
   <div class="stats-grid">
-    <div class="stat-card reveal"><div class="stat-icon">🚀</div><div class="stat-number">$38M</div><div class="stat-label">Peak Market Cap</div></div>
-    <div class="stat-card reveal reveal-delay-1"><div class="stat-icon">✊</div><div class="stat-number">0%</div><div class="stat-label">Creator Allocation</div></div>
-    <div class="stat-card reveal reveal-delay-3"><div class="stat-icon">🔒</div><div class="stat-number">0</div><div class="stat-label">Inflation</div></div>
-    <div class="stat-card reveal"><div class="stat-icon">💰</div><div class="stat-number">100%</div><div class="stat-label">Supply in Market</div></div>
+    <div class="stat-card reveal"><div class="stat-icon"><img src="icons/market-growth.png" alt="Market Growth" class="icon-inline"></div><div class="stat-number">$38M</div><div class="stat-label">Peak Market Cap</div></div>
+    <div class="stat-card reveal reveal-delay-1"><div class="stat-icon"><img src="icons/pie-chart.png" alt="Community Power" class="icon-inline"></div><div class="stat-number">0%</div><div class="stat-label">Creator Allocation</div></div>
+    <div class="stat-card reveal reveal-delay-3"><div class="stat-icon"><img src="icons/shield-lock.png" alt="Protected" class="icon-inline"></div><div class="stat-number">0</div><div class="stat-label">Inflation</div></div>
+    <div class="stat-card reveal"><div class="stat-icon"><img src="icons/repeat.png" alt="Crypto Market" class="icon-inline"></div><div class="stat-number">100%</div><div class="stat-label">Supply in Market</div></div>
   </div>
 </section>
 <section class="about sunset-section" id="about">
@@ -606,12 +609,12 @@ section{position:relative;z-index:1}
   <div style="display:flex;justify-content:center;margin-top:1.2rem">
     <div class="art-card reveal" style="max-width:calc((1100px - 2.4rem) / 3)"><img src="assets/art/comic-cover-manga.png" alt=""><div class="art-card-overlay"><span class="art-card-title">Cover 7</span></div></div>
   </div>
-  <div style="text-align:center;margin-top:2.5rem" class="reveal"><a href="https://discord.gg/RPwVazfB2G" target="_blank" class="cta-btn" style="font-size:1.1rem;padding:1rem 2.5rem">🐷 Join Discord for Mint Updates</a></div>
+  <div style="text-align:center;margin-top:2.5rem" class="reveal"><a href="https://discord.gg/RPwVazfB2G" target="_blank" class="cta-btn" style="font-size:1.1rem;padding:1rem 2.5rem"><img src="icons/pig.png" alt="NikePig" class="icon-inline"> Join Discord for Mint Updates</a></div>
 </section>
 <section class="nikeverse" id="nikeverse">
   <div class="nikeverse-container">
     <div class="nikeverse-hero-img reveal" style="max-width:360px"><img src="assets/art/nikeverse-nft.gif" alt="Nikeverse NFT Collection"></div>
-    <div style="text-align:center;margin-bottom:2rem" class="reveal"><a href="https://www.wayup.io/collection/de79250af8caffc7a64645d86939159f665d4107c3f198562007bf32" target="_blank" class="cta-btn" style="font-size:1.1rem;padding:1rem 2.5rem">🖼️ View PFP Collection on Wayup</a></div>
+    <div style="text-align:center;margin-bottom:2rem" class="reveal"><a href="https://www.wayup.io/collection/de79250af8caffc7a64645d86939159f665d4107c3f198562007bf32" target="_blank" class="cta-btn" style="font-size:1.1rem;padding:1rem 2.5rem"><img src="icons/nft-art.png" alt="NFT Art" class="icon-inline"> View PFP Collection on Wayup</a></div>
     <h2 class="section-title reveal">The Nikeverse</h2>
     <p class="section-sub reveal" style="margin:0 auto">More than a token. An entire universe of games, lore, and community built around the most powerful pig in crypto.</p>
     <div class="nikeverse-grid">
@@ -681,7 +684,7 @@ section{position:relative;z-index:1}
       <div class="buy-step reveal reveal-delay-1"><div class="step-number">2</div><img src="assets/art/vespr-logo.jpg" alt="Vespr" style="width:56px;height:56px;border-radius:14px;margin-bottom:0.8rem;box-shadow:0 4px 15px rgba(0,0,0,0.3)"><div class="step-title">Vespr</div><div class="step-desc">Download <a href="https://vespr.xyz" target="_blank" style="color:var(--wheat);text-decoration:underline">Vespr</a> mobile wallet and use the <strong style="color:var(--wheat)">built-in DEX aggregator</strong> to swap ADA for $NIKEPIG.</div></div>
       <div class="buy-step reveal reveal-delay-2"><div class="step-number">3</div><img src="assets/art/ascendex-logo.png" alt="AscendEX" style="width:56px;height:56px;border-radius:14px;margin-bottom:0.8rem;box-shadow:0 4px 15px rgba(0,0,0,0.3);background:#fff"><div class="step-title">AscendEX</div><div class="step-desc">Buy directly on <a href="https://ascendex.com/en/cashtrade-spottrading/usdt/nikepig" target="_blank" style="color:var(--wheat);text-decoration:underline">AscendEX</a> — our <strong style="color:var(--wheat)">CEX listing</strong> for easy USDT to $NIKEPIG trading.</div></div>
     </div>
-    <a href="https://linktr.ee/nikepig" target="_blank" class="cta-btn">🚀 Buy $NIKEPIG</a>
+    <a href="https://linktr.ee/nikepig" target="_blank" class="cta-btn"><img src="icons/rocket.png" alt="Rocket" class="icon-inline"> Buy $NIKEPIG</a>
   </div>
 </section>
 <section class="exchanges navy-section">
@@ -689,20 +692,20 @@ section{position:relative;z-index:1}
     <h2 class="section-title reveal">Charts & Data</h2>
     <p class="section-sub reveal" style="margin:0 auto 2rem;color:var(--wheat-pale)">Track $NIKEPIG across every major chart platform.</p>
     <div class="exchange-logos reveal">
-      <a href="https://www.taptools.io/charts/token/f5808c2c990d86da54bfc97d89cee6efa20cd8461616359478d96b4c.1cc9abfd664f73f4c2d2659382d6fef77b1cb3fbcac784de9bfbaf075454e102" target="_blank" class="exchange-logo">📊 TapTools</a>
-      <a href="https://dexscreener.com/cardano/f5808c2c990d86da54bfc97d89cee6efa20cd8461616359478d96b4c1cc9abfd664f73f4c2d2659382d6fef77b1cb3fbcac784de9bfbaf075454e102" target="_blank" class="exchange-logo">🦎 DexScreener</a>
-      <a href="https://www.coingecko.com/en/coins/nikepig" target="_blank" class="exchange-logo">🪙 CoinGecko</a>
-      <a href="https://coinmarketcap.com/currencies/nikepig/" target="_blank" class="exchange-logo">📈 CoinMarketCap</a>
-      <a href="https://linktr.ee/nikepig" target="_blank" class="exchange-logo">🔗 Linktree</a>
+      <a href="https://www.taptools.io/charts/token/f5808c2c990d86da54bfc97d89cee6efa20cd8461616359478d96b4c.1cc9abfd664f73f4c2d2659382d6fef77b1cb3fbcac784de9bfbaf075454e102" target="_blank" class="exchange-logo"><img src="icons/bar-chart.png" alt="Chart" class="icon-inline"> TapTools</a>
+      <a href="https://dexscreener.com/cardano/f5808c2c990d86da54bfc97d89cee6efa20cd8461616359478d96b4c1cc9abfd664f73f4c2d2659382d6fef77b1cb3fbcac784de9bfbaf075454e102" target="_blank" class="exchange-logo"><img src="icons/dexscreener.png" alt="DexScreener" class="icon-inline"> DexScreener</a>
+      <a href="https://www.coingecko.com/en/coins/nikepig" target="_blank" class="exchange-logo"><img src="icons/coin-gecko.png" alt="Coin" class="icon-inline"> CoinGecko</a>
+      <a href="https://coinmarketcap.com/currencies/nikepig/" target="_blank" class="exchange-logo"><img src="icons/coin-market-cap.png" alt="Trending" class="icon-inline"> CoinMarketCap</a>
+      <a href="https://linktr.ee/nikepig" target="_blank" class="exchange-logo"><img src="icons/link.png" alt="Link" class="icon-inline"> Linktree</a>
     </div>
   </div>
 </section>
 <section class="staking-section" style="padding:5rem 2rem;background:rgba(20,18,30,0.75);backdrop-filter:blur(12px);border-radius:30px;max-width:1200px;margin:2rem auto;box-shadow:0 8px 40px rgba(0,0,0,0.3);text-align:center">
   <div style="max-width:800px;margin:0 auto">
-    <h2 class="section-title reveal">🐷 Stake & Earn</h2>
+    <h2 class="section-title reveal"><img src="icons/pig.png" alt="NikePig" class="icon-inline"> Stake & Earn</h2>
     <p class="section-sub reveal" style="margin:0 auto 1.5rem;color:var(--wheat-pale)">Your bags shouldn't just sit there — put them to work.</p>
     <p class="reveal" style="font-size:1.15rem;color:var(--wheat-pale);line-height:1.8;margin-bottom:2.5rem">All <strong style="color:var(--wheat)">$NIKEPIG tokens</strong> and <strong style="color:var(--wheat)">Nikeverse PFP NFTs</strong> can be staked for passive income. Lock your holdings, earn rewards, and grow your bag while you sleep. Diamond hooves get rewarded.</p>
-    <a href="https://hub.cnft.tools/staking/nike" target="_blank" class="cta-btn reveal">🔥 Stake Now on CNFT Hub</a>
+    <a href="https://hub.cnft.tools/staking/nike" target="_blank" class="cta-btn reveal"><img src="icons/fire.png" alt="Fire" class="icon-inline"> Stake Now on CNFT Hub</a>
   </div>
 </section>
 <section class="community wheat-section" id="community">
@@ -721,6 +724,7 @@ section{position:relative;z-index:1}
   <div class="footer-logo"><img src="assets/art/logo.png" alt="$NIKEPIG" style="height:48px"></div>
   <p class="footer-text">The OG pig of Cardano. Built by the community, for the community. Oink.</p>
   <p class="footer-disclaimer">$NIKEPIG is a community token. Not financial advice. Always DYOR. Oink responsibly.</p>
+  <p class="footer-disclaimer" style="margin-top:0.5rem">Icons by <a href="https://www.flaticon.com" target="_blank" style="color:var(--wheat-pale);text-decoration:underline">Flaticon</a></p>
 </footer>
 <script>
 const isMobile=window.matchMedia('(max-width:1024px)').matches;

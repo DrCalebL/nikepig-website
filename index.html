@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="format-detection" content="telephone=no">
+<meta name="theme-color" content="#1E2838">
+<title>$NIKEPIG | The OG Pig of Cardano</title>
+<meta name="description" content="$NIKEPIG - Charles Hoskinson's legendary pet pig Nike, now immortalized on the Cardano blockchain.">
+<link href="https://fonts.cdnfonts.com/css/more-sugar" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* =============================================================
+   BISON VALLEY RANCH PALETTE
+   Golden wheat ~35% | Purple mountain ~20% | Sunset pink ~15%
+   Warm brown ~12% | Dark navy ~8% | Forest green ~5% | Stone ~5%
+   ============================================================= */
+:root {
+  --wheat: #D4B86A;
+  --wheat-light: #E8D48A;
+  --wheat-pale: #F5ECCE;
+  --wheat-deep: #C4A44E;
+  --wheat-bg: #F0E6C8;
+
+  --purple: #7B68A8;
+  --purple-light: #9B88C0;
+  --purple-pale: #C8B8D8;
+  --purple-deep: #5A4880;
+  --purple-mountain: #8070A0;
+  --purple-bg: #E8E0F0;
+
+  --sunset: #D8A0A8;
+  --sunset-light: #E8B8C0;
+  --sunset-pale: #F5D8DC;
+  --sunset-deep: #C08890;
+  --sunset-pink: #E0B0B8;
+  --sunset-sky: #DCC0D0;
+
+  --brown: #8B6848;
+  --brown-light: #A88868;
+  --brown-dark: #6B4E30;
+  --brown-barn: #9B7850;
+
+  --navy: #1E2838;
+  --navy-mid: #283848;
+  --navy-light: #384858;
+
+  --green: #4A6838;
+  --green-soft: #6A8858;
+  --green-pine: #3A5828;
+
+  --stone: #A8A098;
+  --stone-light: #C8C0B8;
+
+  --cream: #FFF8EC;
+  --cream-warm: #F8F0E0;
+}
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;overflow-x:hidden;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
+body{font-family:'Nunito',sans-serif;background:rgb(15,18,25) url('assets/art/bg-16x9.png') no-repeat center center fixed;background-size:cover;color:var(--navy);overflow-x:hidden;cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Ctext y='28' font-size='28'%3E🐷%3C/text%3E%3C/svg%3E") 16 16,auto;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+img{max-width:100%;height:auto}
+a{text-decoration:none;color:inherit;-webkit-tap-highlight-color:transparent}
+::-webkit-scrollbar{width:10px}
+::-webkit-scrollbar-track{background:var(--wheat-pale)}
+::-webkit-scrollbar-thumb{background:linear-gradient(var(--purple),var(--wheat-deep));border-radius:5px}
+
+body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;background:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.018'/%3E%3C/svg%3E");pointer-events:none;z-index:9999}
+
+.particles{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden}
+.particle{position:absolute;animation:floatUp linear infinite;opacity:0.12}
+@keyframes floatUp{0%{transform:translateY(110vh) rotate(0deg);opacity:0}10%{opacity:0.12}90%{opacity:0.12}100%{transform:translateY(-10vh) rotate(360deg);opacity:0}}
+
+/* =========== NAV =========== */
+nav{position:fixed;top:0;left:0;width:100%;z-index:1000;padding:1rem 2.5rem;display:flex;justify-content:space-between;align-items:center;background:rgba(30,40,56,0.75);backdrop-filter:blur(24px) saturate(1.4);border-bottom:1px solid rgba(212,184,106,0.15);transition:all 0.4s ease}
+nav.scrolled{padding:0.6rem 2.5rem;background:rgba(30,40,56,0.95)}
+.nav-logo{font-family:'More Sugar',sans-serif;font-size:2rem;letter-spacing:2px;background:linear-gradient(135deg,var(--wheat-light),var(--sunset-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.nav-logo span{font-family:'Nunito',sans-serif;font-size:0.85rem;font-weight:700;-webkit-text-fill-color:var(--purple-pale);opacity:1;letter-spacing:1px}
+.nav-links{display:flex;gap:2rem;align-items:center}
+.nav-links a{font-weight:700;font-size:0.95rem;color:var(--wheat-pale);transition:all 0.3s ease;position:relative;letter-spacing:0.5px}
+.nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:2px;background:var(--wheat);border-radius:2px;transition:width 0.3s ease}
+.nav-links a:hover::after{width:100%}
+.nav-links a:hover{color:var(--wheat-light)}
+.nav-cta{background:linear-gradient(135deg,var(--wheat-deep),var(--wheat))!important;padding:0.6rem 1.6rem;border-radius:50px;font-weight:800!important;color:var(--navy)!important;-webkit-text-fill-color:var(--navy)!important;box-shadow:0 4px 20px rgba(212,184,106,0.25);transition:all 0.3s ease}
+.nav-cta:hover{transform:scale(1.05);box-shadow:0 6px 30px rgba(212,184,106,0.4)}
+.nav-cta::after{display:none!important}
+.nav-toggle{display:none;flex-direction:column;gap:5px;cursor:pointer;z-index:1001}
+.nav-toggle span{width:28px;height:3px;background:var(--wheat);border-radius:3px;transition:all 0.3s ease}
+
+/* =========== HERO (ranch bg) =========== */
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;position:relative;overflow:hidden;padding:6rem 2rem 4rem;background:transparent}
+.hero-overlay{position:absolute;bottom:0;left:0;right:0;height:65%;background:linear-gradient(transparent 0%,rgba(30,40,56,0.55) 40%,rgba(30,40,56,0.9) 100%);z-index:1;pointer-events:none}
+.hero-content{position:relative;z-index:2;max-width:900px;padding-bottom:2rem}
+.hero-pig{width:400px;height:400px;margin:5rem auto 2.5rem;border-radius:50%;padding:5px;background:linear-gradient(135deg,var(--wheat),var(--sunset),var(--purple));animation:pigFloat 4s ease-in-out infinite,pigGlow 5s ease-in-out infinite;box-shadow:0 0 50px rgba(212,184,106,0.25),0 15px 50px rgba(0,0,0,0.4)}
+.hero-pig-inner{width:100%;height:100%;border-radius:50%;overflow:hidden;background:var(--navy)}
+.hero-pig-inner img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+@keyframes pigFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+@keyframes pigGlow{0%,100%{box-shadow:0 0 50px rgba(212,184,106,0.25),0 15px 50px rgba(0,0,0,0.4)}50%{box-shadow:0 0 80px rgba(212,184,106,0.35),0 20px 60px rgba(0,0,0,0.4)}}
+.hero-title{font-family:'More Sugar',sans-serif;font-size:clamp(4rem,12vw,10rem);line-height:0.9;letter-spacing:3px;background:linear-gradient(135deg,var(--wheat-light) 0%,white 30%,var(--wheat) 60%,var(--sunset-light) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 4px 20px rgba(212,184,106,0.3));animation:titleIn 1s ease-out;margin-bottom:0.8rem}
+@keyframes titleIn{from{opacity:0;transform:translateY(40px) scale(0.9)}to{opacity:1;transform:translateY(0) scale(1)}}
+.hero-subtitle{font-family:'More Sugar',sans-serif;font-size:clamp(1.3rem,3vw,2.2rem);color:var(--sunset-light);margin-bottom:0.5rem;opacity:0;animation:fadeUp 0.8s ease-out 0.3s forwards}
+.hero-tagline{font-size:clamp(0.95rem,1.8vw,1.15rem);color:var(--wheat-pale);max-width:550px;margin:0 auto 2rem;line-height:1.7;font-weight:600;opacity:0;animation:fadeUp 0.8s ease-out 0.5s forwards}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.social-links{display:flex;gap:0.7rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.5rem;opacity:0;animation:fadeUp 0.8s ease-out 0.7s forwards}
+.social-link{height:auto;width:auto;border-radius:50px;display:flex;align-items:center;gap:0.5rem;padding:0.65rem 1.3rem;background:rgba(30,40,56,0.7);border:1.5px solid rgba(212,184,106,0.35);transition:all 0.3s ease;font-weight:800;font-size:0.85rem;color:var(--wheat-pale);letter-spacing:0.5px;backdrop-filter:blur(8px)}
+.social-link:hover{background:rgba(30,40,56,0.85);border-color:var(--wheat);transform:translateY(-4px);box-shadow:0 8px 25px rgba(212,184,106,0.25);color:white}
+.social-link svg{width:18px;height:18px;fill:var(--wheat-light);transition:fill 0.3s ease;flex-shrink:0}
+.social-link:hover svg{fill:white}
+.social-link--primary{background:linear-gradient(135deg,var(--wheat-deep),var(--wheat));color:var(--navy);border-color:transparent;font-size:0.9rem;padding:0.7rem 1.6rem}
+.social-link--primary svg{fill:var(--navy)}
+.social-link--primary:hover{background:linear-gradient(135deg,var(--wheat),var(--wheat-light));color:var(--navy);transform:translateY(-4px) scale(1.05);box-shadow:0 8px 30px rgba(212,184,106,0.4)}
+.social-link--primary:hover svg{fill:var(--navy)}
+.social-link--chart{background:rgba(30,60,45,0.75);border-color:rgba(75,180,120,0.4);color:#8BEBB0;backdrop-filter:blur(8px)}
+.social-link--chart svg{fill:#8BEBB0}
+.social-link--chart:hover{background:rgba(30,60,45,0.9);border-color:#8BEBB0;color:white;box-shadow:0 8px 25px rgba(75,180,120,0.25)}
+.social-link--chart:hover svg{fill:white}
+.contract-box{background:rgba(30,40,56,0.7);border:1.5px solid rgba(212,184,106,0.35);border-radius:14px;padding:0.8rem 1.5rem;display:inline-flex;align-items:center;gap:1rem;cursor:pointer;transition:all 0.3s ease;opacity:0;animation:fadeUp 0.8s ease-out 0.9s forwards;max-width:100%;overflow:hidden;backdrop-filter:blur(8px)}
+.contract-box:hover{background:rgba(30,40,56,0.85);border-color:var(--wheat)}
+.contract-label{font-weight:800;color:var(--wheat);font-size:0.8rem;text-transform:uppercase;letter-spacing:3px;white-space:nowrap}
+.contract-addr{font-family:'Courier New',monospace;font-size:0.8rem;color:var(--wheat-pale);opacity:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:340px}
+.copy-btn{background:var(--wheat-deep);border:none;color:var(--navy);padding:0.4rem 1rem;border-radius:8px;font-weight:800;font-size:0.75rem;cursor:pointer;transition:all 0.2s ease;white-space:nowrap;font-family:'Nunito',sans-serif;letter-spacing:1px}
+.copy-btn:hover{background:var(--wheat);transform:scale(1.05)}
+
+/* =========== SHARED =========== */
+section{position:relative}
+.section-title{font-family:'More Sugar',sans-serif;font-size:clamp(2.5rem,6vw,4.5rem);letter-spacing:2px;margin-bottom:1rem;color:var(--sunset-light);-webkit-text-fill-color:var(--sunset-light)}
+/* Wheat section = dark text */
+.wheat-section .section-title{color:var(--sunset-light);-webkit-text-fill-color:var(--sunset-light)}
+.wheat-section .section-sub{color:var(--wheat-pale);opacity:1}
+/* Purple section = light text */
+.purple-section .section-title{color:var(--sunset-light);-webkit-text-fill-color:var(--sunset-light)}
+.purple-section .section-sub{color:var(--wheat-pale);opacity:1}
+/* Navy section */
+.navy-section .section-title{color:var(--sunset-light);-webkit-text-fill-color:var(--sunset-light)}
+.navy-section .section-sub{color:var(--wheat-pale);opacity:1}
+/* Sunset section */
+.sunset-section .section-title{color:var(--sunset-light);-webkit-text-fill-color:var(--sunset-light)}
+.sunset-section .section-sub{color:var(--wheat-pale);opacity:1}
+.section-sub{font-size:1.2rem;max-width:600px;line-height:1.7;font-weight:600}
+.cta-btn{display:inline-flex;align-items:center;gap:0.8rem;padding:1.1rem 2.8rem;background:linear-gradient(135deg,var(--wheat-deep),var(--wheat),var(--wheat-light));background-size:200% 200%;animation:gradShift 3s ease-in-out infinite;border:none;border-radius:50px;font-family:'More Sugar',sans-serif;font-size:1.3rem;color:var(--navy);letter-spacing:1px;cursor:pointer;transition:all 0.3s ease;box-shadow:0 6px 30px rgba(212,184,106,0.3);text-decoration:none}
+@keyframes gradShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.cta-btn:hover{transform:translateY(-3px) scale(1.04);box-shadow:0 10px 40px rgba(212,184,106,0.4)}
+
+/* =========== STATS (wheat) =========== */
+.stats{padding:4rem 2rem;background:rgba(20,18,30,0.75);backdrop-filter:blur(12px);border-radius:30px;max-width:1200px;margin:2rem auto;box-shadow:0 8px 40px rgba(0,0,0,0.3)}
+.stats-grid{max-width:1000px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.5rem}
+.stat-card{text-align:center;padding:2.5rem 1.5rem;background:rgba(255,255,255,0.5);border:2px solid rgba(212,184,106,0.15);border-radius:20px;transition:all 0.4s ease;backdrop-filter:blur(10px)}
+.stat-card:hover{transform:translateY(-6px);border-color:var(--wheat);box-shadow:0 15px 40px rgba(212,184,106,0.1)}
+.stat-icon{font-size:2.5rem;margin-bottom:0.8rem}
+.stat-number{font-family:'More Sugar',sans-serif;font-size:2.8rem;letter-spacing:1px;color:var(--sunset-light)}
+.stat-label{font-weight:700;color:var(--wheat-pale);opacity:1;margin-top:0.3rem;font-size:0.85rem;text-transform:uppercase;letter-spacing:2px}
+
+/* =========== ABOUT (sunset pale) =========== */
+.about{padding:5rem 2rem;background:rgba(20,18,30,0.75);backdrop-filter:blur(12px);border-radius:30px;max-width:1200px;margin:2rem auto;box-shadow:0 8px 40px rgba(0,0,0,0.3)}
+.about-container{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center}
+.about-text p{font-size:1.2rem;line-height:1.8;color:var(--wheat-pale);margin-bottom:1.5rem;opacity:1}
+.hl-wheat{color:var(--wheat);font-weight:800}
+.hl-green{color:#8BC48A;font-weight:800}
+.hl-purple{color:var(--purple);font-weight:800}
+.about-image{position:relative}
+.about-img-wrapper{width:100%;aspect-ratio:16/10;border-radius:24px;overflow:hidden;border:3px solid rgba(212,184,106,0.2);transition:all 0.4s ease;box-shadow:0 20px 60px rgba(90,72,128,0.1)}
+.about-img-wrapper img{width:100%;height:100%;object-fit:cover}
+.about-img-wrapper:hover{transform:rotate(1deg) scale(1.02);box-shadow:0 25px 70px rgba(90,72,128,0.15);border-color:var(--wheat)}
+.about-badge{position:absolute;bottom:1rem;left:50%;transform:translateX(-50%);background:rgba(212,184,106,0.2);backdrop-filter:blur(8px);padding:0.4rem 1.2rem;border-radius:20px;font-family:"More Sugar",sans-serif;font-size:0.85rem;color:var(--wheat-light);letter-spacing:1px;white-space:nowrap}
+@keyframes badgeBob{0%,100%{transform:scale(1) rotate(2deg)}50%{transform:scale(1.04) rotate(4deg)}}
+
+
+
+/* =========== TWEETS (purple deep) =========== */
+.tweets{padding:5rem 2rem;background:rgba(30,25,50,0.8);backdrop-filter:blur(12px);border-radius:30px;max-width:1200px;margin:2rem auto;box-shadow:0 8px 40px rgba(0,0,0,0.3)}
+.tweets-container{max-width:1100px;margin:0 auto;text-align:center}
+.tweet-timeline{columns:3;column-gap:1rem;margin-top:2.5rem}
+.tweet-card{display:block;border-radius:16px;overflow:hidden;position:relative;border:1.5px solid rgba(212,184,106,0.1);background:rgba(40,56,72,0.4);transition:all 0.4s cubic-bezier(0.16,1,0.3,1);break-inside:avoid;margin-bottom:1rem}
+.tweet-card img{width:100%;height:auto;display:block}
+.tweet-card:hover{border-color:var(--wheat);transform:scale(1.03);box-shadow:0 20px 50px rgba(212,184,106,0.15);z-index:2}
+.tweet-card-date{position:absolute;top:0.5rem;right:0.5rem;background:rgba(30,40,56,0.85);padding:0.25rem 0.6rem;border-radius:8px;font-size:0.7rem;font-weight:700;color:var(--wheat-pale);opacity:1}
+.tweet-card-label{position:absolute;bottom:0.5rem;left:0.5rem;background:linear-gradient(135deg,var(--wheat-deep),var(--wheat));padding:0.25rem 0.7rem;border-radius:8px;font-family:'More Sugar',sans-serif;font-size:0.7rem;color:var(--navy);letter-spacing:1px}
+
+/* =========== VIDEOS (wheat) =========== */
+.video-section{padding:5rem 2rem;background:rgba(20,18,30,0.75);backdrop-filter:blur(12px);border-radius:30px;max-width:1200px;margin:2rem auto;box-shadow:0 8px 40px rgba(0,0,0,0.3)}
+.video-container{max-width:1000px;margin:0 auto;text-align:center}
+.video-grid{display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2.5rem}
+.video-wrapper{position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:16px;border:3px solid rgba(212,184,106,0.2);box-shadow:0 15px 50px rgba(90,72,128,0.08);transition:all 0.4s ease}
+.video-wrapper:hover{border-color:var(--wheat);box-shadow:0 20px 60px rgba(90,72,128,0.12)}
+.video-wrapper iframe{position:absolute;top:0;left:0;width:100%;height:100%;border-radius:13px}
+.video-label{padding:1rem 0.5rem 0;text-align:center}
+.video-label-title{display:block;font-family:'More Sugar',sans-serif;font-size:1.1rem;color:var(--sunset-light);margin-bottom:0.2rem}
+.video-label-sub{font-size:0.85rem;color:var(--wheat-pale);opacity:1}
+
+/* =========== ART (purple pale) =========== */
+.art-gallery{padding:5rem 2rem;background:rgba(20,18,30,0.75);backdrop-filter:blur(12px);border-radius:30px;max-width:1200px;margin:2rem auto;box-shadow:0 8px 40px rgba(0,0,0,0.3)}
+.art-grid{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem}
+.art-card{position:relative;border-radius:16px;overflow:hidden;aspect-ratio:2/3;border:3px solid rgba(255,255,255,0.5);transition:all 0.4s cubic-bezier(0.16,1,0.3,1);display:block;box-shadow:0 8px 30px rgba(90,72,128,0.08)}
+.art-card img{width:100%;height:100%;object-fit:cover;transition:transform 0.6s ease}
+.art-card:hover img{transform:scale(1.08)}
+.art-card-overlay{position:absolute;bottom:0;left:0;right:0;padding:2.5rem 0.8rem 0.8rem;background:linear-gradient(transparent,rgba(30,40,56,0.9))}
+.art-card-title{font-family:'More Sugar',sans-serif;font-size:0.95rem;color:white;display:block}
+.art-card-sub{font-size:0.7rem;color:var(--wheat-light);opacity:1}
+.art-card:hover{border-color:var(--purple);box-shadow:0 15px 40px rgba(123,104,168,0.15);transform:translateY(-4px)}
+
+/* =========== NIKEVERSE (sunset) =========== */
+.nikeverse{padding:5rem 2rem;background:rgba(20,18,30,0.75);backdrop-filter:blur(12px);border-radius:30px;max-width:1200px;margin:2rem auto;box-shadow:0 8px 40px rgba(0,0,0,0.3)}
+.nikeverse .section-title{color:var(--sunset-light);-webkit-text-fill-color:var(--sunset-light);filter:drop-shadow(0 2px 6px rgba(0,0,0,0.4))}
+.nikeverse .section-sub{color:var(--wheat-pale);text-shadow:0 1px 6px rgba(0,0,0,0.4)}
+.nikeverse-container{max-width:1100px;margin:0 auto;text-align:center}
+.nikeverse-hero-img{max-width:800px;margin:0 auto 3rem;border-radius:20px;overflow:hidden;border:3px solid rgba(212,184,106,0.2);box-shadow:0 20px 60px rgba(90,72,128,0.1)}
+.nikeverse-hero-img img{width:100%;height:auto;display:block}
+.nikeverse-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;margin-top:3rem}
+.verse-card{background:rgba(20,20,30,0.85);border:none;border-radius:20px;padding:3rem 2.5rem 5rem;transition:all 0.4s ease;position:relative;overflow:hidden;text-align:left;min-height:380px;display:flex;flex-direction:column;justify-content:flex-start}
+.verse-card::before{display:none}
+.verse-card:hover::before{opacity:1}
+.verse-card:hover{transform:translateY(-6px);box-shadow:0 15px 40px rgba(0,0,0,0.3)}
+.verse-card-btn{display:inline-block;padding:0.6rem 1.5rem;background:linear-gradient(135deg,var(--wheat-deep),var(--wheat));border-radius:50px;font-family:"More Sugar",sans-serif;font-size:0.95rem;color:var(--navy);letter-spacing:1px;text-decoration:none;transition:all 0.3s ease;box-shadow:0 4px 15px rgba(212,184,106,0.25);position:absolute;bottom:2.5rem;left:2.5rem}
+.verse-card-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(212,184,106,0.4)}
+.verse-icon{font-size:2.8rem;margin-bottom:1rem}
+.verse-title{font-family:'More Sugar',sans-serif;font-size:1.6rem;margin-bottom:0.8rem;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,0.6)}
+.verse-desc{color:#fff;opacity:1;line-height:1.7;font-size:1.15rem;text-shadow:0 1px 4px rgba(0,0,0,0.5)}
+
+/* =========== TEAM (navy) =========== */
+.team-showcase{padding:5rem 2rem;background:rgba(15,15,30,0.8);backdrop-filter:blur(12px);border-radius:30px;max-width:1200px;margin:2rem auto;box-shadow:0 8px 40px rgba(0,0,0,0.3)}
+.team-container{max-width:1000px;margin:0 auto}
+.team-img-wrapper{width:100%;border-radius:20px;overflow:hidden;border:2px solid rgba(212,184,106,0.12);box-shadow:0 20px 60px rgba(0,0,0,0.3);transition:all 0.4s ease;position:relative}
+.team-img-wrapper::after{content:'';position:absolute;top:0;left:-100%;width:50%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.03),transparent);animation:teamSheen 8s ease-in-out infinite}
+@keyframes teamSheen{0%,100%{left:-100%}50%{left:150%}}
+.team-img-wrapper:hover{border-color:var(--wheat);transform:scale(1.005)}
+.team-img-wrapper img{width:100%;height:auto;display:block}
+.team-caption{text-align:center;padding:2.5rem 1rem 0}
+.team-caption h3{font-family:'More Sugar',sans-serif;font-size:clamp(1.3rem,3vw,2rem);letter-spacing:2px;color:var(--sunset-light);-webkit-text-fill-color:var(--sunset-light);margin-bottom:0.6rem}
+.team-caption p{color:var(--wheat-pale);opacity:1;font-size:1.1rem;line-height:1.6;max-width:650px;margin:0 auto}
+
+/* =========== MEMES (wheat) =========== */
+.meme-section{padding:5rem 2rem 4rem;overflow:hidden;position:relative;background:rgba(20,18,30,0.75);backdrop-filter:blur(12px);border-radius:30px;max-width:1200px;margin:2rem auto;box-shadow:0 8px 40px rgba(0,0,0,0.3)}
+.meme-section::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--wheat),transparent);opacity:0.3}
+.meme-track{overflow:hidden;margin-top:2rem}
+.meme-track+.meme-track{margin-top:1.2rem}
+.meme-marquee{display:flex;gap:1.2rem;animation:marqueeScroll 60s linear infinite;width:max-content}
+.meme-marquee:hover{animation-play-state:paused}
+.meme-track-reverse .meme-marquee{animation-direction:reverse}
+.meme-item{flex-shrink:0;width:270px;height:270px;border-radius:14px;overflow:hidden;border:2px solid rgba(212,184,106,0.12);transition:all 0.3s ease;position:relative;box-shadow:0 4px 15px rgba(90,72,128,0.06)}
+.meme-item img{width:100%;height:100%;object-fit:cover;transition:transform 0.4s ease}
+.meme-item:hover{border-color:var(--purple);box-shadow:0 10px 30px rgba(123,104,168,0.12);z-index:10;transform:scale(1.06)}
+.meme-item:hover img{transform:scale(1.1)}
+@keyframes marqueeScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* =========== GIF VAULT (purple pale) =========== */
+.gif-vault{padding:5rem 2rem;background:rgba(20,18,30,0.75);backdrop-filter:blur(12px);border-radius:30px;max-width:1200px;margin:2rem auto;box-shadow:0 8px 40px rgba(0,0,0,0.3);position:relative}
+.gif-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:0.8rem;margin-bottom:2.5rem}
+.gif-grid img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:12px;transition:transform 0.3s ease;cursor:pointer}
+.gif-grid img:hover{transform:scale(1.05);z-index:2}
+.gif-buttons{display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap}
+.gif-btn{display:flex;align-items:center;gap:1.2rem;padding:1.5rem 2.5rem;border-radius:20px;border:2px solid rgba(123,104,168,0.15);background:white;transition:all 0.4s cubic-bezier(0.16,1,0.3,1);min-width:260px;box-shadow:0 4px 20px rgba(90,72,128,0.06)}
+.gif-btn:hover{transform:translateY(-6px);box-shadow:0 15px 40px rgba(123,104,168,0.12);border-color:var(--purple)}
+.gif-btn-icon{font-family:'More Sugar',sans-serif;font-size:1.6rem;background:linear-gradient(135deg,var(--purple),var(--sunset-deep));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:900;letter-spacing:1px}
+.gif-btn-text{display:flex;flex-direction:column;text-align:left}
+.gif-btn-title{font-family:'More Sugar',sans-serif;font-size:1.3rem;color:var(--wheat-light);letter-spacing:1px}
+.gif-btn-sub{font-size:0.8rem;color:var(--wheat-pale);opacity:1;font-weight:600}
+.gif-btn-arrow{font-size:1.4rem;color:var(--purple);margin-left:auto;transition:transform 0.3s ease}
+.gif-btn:hover .gif-btn-arrow{transform:translateX(5px)}
+
+/* =========== HOW TO BUY (sunset pale) =========== */
+.how-to-buy{padding:5rem 2rem;background:rgba(20,18,30,0.75);backdrop-filter:blur(12px);border-radius:30px;max-width:1200px;margin:2rem auto;box-shadow:0 8px 40px rgba(0,0,0,0.3)}
+.buy-container{max-width:900px;margin:0 auto;text-align:center}
+.buy-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.5rem;margin:3rem 0}
+.buy-step{padding:2rem 1.5rem;background:rgba(255,255,255,0.5);border:2px solid rgba(255,255,255,0.6);border-radius:16px;transition:all 0.3s ease;position:relative;backdrop-filter:blur(10px)}
+.buy-step:hover{border-color:var(--wheat);transform:translateY(-4px);box-shadow:0 10px 30px rgba(212,184,106,0.1)}
+.step-number{font-family:'More Sugar',sans-serif;font-size:2.5rem;color:var(--wheat);opacity:0.12;position:absolute;top:0.4rem;right:0.8rem}
+.step-icon{font-size:2.2rem;margin-bottom:0.8rem}
+.step-title{font-family:'More Sugar',sans-serif;font-size:1.1rem;margin-bottom:0.4rem;color:var(--wheat-light)}
+.step-desc{font-size:1.05rem;color:var(--wheat-pale);opacity:1;line-height:1.5}
+
+/* =========== EXCHANGES (navy) =========== */
+.exchanges{padding:5rem 2rem;background:rgba(15,15,30,0.8);backdrop-filter:blur(12px);border-radius:30px;max-width:1200px;margin:2rem auto;box-shadow:0 8px 40px rgba(0,0,0,0.3)}
+.exchanges-container{max-width:900px;margin:0 auto;text-align:center}
+.exchange-logos{display:flex;flex-wrap:wrap;justify-content:center;gap:1.2rem;margin-top:2.5rem}
+.exchange-logo{width:140px;height:60px;background:rgba(30,40,56,0.6);border:1.5px solid rgba(212,184,106,0.25);border-radius:14px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.85rem;color:var(--wheat-light);transition:all 0.3s ease;cursor:pointer;backdrop-filter:blur(8px)}
+.exchange-logo:hover{border-color:var(--wheat);background:rgba(30,40,56,0.8);transform:translateY(-3px);color:white;box-shadow:0 8px 25px rgba(212,184,106,0.15)}
+
+/* =========== COMMUNITY (wheat) =========== */
+.community{padding:5rem 2rem;text-align:center;background:rgba(20,18,30,0.75);backdrop-filter:blur(12px);border-radius:30px;max-width:1200px;margin:2rem auto;box-shadow:0 8px 40px rgba(0,0,0,0.3)}
+.community-container{max-width:700px;margin:0 auto}
+.community-art{max-width:700px;margin:0 auto 3rem;border-radius:20px;overflow:hidden;border:3px solid rgba(74,104,56,0.15);box-shadow:0 15px 50px rgba(90,72,128,0.08);transition:all 0.4s ease;position:relative}
+.community-art::before{content:'🎮 Player 2 has entered the game...';position:absolute;bottom:0;left:0;right:0;padding:3rem 1.5rem 1.2rem;background:linear-gradient(transparent,rgba(30,40,56,0.85));font-family:'More Sugar',sans-serif;font-size:1.2rem;color:var(--wheat-light);text-align:center;opacity:0;transition:opacity 0.4s ease;pointer-events:none}
+.community-art:hover::before{opacity:1}
+.community-art:hover{transform:scale(1.01);border-color:var(--green)}
+.community-art img{width:100%;height:auto;display:block}
+.community p{font-size:1.25rem;color:var(--wheat-pale);opacity:1;line-height:1.7;margin-bottom:2.5rem}
+.community-links{display:flex;gap:1.2rem;justify-content:center;flex-wrap:wrap}
+.comm-link{display:flex;align-items:center;gap:0.6rem;padding:0.9rem 1.8rem;background:rgba(255,255,255,0.1);border:2px solid rgba(212,184,106,0.2);border-radius:50px;font-weight:800;font-size:1rem;color:var(--wheat-light);transition:all 0.3s ease;box-shadow:0 2px 10px rgba(90,72,128,0.05)}
+.comm-link:hover{background:var(--wheat-pale);border-color:var(--wheat);transform:translateY(-3px);box-shadow:0 8px 25px rgba(212,184,106,0.1)}
+.comm-link svg{width:22px;height:22px;fill:var(--purple)}
+
+/* =========== NIKE ART =========== */
+.nike-art{padding:5rem 2rem;background:rgba(20,18,30,0.75);backdrop-filter:blur(12px);border-radius:30px;max-width:1200px;margin:2rem auto;box-shadow:0 8px 40px rgba(0,0,0,0.3)}
+.nike-art-container{max-width:1100px;margin:0 auto;text-align:center}
+.nike-art-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;margin-top:2.5rem}
+.nike-art-card{position:relative;border-radius:16px;overflow:hidden;border:2px solid rgba(212,184,106,0.12);transition:all 0.5s cubic-bezier(0.16,1,0.3,1);box-shadow:0 8px 30px rgba(0,0,0,0.15)}
+.nike-art-card img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.6s ease}
+.nike-art-card:hover{border-color:var(--wheat);box-shadow:0 20px 50px rgba(212,184,106,0.15);transform:translateY(-6px)}
+.nike-art-card:hover img{transform:scale(1.06)}
+.nike-art-card .art-label{position:absolute;bottom:0;left:0;right:0;padding:2.5rem 1rem 0.8rem;background:linear-gradient(transparent,rgba(0,0,0,0.75));font-family:'More Sugar',sans-serif;font-size:0.85rem;color:var(--wheat-light);text-align:center;opacity:0;transition:opacity 0.3s ease}
+.nike-art-card:hover .art-label{opacity:1}
+
+/* =========== FOOTER (navy) =========== */
+footer{padding:3rem 2rem;border-top:1px solid rgba(212,184,106,0.08);text-align:center;background:rgba(30,40,56,0.92)}
+.footer-logo{font-family:'More Sugar',sans-serif;font-size:2.5rem;letter-spacing:2px;background:linear-gradient(135deg,var(--wheat),var(--sunset-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:0.8rem}
+.footer-text{color:rgba(245,236,206,0.75);font-size:0.9rem;max-width:500px;margin:0 auto 0.8rem;line-height:1.5}
+.footer-disclaimer{color:rgba(245,236,206,0.55);font-size:0.7rem;max-width:450px;margin:0 auto}
+
+.reveal{opacity:0;transform:translateY(40px);transition:all 0.9s cubic-bezier(0.16,1,0.3,1)}
+.reveal.active{opacity:1;transform:translateY(0)}
+.reveal-delay-1{transition-delay:0.1s}.reveal-delay-2{transition-delay:0.2s}.reveal-delay-3{transition-delay:0.3s}
+
+/* ===== WAVE DIVIDERS ===== */
+
+/* ===== FLOATING ACCENTS ===== */
+.section-accent{position:absolute;font-size:3rem;opacity:0.06;pointer-events:none;animation:accentFloat 8s ease-in-out infinite}
+.section-accent:nth-child(2){animation-delay:-3s;font-size:2rem}
+.section-accent:nth-child(3){animation-delay:-6s;font-size:4rem}
+@keyframes accentFloat{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-20px) rotate(10deg)}}
+
+/* ===== GLOW STRIPS ===== */
+
+/* ===== SPARKLE BORDER ===== */
+
+/* ===== SECTION OVERLAP ===== */
+section{position:relative;z-index:1}
+
+@media(max-width:900px){
+  /* NAV */
+  .nav-links{position:fixed;top:0;right:-100%;width:75%;height:100vh;background:rgba(30,40,56,0.98);flex-direction:column;justify-content:center;gap:2rem;transition:right 0.4s ease;backdrop-filter:blur(20px);padding:2rem}
+  .nav-links.open{right:0}
+  .nav-toggle{display:flex}
+  /* HERO */
+  .hero-pig{width:300px;height:300px;margin-top:4rem}
+  .hero-tagline{max-width:90%}
+  .social-links{gap:0.5rem;padding:0 0.5rem}
+  .social-link{padding:0.55rem 1rem;font-size:0.8rem}
+  .social-link--primary{padding:0.6rem 1.2rem;font-size:0.85rem}
+  /* SECTIONS */
+  section{border-radius:20px;margin:1rem auto}
+  .section-title{font-size:clamp(2rem,5vw,3.5rem)}
+  /* ABOUT */
+  .about-container{grid-template-columns:1fr;gap:3rem}
+  .about-image{order:-1;max-width:450px;margin:0 auto}
+  /* TWEETS */
+  .tweet-timeline{columns:2}
+  /* VIDEOS */
+  .video-grid{grid-template-columns:1fr;max-width:500px;margin:2.5rem auto 0}
+  /* ART */
+  .art-grid{grid-template-columns:repeat(3,1fr);gap:0.8rem}
+  .nike-art-grid{grid-template-columns:repeat(3,1fr);gap:0.8rem}
+  /* NIKEVERSE */
+  .nikeverse-grid{grid-template-columns:repeat(2,1fr);gap:1.5rem}
+  .verse-card{min-height:300px;padding:2rem 2rem 5.5rem}
+  .verse-card-btn{bottom:2rem;left:2rem}
+  .verse-desc{font-size:1rem}
+  /* GIF */
+  .gif-grid{grid-template-columns:repeat(4,1fr);gap:0.6rem}
+  /* MEMES */
+  .meme-item{width:240px;height:240px}
+}
+@media(max-width:600px){
+  /* NAV */
+  nav{padding:0.7rem 1rem}
+  nav.scrolled{padding:0.5rem 1rem}
+  .nav-links{width:85%}
+  .nav-logo img{height:28px!important}
+  /* HERO */
+  .hero{padding:5rem 1.2rem 3rem;min-height:auto}
+  .hero-pig{width:220px;height:220px;margin:3.5rem auto 1.5rem}
+  .hero-subtitle{font-size:1.2rem;margin-bottom:0.3rem}
+  .hero-tagline{font-size:0.9rem;margin-bottom:1.2rem;line-height:1.6}
+  .social-links{gap:0.4rem;padding:0 0.2rem}
+  .social-link{padding:0.5rem 0.8rem;font-size:0.75rem;gap:0.35rem;border-radius:40px}
+  .social-link svg{width:15px;height:15px}
+  .social-link--primary{padding:0.55rem 1rem;font-size:0.8rem}
+  .social-link--primary svg{width:16px;height:16px}
+  /* CONTRACT */
+  .contract-box{padding:0.6rem 0.8rem;gap:0.5rem;border-radius:12px}
+  .contract-label{font-size:0.65rem;letter-spacing:2px}
+  .contract-addr{max-width:120px;font-size:0.7rem}
+  .copy-btn{padding:0.35rem 0.8rem;font-size:0.7rem}
+  /* SECTIONS GLOBAL */
+  section{padding:3rem 1.2rem;border-radius:16px;margin:0.6rem 0.6rem}
+  .section-title{font-size:clamp(1.8rem,8vw,2.8rem);margin-bottom:0.8rem}
+  .section-sub{font-size:1rem;line-height:1.6}
+  .cta-btn{padding:0.9rem 2rem;font-size:1.1rem}
+  /* STATS */
+  .stats{padding:2.5rem 1rem;border-radius:16px;margin:0.6rem}
+  .stats-grid{grid-template-columns:repeat(2,1fr);gap:0.8rem}
+  .stat-card{padding:1.5rem 1rem;border-radius:14px}
+  .stat-number{font-size:2rem}
+  .stat-label{font-size:0.7rem;letter-spacing:1.5px}
+  .stat-icon{font-size:2rem;margin-bottom:0.5rem}
+  /* ABOUT */
+  .about{padding:3rem 1.2rem}
+  .about-container{gap:2rem}
+  .about-text p{font-size:1rem;line-height:1.7;margin-bottom:1rem}
+  .about-badge{font-size:0.75rem;padding:0.3rem 1rem}
+  /* TWEETS */
+  .tweets{padding:3rem 1.2rem}
+  .tweet-timeline{columns:1;max-width:380px;margin:2rem auto 0}
+  .tweet-card{margin-bottom:0.8rem}
+  /* VIDEOS */
+  .video-section{padding:3rem 1.2rem}
+  .video-grid{gap:1.5rem}
+  .video-label-title{font-size:0.95rem}
+  /* ART */
+  .art-gallery{padding:3rem 1rem}
+  .art-grid{grid-template-columns:repeat(2,1fr);max-width:400px;margin:0 auto;gap:0.6rem}
+  .nike-art{padding:3rem 1rem}
+  .nike-art-grid{grid-template-columns:repeat(2,1fr);gap:0.6rem}
+  .art-card{aspect-ratio:2/3}
+  .art-card-title{font-size:0.8rem}
+  /* NIKEVERSE */
+  .nikeverse{padding:3rem 1.2rem}
+  .nikeverse-hero-img{max-width:260px;margin:0 auto 2rem}
+  .nikeverse-grid{grid-template-columns:1fr;gap:1.2rem}
+  .verse-card{min-height:250px;padding:1.8rem 1.5rem 5rem}
+  .verse-card-btn{bottom:1.5rem;left:1.5rem;font-size:0.85rem;padding:0.5rem 1.2rem}
+  .verse-title{font-size:1.3rem}
+  .verse-desc{font-size:0.95rem;line-height:1.6}
+  /* TEAM */
+  .team-showcase{padding:3rem 1.2rem}
+  .team-caption{padding:1.5rem 0.5rem 0}
+  .team-caption p{font-size:0.95rem}
+  /* MEMES */
+  .meme-section{padding:3rem 1rem}
+  .meme-item{width:200px;height:200px;border-radius:10px}
+  .meme-marquee{gap:0.8rem}
+  /* GIF VAULT */
+  .gif-vault{padding:3rem 1rem}
+  .gif-grid{grid-template-columns:repeat(3,1fr);gap:0.5rem;margin-bottom:2rem}
+  .gif-grid img{border-radius:8px}
+  .gif-btn{min-width:auto;width:100%;padding:1rem 1.5rem;border-radius:14px;gap:0.8rem}
+  .gif-btn-title{font-size:1.1rem}
+  .gif-btn-icon{font-size:1.3rem}
+  .gif-buttons{gap:0.8rem}
+  /* HOW TO BUY */
+  .how-to-buy{padding:3rem 1.2rem}
+  .buy-steps{grid-template-columns:1fr!important;max-width:100%!important;margin:2rem auto!important;gap:1rem}
+  .buy-step{padding:1.5rem 1.2rem}
+  .step-icon{font-size:1.8rem;margin-bottom:0.6rem}
+  .step-title{font-size:1rem}
+  .step-desc{font-size:0.9rem}
+  /* CHARTS */
+  .exchanges{padding:3rem 1.2rem}
+  .exchange-logos{gap:0.8rem;margin-top:1.5rem}
+  .exchange-logo{width:auto;height:auto;padding:0.8rem 1.2rem;font-size:0.8rem;border-radius:12px;flex:1 1 calc(50% - 0.8rem);min-width:0}
+  /* STAKING */
+  .staking-section{padding:3rem 1.2rem!important}
+  .staking-section p{font-size:1rem!important;line-height:1.7!important}
+  .staking-section .cta-btn{font-size:1rem;padding:0.9rem 1.8rem}
+  /* COMMUNITY */
+  .community{padding:3rem 1.2rem}
+  .community-art{margin-bottom:2rem;border-radius:14px}
+  .community p{font-size:1.05rem;margin-bottom:2rem}
+  .community-links{gap:0.8rem}
+  .comm-link{padding:0.75rem 1.2rem;font-size:0.9rem;flex:1 1 calc(50% - 0.8rem);justify-content:center;min-width:0}
+  .comm-link svg{width:18px;height:18px}
+  /* FOOTER */
+  footer{padding:2rem 1.2rem}
+  .footer-logo img{height:36px!important}
+  .footer-text{font-size:0.8rem}
+  .footer-disclaimer{font-size:0.65rem}
+  /* REVEAL */
+  .reveal{transform:translateY(25px)}
+}
+@media(max-width:380px){
+  .hero-pig{width:180px;height:180px;margin:3rem auto 1.2rem}
+  .social-links{gap:0.3rem}
+  .social-link{padding:0.45rem 0.6rem;font-size:0.7rem}
+  .social-link svg{width:14px;height:14px}
+  .social-link--primary{padding:0.5rem 0.8rem;font-size:0.75rem}
+  .contract-addr{max-width:90px;font-size:0.65rem}
+  .stats-grid{gap:0.6rem}
+  .stat-card{padding:1.2rem 0.8rem}
+  .stat-number{font-size:1.6rem}
+  .stat-label{font-size:0.6rem}
+  .gif-grid{grid-template-columns:repeat(2,1fr)}
+  .art-grid{grid-template-columns:repeat(2,1fr);gap:0.5rem}
+  .exchange-logo{flex:1 1 100%}
+  .comm-link{flex:1 1 100%}
+  section{margin:0.4rem 0.4rem;padding:2.5rem 1rem}
+}
+/* iOS safe area + touch targets */
+@supports(padding-top:env(safe-area-inset-top)){
+  nav{padding-top:max(1rem,env(safe-area-inset-top))}
+  footer{padding-bottom:max(2rem,env(safe-area-inset-bottom))}
+}
+/* Ensure minimum 44px touch targets on mobile */
+@media(hover:none) and (pointer:coarse){
+  .social-link{min-height:44px}
+  .nav-links a{padding:0.5rem 0}
+  .nav-cta{min-height:44px;display:flex;align-items:center}
+  .exchange-logo{min-height:48px}
+  .comm-link{min-height:48px}
+  .gif-btn{min-height:52px}
+  .cta-btn{min-height:52px}
+  .copy-btn{min-height:38px;padding:0.4rem 1.2rem}
+  .contract-box{min-height:48px}
+  .verse-card-btn{min-height:44px;display:flex;align-items:center}
+}
+/* iOS: fixed bg kills scroll perf, noise overlay wastes GPU */
+@media(max-width:1024px){
+  body{background-attachment:scroll}
+  body::after{display:none}
+  .particles{display:none}
+  .hero-pig{animation:pigFloat 4s ease-in-out infinite}
+}
+</style>
+</head>
+<body>
+<nav id="navbar">
+  <a href="#" class="nav-logo"><img src="assets/art/logo.png" alt="$NIKEPIG" style="height:36px"></a>
+  <div class="nav-links" id="navLinks">
+    <a href="#about">About</a><a href="#nikeverse">Nikeverse</a><a href="#memes">Memes</a><a href="https://giphy.com/Nikepignet" target="_blank">GIFs</a><a href="#buy">Buy</a>
+    <a href="https://nikepig.gitbook.io/nikepig/whitepaper" target="_blank">Whitepaper</a><a href="https://www.wayup.io/collection/de79250af8caffc7a64645d86939159f665d4107c3f198562007bf32" target="_blank">NFTs</a><a href="#community">Community</a>
+    <a href="https://x.com/NikePig_ADA" target="_blank" class="nav-cta">Follow on X</a>
+  </div>
+  <div class="nav-toggle" id="navToggle" onclick="toggleNav()"><span></span><span></span><span></span></div>
+</nav>
+
+<!-- HERO with ranch background -->
+<section class="hero">
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="hero-pig" id="heroPig"><div class="hero-pig-inner"><img src="assets/art/nike-hero.jpg" alt="Nike the Pig"></div></div>
+    <h1 class="hero-title"><img src="assets/art/logo.png" alt="$NIKEPIG" style="height:clamp(60px,14vw,130px);filter:drop-shadow(0 4px 20px rgba(212,184,106,0.3))"></h1>
+    <p class="hero-subtitle">The OG Pig of Cardano</p>
+    <p class="hero-tagline">Born from the legend of Charles Hoskinson's pet pig Nike. Built on Cardano. Oinking to the moon.</p>
+    <div class="social-links">
+      <a href="https://linktr.ee/nikepig" target="_blank" class="social-link social-link--primary" title="Buy $NIKEPIG"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>Buy $NIKEPIG</a>
+      <a href="https://www.taptools.io/charts/token/f5808c2c990d86da54bfc97d89cee6efa20cd8461616359478d96b4c.1cc9abfd664f73f4c2d2659382d6fef77b1cb3fbcac784de9bfbaf075454e102" target="_blank" class="social-link social-link--chart" title="Live Chart"><svg viewBox="0 0 24 24"><path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/></svg>Live Chart</a>
+      <a href="https://hub.cnft.tools/staking/nike" target="_blank" class="social-link" title="Stake"><svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>Stake</a>
+      <a href="https://x.com/NikePig_ADA" target="_blank" class="social-link" title="X"><svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>X</a>
+      <a href="https://t.me/nikecardano" target="_blank" class="social-link" title="Telegram"><svg viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>Telegram</a>
+      <a href="https://discord.gg/RPwVazfB2G" target="_blank" class="social-link" title="Discord"><svg viewBox="0 0 24 24"><path d="M20.317 4.37a19.79 19.79 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.865-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.618-1.25.077.077 0 00-.079-.037A19.74 19.74 0 003.677 4.37a.07.07 0 00-.032.028C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 00-.041-.106 13.11 13.11 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.078-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.3 12.3 0 01-1.873.892.076.076 0 00-.041.107c.36.698.772 1.363 1.225 1.993a.076.076 0 00.084.028 19.84 19.84 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03zM8.02 15.33c-1.183 0-2.157-1.086-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.332-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.086-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.332-.946 2.418-2.157 2.418z"/></svg>Discord</a>
+      <a href="https://www.wayup.io/collection/de79250af8caffc7a64645d86939159f665d4107c3f198562007bf32" target="_blank" class="social-link" title="NFTs"><svg viewBox="0 0 24 24"><path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14zm-5-7l-3 3.72L10 13l-3 4h12l-3-4z"/></svg>NFTs</a>
+    </div>
+    <div class="contract-box" onclick="copyContract()">
+      <span class="contract-label">CA</span>
+      <span class="contract-addr" id="contractAddr">c881c20e49dbaca3ff6cef365969354150983230c39520b917f5cf7c</span>
+      <button class="copy-btn" id="copyBtn">COPY</button>
+    </div>
+  </div>
+</section>
+<section class="stats wheat-section">
+  <div class="stats-grid">
+    <div class="stat-card reveal"><div class="stat-icon">🚀</div><div class="stat-number">$38M</div><div class="stat-label">Peak Market Cap</div></div>
+    <div class="stat-card reveal reveal-delay-1"><div class="stat-icon">✊</div><div class="stat-number">0%</div><div class="stat-label">Creator Allocation</div></div>
+    <div class="stat-card reveal reveal-delay-3"><div class="stat-icon">🔒</div><div class="stat-number">0</div><div class="stat-label">Inflation</div></div>
+    <div class="stat-card reveal"><div class="stat-icon">💰</div><div class="stat-number">100%</div><div class="stat-label">Supply in Market</div></div>
+  </div>
+</section>
+<section class="about sunset-section" id="about">
+  <div class="about-container">
+    <div class="about-text reveal">
+      <h2 class="section-title">Who is Nike?</h2>
+      <p><span class="hl-wheat">$NIKEPIG</span> emerged from a viral tweet by <span class="hl-wheat">Cardano founder Charles Hoskinson</span>, who shared a story about his pet pig, Nike. The amusing contrast of a pig — typically associated with laziness and gluttony — sharing a name with one of the most iconic sports brands caught the crypto community's attention. Within minutes, $NIKEPIG was created as a tribute, fueled by the community's love for memes.</p>
+      <p>Charles later revealed Nike's backstory: the pig had been mistreated and shockingly <span class="hl-wheat">fed bacon</span> by a previous owner. Nike was rescued and given a new life on <span class="hl-green">Hoskinson's ranch</span>, where he's thrived ever since.</p>
+      <p>The token's market cap soared past <span class="hl-wheat">$38 million USD</span> in just days, surprising even Charles. $NIKEPIG drew users from <span class="hl-purple">Ethereum, Solana, and Bitcoin</span> to Cardano — many setting up wallets and exploring DEXs for the first time, making $NIKEPIG a unique cross-chain onboarding gateway.</p>
+    </div>
+    <div class="about-image reveal">
+      <div class="about-img-wrapper"><img src="assets/art/charles-and-nike.png" alt="Charles and Nike"></div>
+      <div class="about-badge">Built on Cardano</div>
+    </div>
+  </div>
+</section>
+<section class="tweets purple-section">
+  <div class="tweets-container">
+    <h2 class="section-title reveal">Straight From Charles</h2>
+    <p class="section-sub reveal" style="margin:0 auto">The tweets that built a movement. Every oink immortalised on-chain.</p>
+    <div class="tweet-timeline">
+      <a href="https://x.com/IOHK_Charles/status/1803159888007803362" target="_blank" class="tweet-card reveal"><img src="assets/tweets/tweet-01-jun18-fun-fact.png" alt=""><div class="tweet-card-date">Jun 18, 2024</div><div class="tweet-card-label">THE ORIGIN</div></a>
+      <a href="https://x.com/IOHK_Charles" target="_blank" class="tweet-card reveal reveal-delay-1"><img src="assets/tweets/tweet-02-jun24-nikes-home.png" alt=""><div class="tweet-card-date">Jun 24, 2024</div></a>
+      <a href="https://x.com/IOHK_Charles" target="_blank" class="tweet-card reveal reveal-delay-2"><img src="assets/tweets/tweet-03-jul01-swing.png" alt=""><div class="tweet-card-date">Jul 1, 2024</div></a>
+      <a href="https://x.com/IOHK_Charles" target="_blank" class="tweet-card reveal reveal-delay-3"><img src="assets/tweets/tweet-04-jul21-good-pig.png" alt=""><div class="tweet-card-date">Jul 21, 2024</div><div class="tweet-card-label">GOOD PIG</div></a>
+      <a href="https://x.com/IOHK_Charles" target="_blank" class="tweet-card reveal"><img src="assets/tweets/tweet-05-oct10-governor.png" alt=""><div class="tweet-card-date">Oct 10, 2024</div></a>
+      <a href="https://x.com/IOHK_Charles" target="_blank" class="tweet-card reveal reveal-delay-1"><img src="assets/tweets/tweet-06-dec29-baby-nike.png" alt=""><div class="tweet-card-date">Dec 29, 2024</div><div class="tweet-card-label">BABY NIKE</div></a>
+    </div>
+  </div>
+</section>
+<section class="video-section wheat-section">
+  <div class="video-container">
+    <h2 class="section-title reveal">Watch & Listen</h2>
+    <p class="section-sub reveal" style="margin:0 auto">Hear Charles tell Nike's story — and the quote that became our war cry.</p>
+    <div class="video-grid">
+      <div class="video-card reveal"><div class="video-wrapper"><iframe src="https://www.youtube.com/embed/pDbNZFMWT9M" title="The Story of Nike" frameborder="0" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture;web-share" allowfullscreen></iframe></div><div class="video-label"><span class="video-label-title">The Story of Nike</span><span class="video-label-sub">How Nike joined the Hoskinson family</span></div></div>
+      <div class="video-card reveal reveal-delay-1"><div class="video-wrapper"><iframe src="https://www.youtube.com/embed/-hP7m3XHjAk" title="He's a Good Pig" frameborder="0" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture;web-share" allowfullscreen></iframe></div><div class="video-label"><span class="video-label-title">"He's a Good Pig"</span><span class="video-label-sub">The quote that became a movement</span></div></div>
+    </div>
+  </div>
+</section>
+<section class="art-gallery sunset-section">
+  <div style="max-width:1100px;margin:0 auto;text-align:center"><h2 class="section-title reveal">The Shards of Nike</h2><p class="section-sub reveal" style="margin:0 auto 2rem">The official Nikeverse comic series. 7 cover variants by AOW Studio &amp; VictorWarrr. Mint coming soon.</p></div>
+  <div class="art-grid">
+    <div class="art-card reveal"><img src="assets/art/comic-cover-1.png" alt=""><div class="art-card-overlay"><span class="art-card-title">Cover 1</span></div></div>
+    <div class="art-card reveal reveal-delay-1"><img src="assets/art/comic-cover-2.png" alt=""><div class="art-card-overlay"><span class="art-card-title">Cover 2</span></div></div>
+    <div class="art-card reveal reveal-delay-2"><img src="assets/art/comic-cover-3.png" alt=""><div class="art-card-overlay"><span class="art-card-title">Cover 3</span></div></div>
+    <div class="art-card reveal reveal-delay-3"><img src="assets/art/comic-cover-5.png" alt=""><div class="art-card-overlay"><span class="art-card-title">Cover 4</span></div></div>
+    <div class="art-card reveal"><img src="assets/art/comic-cover-6.webp" alt=""><div class="art-card-overlay"><span class="art-card-title">Cover 5</span></div></div>
+    <div class="art-card reveal reveal-delay-1"><img src="assets/art/comic-cover-7.png" alt=""><div class="art-card-overlay"><span class="art-card-title">Cover 6</span></div></div>
+  </div>
+  <div style="display:flex;justify-content:center;margin-top:1.2rem">
+    <div class="art-card reveal" style="max-width:calc((1100px - 2.4rem) / 3)"><img src="assets/art/comic-cover-manga.png" alt=""><div class="art-card-overlay"><span class="art-card-title">Cover 7</span></div></div>
+  </div>
+  <div style="text-align:center;margin-top:2.5rem" class="reveal"><a href="https://discord.gg/RPwVazfB2G" target="_blank" class="cta-btn" style="font-size:1.1rem;padding:1rem 2.5rem">🐷 Join Discord for Mint Updates</a></div>
+</section>
+<section class="nikeverse" id="nikeverse">
+  <div class="nikeverse-container">
+    <div class="nikeverse-hero-img reveal" style="max-width:360px"><img src="assets/art/nikeverse-nft.gif" alt="Nikeverse NFT Collection"></div>
+    <div style="text-align:center;margin-bottom:2rem" class="reveal"><a href="https://www.wayup.io/collection/de79250af8caffc7a64645d86939159f665d4107c3f198562007bf32" target="_blank" class="cta-btn" style="font-size:1.1rem;padding:1rem 2.5rem">🖼️ View PFP Collection on Wayup</a></div>
+    <h2 class="section-title reveal">The Nikeverse</h2>
+    <p class="section-sub reveal" style="margin:0 auto">More than a token. An entire universe of games, lore, and community built around the most powerful pig in crypto.</p>
+    <div class="nikeverse-grid">
+      <div class="verse-card reveal" style="background:linear-gradient(to bottom,rgba(0,0,0,0.75) 0%,rgba(0,0,0,0.6) 50%,rgba(0,0,0,0.45) 100%) ,url('assets/art/rocket-bg.jpg') center center/cover"><div class="verse-title" style="color:#fff">Nike Massive Rocket</div><div class="verse-desc" style="color:#fff">Algorithmic trading agent with community copy-trading vaults on Hyperliquid. Forward tested with real capital on Binance. Now in community beta.</div><a href="https://rocket-hl.nikepig.com/signup" target="_blank" class="verse-card-btn">Sign Up</a></div>
+      <div class="verse-card reveal reveal-delay-1" style="background:linear-gradient(to bottom,rgba(0,0,0,0.75) 0%,rgba(0,0,0,0.6) 50%,rgba(0,0,0,0.45) 100%),url('assets/art/nft-card-bg.png') center center/cover"><div class="verse-title" style="color:#fff">Nikeverse PFP NFTs</div><div class="verse-desc" style="color:#fff">5,555 utility-backed profile pic NFTs by Berjador — sold out in 9 hours. Stake for passive income, rarity-based raffles, floor sweeps, and Pig Pen governance voting.</div><a href="https://www.wayup.io/collection/de79250af8caffc7a64645d86939159f665d4107c3f198562007bf32" target="_blank" class="verse-card-btn">View on Wayup</a></div>
+      <div class="verse-card reveal reveal-delay-2" style="background:linear-gradient(to bottom,rgba(15,15,30,0.95) 0%,rgba(20,25,50,0.9) 100%)"><img src="assets/art/shards-logo.png" alt="The Shards of Nike" style="width:260px;max-width:80%;margin:0 auto 1.2rem;display:block;align-self:center"><div class="verse-desc" style="color:#fff">7-chapter comic series following Stoner Nike through an epic multiverse adventure. Art by AOW Studio &amp; VictorWarrr. Mint coming soon.</div></div>
+      <div class="verse-card reveal" style="background:linear-gradient(to bottom,rgba(0,0,0,0.75) 0%,rgba(0,0,0,0.6) 50%,rgba(0,0,0,0.45) 100%),url('assets/art/oinkening-bg.png') center center/cover"><div class="verse-title" style="color:#fff">The Oinkening</div><div class="verse-desc" style="color:#fff">Battle royale arena. 151 unique creatures, type matchups, status effects. Last pig standing wins.</div><a href="https://the-oinkening-production.up.railway.app/" target="_blank" class="verse-card-btn">Play Now</a></div>
+      <div class="verse-card reveal reveal-delay-1" style="background:linear-gradient(to bottom,rgba(0,0,0,0.75) 0%,rgba(0,0,0,0.6) 50%,rgba(0,0,0,0.45) 100%),url('assets/art/dimensional-bg.png') center center/cover"><div class="verse-title" style="color:#fff">Dimensional Collectors</div><div class="verse-desc" style="color:#fff">Pokémon-style Discord game. Collect 151 creatures, build teams, battle with type matchups, campaigns, raids, relics, and Cardano wallet integration for holder perks.</div><a href="https://discord.gg/RPwVazfB2G" target="_blank" class="verse-card-btn">Join Discord</a></div>
+      <div class="verse-card reveal reveal-delay-2" style="background:linear-gradient(to bottom,rgba(0,0,0,0.75) 0%,rgba(0,0,0,0.6) 50%,rgba(0,0,0,0.45) 100%),url('assets/art/rwa-bg.png') center center/cover"><div class="verse-title" style="color:#fff">Real World Assets</div><div class="verse-desc" style="color:#fff">SOCKZ partnership, Nike plushies, custom Tokeo wallet themes, and a Nike-branded Keystone hardware wallet launching Q3.</div></div>
+    </div>
+  </div>
+</section>
+<section class="team-showcase navy-section">
+  <div class="team-container">
+    <div class="team-img-wrapper reveal"><img src="assets/art/team-piggy.png" alt="The team"></div>
+    <div class="team-caption reveal"><h3>Diamond Hooves. Iron Will. One Mission.</h3><p>The $NIKEPIG inner circle doesn't sleep — they strategize. Charts up, coffee flowing, and paintings of the founder on every wall.</p></div>
+  </div>
+</section>
+<section class="nike-art">
+  <div class="nike-art-container">
+    <h2 class="section-title reveal">Nike Art</h2>
+    <p class="section-sub reveal" style="margin:0 auto;color:var(--wheat-pale)">Original artwork from the $NIKEPIG creative lab. Every piece tells a story. Every story builds the legend.</p>
+    <div class="nike-art-grid">
+      <div class="nike-art-card reveal"><img loading="lazy" src="assets/art/waterfall-nike.png" alt="Waterfall Vibes"><span class="art-label">Waterfall Vibes</span></div>
+      <div class="nike-art-card reveal reveal-delay-1"><img loading="lazy" src="assets/art/ranch-hero.png" alt="Ranch Life"><span class="art-label">Ranch Life</span></div>
+      <div class="nike-art-card reveal reveal-delay-2"><img loading="lazy" src="assets/art/rollercoaster-moon.png" alt="Rollercoaster to the Moon"><span class="art-label">Rollercoaster to the Moon</span></div>
+      <div class="nike-art-card reveal"><img loading="lazy" src="assets/art/blanket-fort.png" alt="Storytime"><span class="art-label">Storytime</span></div>
+      <div class="nike-art-card reveal reveal-delay-1"><img loading="lazy" src="assets/art/christmas-nike.webp" alt="Christmas Nike"><span class="art-label">Christmas Nike</span></div>
+      <div class="nike-art-card reveal reveal-delay-2"><img loading="lazy" src="assets/art/valentines-nike.jpg" alt="Valentine's Nike"><span class="art-label">Valentine's Nike</span></div>
+    </div>
+  </div>
+</section>
+<section class="meme-section wheat-section" id="memes">
+  <div style="max-width:1000px;margin:0 auto;text-align:center"><h2 class="section-title reveal">Meme Warfare</h2><p class="section-sub reveal" style="margin:0 auto">The $NIKEPIG community doesn't just hold — they meme.</p></div>
+  <div class="meme-track"><div class="meme-marquee">
+    <div class="meme-item"><img src="assets/memes/charles-holding-nike.jpg" alt=""></div><div class="meme-item"><img src="assets/memes/wall-street-pig.jpg" alt=""></div><div class="meme-item"><img src="assets/memes/art-of-100x.jpg" alt=""></div><div class="meme-item"><img src="assets/memes/king-nike.jpg" alt=""></div><div class="meme-item"><img src="assets/memes/space-nike.jpg" alt=""></div><div class="meme-item"><img src="assets/memes/good-pig-executive.jpg" alt=""></div><div class="meme-item"><img src="assets/memes/riding-nike.jpg" alt=""></div><div class="meme-item"><img src="assets/memes/cave-boss-nike.jpg" alt=""></div><div class="meme-item"><img src="assets/memes/executive-order.jpg" alt=""></div><div class="meme-item"><img src="assets/memes/ring-doorbell.png" alt=""></div>
+    <div class="meme-item"><img src="assets/memes/charles-holding-nike.jpg" alt=""></div><div class="meme-item"><img src="assets/memes/wall-street-pig.jpg" alt=""></div><div class="meme-item"><img src="assets/memes/art-of-100x.jpg" alt=""></div><div class="meme-item"><img src="assets/memes/king-nike.jpg" alt=""></div><div class="meme-item"><img src="assets/memes/space-nike.jpg" alt=""></div><div class="meme-item"><img src="assets/memes/good-pig-executive.jpg" alt=""></div><div class="meme-item"><img src="assets/memes/riding-nike.jpg" alt=""></div><div class="meme-item"><img src="assets/memes/cave-boss-nike.jpg" alt=""></div><div class="meme-item"><img src="assets/memes/executive-order.jpg" alt=""></div><div class="meme-item"><img src="assets/memes/ring-doorbell.png" alt=""></div>
+  </div></div>
+  <div class="meme-track meme-track-reverse"><div class="meme-marquee">
+    <div class="meme-item"><img src="assets/memes/spartan-kick-bear.png" alt=""></div><div class="meme-item"><img src="assets/memes/shining-nike.jpg" alt=""></div><div class="meme-item"><img src="assets/memes/get-in-loser.jpg" alt=""></div><div class="meme-item"><img src="assets/memes/oversize-load.jpg" alt=""></div><div class="meme-item"><img src="assets/memes/eat-it-gensler.png" alt=""></div><div class="meme-item"><img src="assets/memes/wrestling-bear.jpg" alt=""></div><div class="meme-item"><img src="assets/memes/bags-nikepig.jpg" alt=""></div><div class="meme-item"><img src="assets/memes/saltbae-nike.jpg" alt=""></div><div class="meme-item"><img src="assets/memes/indiana-jones.jpg" alt=""></div><div class="meme-item"><img src="assets/memes/mood-memes.jpg" alt=""></div>
+    <div class="meme-item"><img src="assets/memes/spartan-kick-bear.png" alt=""></div><div class="meme-item"><img src="assets/memes/shining-nike.jpg" alt=""></div><div class="meme-item"><img src="assets/memes/get-in-loser.jpg" alt=""></div><div class="meme-item"><img src="assets/memes/oversize-load.jpg" alt=""></div><div class="meme-item"><img src="assets/memes/eat-it-gensler.png" alt=""></div><div class="meme-item"><img src="assets/memes/wrestling-bear.jpg" alt=""></div><div class="meme-item"><img src="assets/memes/bags-nikepig.jpg" alt=""></div><div class="meme-item"><img src="assets/memes/saltbae-nike.jpg" alt=""></div><div class="meme-item"><img src="assets/memes/indiana-jones.jpg" alt=""></div><div class="meme-item"><img src="assets/memes/mood-memes.jpg" alt=""></div>
+  </div></div>
+</section>
+<section class="gif-vault sunset-section">
+  <div style="max-width:1100px;margin:0 auto;text-align:center">
+    <h2 class="section-title reveal">GIF Vault</h2>
+    <p class="section-sub reveal" style="margin:0 auto 2.5rem">100+ animated $NIKEPIG GIFs ready to spam in every group chat, Discord server, and timeline.</p>
+    <div class="gif-grid reveal">
+      <img loading="lazy" src="assets/gifs/gm.gif" alt="GM"><img loading="lazy" src="assets/gifs/pump-it.gif" alt="Pump It"><img loading="lazy" src="assets/gifs/moon.gif" alt="Moon"><img loading="lazy" src="assets/gifs/bull-market.gif" alt="Bull Market"><img loading="lazy" src="assets/gifs/cashin-winnings.gif" alt="Cashin">
+      <img loading="lazy" src="assets/gifs/pool-vibes.gif" alt="Pool Vibes"><img loading="lazy" src="assets/gifs/dance.gif" alt="Dance"><img loading="lazy" src="assets/gifs/happy.gif" alt="Happy"><img loading="lazy" src="assets/gifs/good-pig.gif" alt="Good Pig"><img loading="lazy" src="assets/gifs/mind-blown.gif" alt="Mind Blown">
+      <img loading="lazy" src="assets/gifs/smug.gif" alt="Smug"><img loading="lazy" src="assets/gifs/evil-grin.gif" alt="Evil Grin"><img loading="lazy" src="assets/gifs/suck-it.gif" alt="Suck It"><img loading="lazy" src="assets/gifs/angry.gif" alt="Angry"><img loading="lazy" src="assets/gifs/born.gif" alt="Born">
+      <img loading="lazy" src="assets/gifs/disappear.gif" alt="Disappear"><img loading="lazy" src="assets/gifs/nervous.gif" alt="Nervous"><img loading="lazy" src="assets/gifs/sup.gif" alt="Sup"><img loading="lazy" src="assets/gifs/shrek.gif" alt="Shrek"><img loading="lazy" src="assets/gifs/fomo.gif" alt="FOMO">
+    </div>
+    <div class="gif-buttons reveal">
+      <a href="https://giphy.com/Nikepignet" target="_blank" class="gif-btn"><span class="gif-btn-icon">GIF</span><span class="gif-btn-text"><span class="gif-btn-title">GIPHY</span><span class="gif-btn-sub">100+ GIFs</span></span><span class="gif-btn-arrow">→</span></a>
+      <a href="https://tenor.com/users/nike_pig" target="_blank" class="gif-btn"><span class="gif-btn-icon">GIF</span><span class="gif-btn-text"><span class="gif-btn-title">Tenor</span><span class="gif-btn-sub">Stickers & GIFs</span></span><span class="gif-btn-arrow">→</span></a>
+    </div>
+    <p class="reveal" style="margin-top:1.5rem;font-size:0.9rem;color:var(--wheat-pale);opacity:1">Search "nikepig" on GIPHY or Tenor in any app</p>
+  </div>
+</section>
+<section class="how-to-buy sunset-section" id="buy">
+  <div class="buy-container">
+    <h2 class="section-title reveal">How to Buy</h2>
+    <p class="section-sub reveal" style="margin:0 auto">Get a Cardano wallet and swap ADA for $NIKEPIG — it's that simple.</p>
+    <div class="buy-steps" style="grid-template-columns:repeat(3,1fr);max-width:900px;margin:3rem auto">
+      <div class="buy-step reveal"><div class="step-number">1</div><img src="assets/art/eternl-logo.jpg" alt="Eternl" style="width:56px;height:56px;border-radius:14px;margin-bottom:0.8rem;box-shadow:0 4px 15px rgba(0,0,0,0.3)"><div class="step-title">Eternl</div><div class="step-desc">Download <a href="https://eternl.io" target="_blank" style="color:var(--wheat);text-decoration:underline">Eternl</a> and use the built-in <strong style="color:var(--wheat)">Monster Swap Dex Aggregator</strong> to swap ADA for $NIKEPIG.</div></div>
+      <div class="buy-step reveal reveal-delay-1"><div class="step-number">2</div><img src="assets/art/vespr-logo.jpg" alt="Vespr" style="width:56px;height:56px;border-radius:14px;margin-bottom:0.8rem;box-shadow:0 4px 15px rgba(0,0,0,0.3)"><div class="step-title">Vespr</div><div class="step-desc">Download <a href="https://vespr.xyz" target="_blank" style="color:var(--wheat);text-decoration:underline">Vespr</a> mobile wallet and use the <strong style="color:var(--wheat)">built-in DEX aggregator</strong> to swap ADA for $NIKEPIG.</div></div>
+      <div class="buy-step reveal reveal-delay-2"><div class="step-number">3</div><img src="assets/art/ascendex-logo.png" alt="AscendEX" style="width:56px;height:56px;border-radius:14px;margin-bottom:0.8rem;box-shadow:0 4px 15px rgba(0,0,0,0.3);background:#fff"><div class="step-title">AscendEX</div><div class="step-desc">Buy directly on <a href="https://ascendex.com/en/cashtrade-spottrading/usdt/nikepig" target="_blank" style="color:var(--wheat);text-decoration:underline">AscendEX</a> — our <strong style="color:var(--wheat)">CEX listing</strong> for easy USDT to $NIKEPIG trading.</div></div>
+    </div>
+    <a href="https://linktr.ee/nikepig" target="_blank" class="cta-btn">🚀 Buy $NIKEPIG</a>
+  </div>
+</section>
+<section class="exchanges navy-section">
+  <div class="exchanges-container">
+    <h2 class="section-title reveal">Charts & Data</h2>
+    <p class="section-sub reveal" style="margin:0 auto 2rem;color:var(--wheat-pale)">Track $NIKEPIG across every major chart platform.</p>
+    <div class="exchange-logos reveal">
+      <a href="https://www.taptools.io/charts/token/f5808c2c990d86da54bfc97d89cee6efa20cd8461616359478d96b4c.1cc9abfd664f73f4c2d2659382d6fef77b1cb3fbcac784de9bfbaf075454e102" target="_blank" class="exchange-logo">📊 TapTools</a>
+      <a href="https://dexscreener.com/cardano/f5808c2c990d86da54bfc97d89cee6efa20cd8461616359478d96b4c1cc9abfd664f73f4c2d2659382d6fef77b1cb3fbcac784de9bfbaf075454e102" target="_blank" class="exchange-logo">🦎 DexScreener</a>
+      <a href="https://www.coingecko.com/en/coins/nikepig" target="_blank" class="exchange-logo">🪙 CoinGecko</a>
+      <a href="https://coinmarketcap.com/currencies/nikepig/" target="_blank" class="exchange-logo">📈 CoinMarketCap</a>
+      <a href="https://linktr.ee/nikepig" target="_blank" class="exchange-logo">🔗 Linktree</a>
+    </div>
+  </div>
+</section>
+<section class="staking-section" style="padding:5rem 2rem;background:rgba(20,18,30,0.75);backdrop-filter:blur(12px);border-radius:30px;max-width:1200px;margin:2rem auto;box-shadow:0 8px 40px rgba(0,0,0,0.3);text-align:center">
+  <div style="max-width:800px;margin:0 auto">
+    <h2 class="section-title reveal">🐷 Stake & Earn</h2>
+    <p class="section-sub reveal" style="margin:0 auto 1.5rem;color:var(--wheat-pale)">Your bags shouldn't just sit there — put them to work.</p>
+    <p class="reveal" style="font-size:1.15rem;color:var(--wheat-pale);line-height:1.8;margin-bottom:2.5rem">All <strong style="color:var(--wheat)">$NIKEPIG tokens</strong> and <strong style="color:var(--wheat)">Nikeverse PFP NFTs</strong> can be staked for passive income. Lock your holdings, earn rewards, and grow your bag while you sleep. Diamond hooves get rewarded.</p>
+    <a href="https://hub.cnft.tools/staking/nike" target="_blank" class="cta-btn reveal">🔥 Stake Now on CNFT Hub</a>
+  </div>
+</section>
+<section class="community wheat-section" id="community">
+  <div class="community-container">
+    <div class="community-art reveal"><img src="assets/art/gaming-couch.png" alt=""></div>
+    <h2 class="section-title reveal">Join the Herd</h2>
+    <p class="reveal">The $NIKEPIG community is where degens, builders, and pig lovers unite. We're building something legendary — and there's always room for one more pig at the trough.</p>
+    <div class="community-links reveal">
+      <a href="https://x.com/NikePig_ADA" target="_blank" class="comm-link"><svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>Twitter / X</a>
+      <a href="https://t.me/nikecardano" target="_blank" class="comm-link"><svg viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>Telegram</a>
+      <a href="https://discord.gg/RPwVazfB2G" target="_blank" class="comm-link"><svg viewBox="0 0 24 24"><path d="M20.317 4.37a19.79 19.79 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.865-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.618-1.25.077.077 0 00-.079-.037A19.74 19.74 0 003.677 4.37a.07.07 0 00-.032.028C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 00-.041-.106 13.11 13.11 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.078-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.3 12.3 0 01-1.873.892.076.076 0 00-.041.107c.36.698.772 1.363 1.225 1.993a.076.076 0 00.084.028 19.84 19.84 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03zM8.02 15.33c-1.183 0-2.157-1.086-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.332-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.086-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.332-.946 2.418-2.157 2.418z"/></svg>Discord</a>
+    </div>
+  </div>
+</section>
+<footer>
+  <div class="footer-logo"><img src="assets/art/logo.png" alt="$NIKEPIG" style="height:48px"></div>
+  <p class="footer-text">The OG pig of Cardano. Built by the community, for the community. Oink.</p>
+  <p class="footer-disclaimer">$NIKEPIG is a community token. Not financial advice. Always DYOR. Oink responsibly.</p>
+</footer>
+<script>
+const isMobile=window.matchMedia('(max-width:1024px)').matches;
+const navbar=document.getElementById('navbar');
+let scrollTick=false;
+window.addEventListener('scroll',()=>{if(!scrollTick){requestAnimationFrame(()=>{navbar.classList.toggle('scrolled',window.scrollY>50);scrollTick=false});scrollTick=true}});
+function toggleNav(){const nl=document.getElementById('navLinks');nl.classList.toggle('open');document.body.style.overflow=nl.classList.contains('open')?'hidden':''}
+document.querySelectorAll('.nav-links a').forEach(a=>a.addEventListener('click',()=>{document.getElementById('navLinks').classList.remove('open');document.body.style.overflow=''}));
+function copyContract(){const addr=document.getElementById('contractAddr').textContent;const btn=document.getElementById('copyBtn');if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(addr).then(()=>{btn.textContent='COPIED!';btn.style.background='#4A6838';setTimeout(()=>{btn.textContent='COPY';btn.style.background=''},2000)})}else{const ta=document.createElement('textarea');ta.value=addr;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);btn.textContent='COPIED!';btn.style.background='#4A6838';setTimeout(()=>{btn.textContent='COPY';btn.style.background=''},2000)}}
+const revealObs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('active');revealObs.unobserve(e.target)}})},{threshold:0.08,rootMargin:'0px 0px -30px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>revealObs.observe(el));
+const counterObs=new IntersectionObserver(entries=>{entries.forEach(entry=>{if(entry.isIntersecting){const el=entry.target,target=parseInt(el.dataset.target);const suffix=el.textContent.includes('%')?'%':'+';let current=0;const inc=target/60;const timer=setInterval(()=>{current+=inc;if(current>=target){current=target;clearInterval(timer)}el.textContent=Math.floor(current).toLocaleString()+suffix},25);counterObs.unobserve(el)}})},{threshold:0.5});
+document.querySelectorAll('.stat-number[data-target]').forEach(c=>counterObs.observe(c));
+if(!isMobile){document.addEventListener('mousemove',e=>{const pig=document.getElementById('heroPig');if(!pig)return;const x=(e.clientX/window.innerWidth-0.5)*12;const y=(e.clientY/window.innerHeight-0.5)*12;pig.style.transform=`translateY(${-12+y*0.3}px) translateX(${x*0.3}px)`})}
+document.querySelectorAll('a[href^="#"]').forEach(anchor=>{anchor.addEventListener('click',function(e){const target=document.querySelector(this.getAttribute('href'));if(target){e.preventDefault();target.scrollIntoView({behavior:'smooth',block:'start'})}})});
+</script>
+</body>
+</html>

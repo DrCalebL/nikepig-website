@@ -279,6 +279,13 @@ section{position:relative}
 .exchange-logo{width:140px;height:60px;background:rgba(30,40,56,0.6);border:1.5px solid rgba(212,184,106,0.25);border-radius:14px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.85rem;color:var(--wheat-light);transition:all 0.3s ease;cursor:pointer;backdrop-filter:blur(8px)}
 .exchange-logo:hover{border-color:var(--wheat);background:rgba(30,40,56,0.8);transform:translateY(-3px);color:white;box-shadow:0 8px 25px rgba(212,184,106,0.15)}
 
+/* =========== STAKING ART =========== */
+.staking-art{max-width:700px;margin:0 auto 3rem;border-radius:20px;overflow:hidden;border:3px solid rgba(90,72,128,0.15);box-shadow:0 15px 50px rgba(90,72,128,0.08);transition:all 0.4s ease;position:relative}
+.staking-art::before{content:'💰 Diamond hooves get rewarded...';position:absolute;bottom:0;left:0;right:0;padding:3rem 1.5rem 1.2rem;background:linear-gradient(transparent,rgba(30,40,56,0.85));font-family:'More Sugar',sans-serif;font-size:1.2rem;color:var(--wheat-light);text-align:center;opacity:0;transition:opacity 0.4s ease;pointer-events:none}
+.staking-art:hover::before{opacity:1}
+.staking-art:hover{transform:scale(1.01);border-color:var(--purple)}
+.staking-art img{width:100%;height:auto;display:block}
+
 /* =========== COMMUNITY (wheat) =========== */
 .community{padding:5rem 2rem;text-align:center;background:rgba(20,18,30,0.75);backdrop-filter:blur(12px);border-radius:30px;max-width:1200px;margin:2rem auto;box-shadow:0 8px 40px rgba(0,0,0,0.3)}
 .community-container{max-width:700px;margin:0 auto}
@@ -459,6 +466,7 @@ section{position:relative;z-index:1}
   .staking-section{padding:3rem 1.2rem!important}
   .staking-section p{font-size:1rem!important;line-height:1.7!important}
   .staking-section .cta-btn{font-size:1rem;padding:0.9rem 1.8rem}
+  .staking-art{margin-bottom:2rem;border-radius:14px}
   /* COMMUNITY */
   .community{padding:3rem 1.2rem}
   .community-art{margin-bottom:2rem;border-radius:14px}
@@ -706,6 +714,7 @@ section{position:relative;z-index:1}
 </section>
 <section class="staking-section" style="padding:5rem 2rem;background:rgba(20,18,30,0.75);backdrop-filter:blur(12px);border-radius:30px;max-width:1200px;margin:2rem auto;box-shadow:0 8px 40px rgba(0,0,0,0.3);text-align:center">
   <div style="max-width:800px;margin:0 auto">
+    <div class="staking-art reveal"><img src="assets/art/staking-art.jpg" alt="Stake & Earn"></div>
     <h2 class="section-title reveal"><img src="icons/pig.png" alt="NikePig" class="icon-inline"> Stake & Earn</h2>
     <p class="section-sub reveal" style="margin:0 auto 1.5rem;color:var(--wheat-pale)">Your bags shouldn't just sit there — put them to work.</p>
     <p class="reveal" style="font-size:1.15rem;color:var(--wheat-pale);line-height:1.8;margin-bottom:2.5rem">All <strong style="color:var(--wheat)">$NIKEPIG tokens</strong> and <strong style="color:var(--wheat)">Nikeverse PFP NFTs</strong> can be staked for passive income. Lock your holdings, earn rewards, and grow your bag while you sleep. Diamond hooves get rewarded.</p>

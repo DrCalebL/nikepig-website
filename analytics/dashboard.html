@@ -128,7 +128,8 @@ document.getElementById('authInput').addEventListener('keydown', e => { if (e.ke
 function showDashboard() {
   document.getElementById('authGate').style.display = 'none';
   document.getElementById('dashboardMain').style.display = 'block';
-  refreshDashboard();
+  // refreshDashboard is in the second script block; call it when available
+  if (typeof refreshDashboard === 'function') refreshDashboard();
 }
 if (sessionStorage.getItem(AUTH_KEY) === '1') showDashboard();
 </script>
@@ -548,7 +549,8 @@ function exportCSV() {
   a.click();
 }
 
-/* Auto-refresh every 30s */
+/* Initial load + auto-refresh every 30s */
+refreshDashboard();
 setInterval(refreshDashboard, 30000);
 </script>
 </body>

@@ -228,6 +228,13 @@ body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--te
 const STORAGE_KEY = 'nikepig_analytics';
 let currentRange = 'today';
 
+/* ---- HTML escaping to prevent XSS ---- */
+function esc(str) {
+  const div = document.createElement('div');
+  div.textContent = String(str ?? '');
+  return div.innerHTML;
+}
+
 /* ---- Data Access ---- */
 function getStore() {
   try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || emptyStore(); }
@@ -254,7 +261,7 @@ function renderBarChart(containerId, data, color) {
   const max = Math.max(...data.map(d => d.count));
   container.innerHTML = data.slice(0, 10).map(d => `
     <div class="bar-row">
-      <span class="bar-label" title="${d.label}">${d.label}</span>
+      <span class="bar-label" title="${esc(d.label)}">${esc(d.label)}</span>
       <div class="bar-track">
         <div class="bar-fill" style="width:${Math.max((d.count/max)*100, 8)}%;background:${color}">${d.count}</div>
       </div>
@@ -313,8 +320,8 @@ function refreshDashboard() {
   const scrolls = sessions.filter(s => s.maxScrollDepth != null).map(s => s.maxScrollDepth);
   const avgScroll = scrolls.length ? Math.round(scrolls.reduce((a, b) => a + b, 0) / scrolls.length) : 0;
 
-  // Bounce rate (sessions < 10s or no scroll)
-  const bounces = sessions.filter(s => (s.duration && s.duration < 10) || (!s.maxScrollDepth));
+  // Bounce rate (sessions with end data that lasted < 10s and had no scroll)
+  const bounces = sessions.filter(s => s.duration != null && (s.duration < 10 && (s.maxScrollDepth == null || s.maxScrollDepth === 0)));
   const bounceRate = sessions.length ? Math.round((bounces.length / sessions.length) * 100) : 0;
 
   // Return visitors
@@ -356,8 +363,8 @@ function refreshDashboard() {
       return `<div class="map-item">
         <span class="map-flag">${countryFlags[loc.code] || '\u{1F30D}'}</span>
         <div class="map-info">
-          <div class="country">${loc.country}</div>
-          <div class="detail">${topCities}</div>
+          <div class="country">${esc(loc.country)}</div>
+          <div class="detail">${esc(topCities)}</div>
         </div>
         <span class="map-count">${loc.count}</span>
       </div>`;
@@ -402,7 +409,7 @@ function refreshDashboard() {
       const b = Math.round(106 + (168 - 106) * intensity);
       const bg = `rgba(${r},${g},${b},${0.15 + intensity * 0.35})`;
       return `<div class="heatmap-cell" style="background:${bg}">
-        <div class="section-name">${d.name}</div>
+        <div class="section-name">${esc(d.name)}</div>
         <div class="section-time">${formatDuration(d.avg)}</div>
       </div>`;
     }).join('');
@@ -461,9 +468,9 @@ function refreshDashboard() {
     feedEl.innerHTML = recentClicks.map(c => `
       <div class="click-item">
         <span class="click-time">${new Date(c.timestamp).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',second:'2-digit'})}</span>
-        <span class="click-element">${(c.text || c.tag || 'element').slice(0, 50)}</span>
-        <span class="click-section">${c.section}</span>
-        ${c.href ? `<a href="${c.href}" target="_blank" style="color:var(--blue);font-size:0.75rem">link</a>` : ''}
+        <span class="click-element">${esc((c.text || c.tag || 'element').slice(0, 50))}</span>
+        <span class="click-section">${esc(c.section)}</span>
+        ${c.href ? `<a href="${esc(c.href)}" target="_blank" rel="noopener" style="color:var(--blue);font-size:0.75rem">link</a>` : ''}
       </div>
     `).join('');
   }
@@ -474,16 +481,19 @@ function refreshDashboard() {
   if (!recentSessions.length) {
     tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--text-dim)">No sessions yet</td></tr>';
   } else {
-    tbody.innerHTML = recentSessions.map(s => `<tr>
+    tbody.innerHTML = recentSessions.map(s => {
+      const ref = s.referrer === 'direct' || !s.referrer ? 'Direct' : (() => { try { return new URL(s.referrer).hostname; } catch { return s.referrer; } })();
+      return `<tr>
       <td>${formatTime(s.startedAt)}</td>
-      <td>${s.geo ? (s.geo.city || '') + ', ' + (s.geo.country || '') : '-'}</td>
-      <td>${s.device?.device || '-'}</td>
-      <td>${s.device?.browser || '-'}</td>
+      <td>${s.geo ? esc((s.geo.city || '') + ', ' + (s.geo.country || '')) : '-'}</td>
+      <td>${esc(s.device?.device || '-')}</td>
+      <td>${esc(s.device?.browser || '-')}</td>
       <td>${s.duration ? formatDuration(s.duration) : '-'}</td>
       <td>${s.maxScrollDepth != null ? s.maxScrollDepth + '%' : '-'}</td>
       <td>${s.totalClicks || '-'}</td>
-      <td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${s.referrer || ''}">${s.referrer === 'direct' || !s.referrer ? 'Direct' : (() => { try { return new URL(s.referrer).hostname; } catch { return s.referrer; } })()}</td>
-    </tr>`).join('');
+      <td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(s.referrer || '')}">${esc(ref)}</td>
+    </tr>`;
+    }).join('');
   }
 }
 

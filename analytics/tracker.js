@@ -13,8 +13,8 @@
     // Set this to your analytics endpoint to persist data server-side
     // e.g. a Supabase function, Google Apps Script, or any POST endpoint
     remoteEndpoint: null,
-    // Free IP geolocation API (no key needed, 45 req/min)
-    geoAPI: 'https://ip-api.com/json/?fields=status,country,countryCode,region,regionName,city,lat,lon,timezone,isp,query',
+    // Free IP geolocation API (HTTPS, no key needed, 1k/day)
+    geoAPI: 'https://ipwho.is/',
     // How often to flush to localStorage (ms)
     flushInterval: 5000,
     // Idle timeout before ending a section view (ms)
@@ -98,11 +98,11 @@
     else if (/Opera|OPR\//i.test(ua)) browser = 'Opera';
 
     let os = 'unknown';
-    if (/Windows/i.test(ua)) os = 'Windows';
+    if (/Android/i.test(ua)) os = 'Android';
+    else if (/iOS|iPhone|iPad/i.test(ua)) os = 'iOS';
+    else if (/Windows/i.test(ua)) os = 'Windows';
     else if (/Mac OS/i.test(ua)) os = 'macOS';
     else if (/Linux/i.test(ua)) os = 'Linux';
-    else if (/Android/i.test(ua)) os = 'Android';
-    else if (/iOS|iPhone|iPad/i.test(ua)) os = 'iOS';
 
     return {
       device,
@@ -124,17 +124,17 @@
     try {
       const resp = await fetch(CONFIG.geoAPI);
       const data = await resp.json();
-      if (data.status === 'success') {
+      if (data.success !== false) {
         return {
-          ip: data.query,
+          ip: data.ip,
           country: data.country,
-          countryCode: data.countryCode,
-          region: data.regionName,
+          countryCode: data.country_code,
+          region: data.region,
           city: data.city,
-          lat: data.lat,
-          lon: data.lon,
-          timezone: data.timezone,
-          isp: data.isp
+          lat: data.latitude,
+          lon: data.longitude,
+          timezone: data.timezone?.id || null,
+          isp: data.connection?.isp || null
         };
       }
     } catch {}
@@ -227,7 +227,6 @@
   /* ---- Flush data to store ---- */
   function flushData() {
     const store = getStore();
-    const now = new Date().toISOString();
 
     // Append clicks
     if (clickLog.length > 0) {
@@ -244,7 +243,10 @@
   }
 
   /* ---- Record session end data ---- */
+  let sessionEnded = false;
   function recordSessionEnd() {
+    if (sessionEnded) return;
+    sessionEnded = true;
     const store = getStore();
     const dwellTimes = getSectionDwellTimes();
     const sessionEnd = {
@@ -284,7 +286,8 @@
       });
       // Use sendBeacon for reliability on page unload
       if (navigator.sendBeacon) {
-        navigator.sendBeacon(CONFIG.remoteEndpoint, payload);
+        const blob = new Blob([payload], { type: 'application/json' });
+        navigator.sendBeacon(CONFIG.remoteEndpoint, blob);
       } else {
         fetch(CONFIG.remoteEndpoint, {
           method: 'POST',
@@ -325,12 +328,14 @@
       visitor.device = deviceInfo;
     }
 
-    // Record session
-    store.sessions.push({
-      ...currentSession,
-      device: deviceInfo,
-      geo: geo
-    });
+    // Record session (only if not already recorded for this session ID)
+    if (!store.sessions.some(s => s.id === currentSession.id)) {
+      store.sessions.push({
+        ...currentSession,
+        device: deviceInfo,
+        geo: geo
+      });
+    }
 
     // Record pageview
     store.pageviews.push({

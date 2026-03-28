@@ -132,6 +132,7 @@
       const data = await resp.json();
       if (data.success !== false) {
         const geo = {
+          // IP intentionally omitted to avoid storing PII (GDPR/CCPA)
           country: data.country,
           countryCode: data.country_code,
           region: data.region,

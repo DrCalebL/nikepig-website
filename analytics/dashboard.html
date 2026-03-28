@@ -127,11 +127,15 @@ function checkAuth() {
 document.getElementById('authInput').addEventListener('keydown', e => { if (e.key === 'Enter') checkAuth(); });
 function showDashboard() {
   document.getElementById('authGate').style.display = 'none';
-  document.getElementById('dashboardMain').style.display = 'block';
-  // refreshDashboard is in the second script block; call it when available
+  const main = document.getElementById('dashboardMain');
+  if (main) main.style.display = 'block';
   if (typeof refreshDashboard === 'function') refreshDashboard();
 }
 if (sessionStorage.getItem(AUTH_KEY) === '1') showDashboard();
+// If dashboardMain wasn't in DOM yet, show it once DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+  if (sessionStorage.getItem(AUTH_KEY) === '1') showDashboard();
+});
 </script>
 
 <div id="dashboardMain" style="display:none">

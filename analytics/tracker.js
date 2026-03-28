@@ -16,8 +16,6 @@
     supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1cnJobmhkdWhvc2lnYWxmb3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3MTI3NDIsImV4cCI6MjA5MDI4ODc0Mn0.EozFWDGm2dbafGrjenySyOym6M-IU8_SRcI_wKbtBto',
     // How often to flush to localStorage (ms)
     flushInterval: 5000,
-    // Free IP geolocation API (HTTPS, no key needed, 10k/month)
-    geoAPI: 'https://ipwho.is/',
     // Max clicks to buffer in memory before forcing a flush
     maxClickBuffer: 500
   };
@@ -169,17 +167,19 @@
     };
   }
 
-  /* ---- Geolocation via IP (cached per session to avoid rate limits) ---- */
+  /* ---- Geolocation via IP (cached per session, with fallback) ---- */
   async function fetchGeoLocation() {
     // Return cached result if available
     try {
       const cached = sessionStorage.getItem('nikepig_geo');
       if (cached) return JSON.parse(cached);
     } catch {}
+
+    // Try primary API: ipwho.is
     try {
-      const resp = await fetch(CONFIG.geoAPI);
+      const resp = await fetch('https://ipwho.is/');
       const data = await resp.json();
-      if (data.success !== false) {
+      if (data.success !== false && data.country) {
         const geo = {
           // IP intentionally omitted to avoid storing PII (GDPR/CCPA)
           country: data.country,
@@ -195,6 +195,27 @@
         return geo;
       }
     } catch {}
+
+    // Fallback API: ip-api.com (HTTP only, but works as last resort)
+    try {
+      const resp = await fetch('https://ipapi.co/json/');
+      const data = await resp.json();
+      if (data.country_name) {
+        const geo = {
+          country: data.country_name,
+          countryCode: data.country_code,
+          region: data.region,
+          city: data.city,
+          lat: data.latitude,
+          lon: data.longitude,
+          timezone: data.timezone || null,
+          isp: data.org || null
+        };
+        try { sessionStorage.setItem('nikepig_geo', JSON.stringify(geo)); } catch {}
+        return geo;
+      }
+    } catch {}
+
     return null;
   }
 

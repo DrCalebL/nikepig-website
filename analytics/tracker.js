@@ -17,8 +17,8 @@
     geoAPI: 'https://ipwho.is/',
     // How often to flush to localStorage (ms)
     flushInterval: 5000,
-    // Idle timeout before ending a section view (ms)
-    idleTimeout: 30000
+    // Max clicks to buffer in memory before forcing a flush
+    maxClickBuffer: 500
   };
 
   /* ---- Utility helpers ---- */
@@ -87,19 +87,20 @@
   function getDeviceInfo() {
     const ua = navigator.userAgent;
     let device = 'desktop';
-    if (/Mobi|Android/i.test(ua)) device = 'mobile';
-    else if (/Tablet|iPad/i.test(ua)) device = 'tablet';
+    const isIPadOS = /Macintosh/i.test(ua) && navigator.maxTouchPoints > 1;
+    if (/Mobi|Android/i.test(ua) && !/Tablet|iPad/i.test(ua)) device = 'mobile';
+    else if (/Tablet|iPad/i.test(ua) || isIPadOS) device = 'tablet';
 
     let browser = 'unknown';
     if (/Firefox\//i.test(ua)) browser = 'Firefox';
     else if (/Edg\//i.test(ua)) browser = 'Edge';
+    else if (/Opera|OPR\//i.test(ua)) browser = 'Opera';
     else if (/Chrome\//i.test(ua)) browser = 'Chrome';
     else if (/Safari\//i.test(ua)) browser = 'Safari';
-    else if (/Opera|OPR\//i.test(ua)) browser = 'Opera';
 
     let os = 'unknown';
     if (/Android/i.test(ua)) os = 'Android';
-    else if (/iOS|iPhone|iPad/i.test(ua)) os = 'iOS';
+    else if (/iPhone|iPad/i.test(ua) || isIPadOS) os = 'iOS';
     else if (/Windows/i.test(ua)) os = 'Windows';
     else if (/Mac OS/i.test(ua)) os = 'macOS';
     else if (/Linux/i.test(ua)) os = 'Linux';
@@ -119,14 +120,18 @@
     };
   }
 
-  /* ---- Geolocation via IP ---- */
+  /* ---- Geolocation via IP (cached per session to avoid rate limits) ---- */
   async function fetchGeoLocation() {
+    // Return cached result if available
+    try {
+      const cached = sessionStorage.getItem('nikepig_geo');
+      if (cached) return JSON.parse(cached);
+    } catch {}
     try {
       const resp = await fetch(CONFIG.geoAPI);
       const data = await resp.json();
       if (data.success !== false) {
-        return {
-          ip: data.ip,
+        const geo = {
           country: data.country,
           countryCode: data.country_code,
           region: data.region,
@@ -136,6 +141,8 @@
           timezone: data.timezone?.id || null,
           isp: data.connection?.isp || null
         };
+        try { sessionStorage.setItem('nikepig_geo', JSON.stringify(geo)); } catch {}
+        return geo;
       }
     } catch {}
     return null;
@@ -149,7 +156,8 @@
     const sections = document.querySelectorAll('section');
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
-        const sectionId = entry.target.id || entry.target.className.split(' ')[0] || 'unknown';
+        const cn = entry.target.className;
+        const sectionId = entry.target.id || (typeof cn === 'string' ? cn.split(' ')[0] : '') || 'unknown';
         if (entry.isIntersecting && entry.intersectionRatio >= 0.3) {
           if (!sectionTimers[sectionId]) {
             sectionTimers[sectionId] = Date.now();
@@ -200,6 +208,8 @@
         section: el.closest('section')?.id || el.closest('section')?.className?.split(' ')[0] || 'unknown'
       };
       clickLog.push(entry);
+      // Prevent unbounded memory growth
+      if (clickLog.length >= CONFIG.maxClickBuffer) flushData();
     }, { capture: true });
   }
 
@@ -247,27 +257,28 @@
   function recordSessionEnd() {
     if (sessionEnded) return;
     sessionEnded = true;
+
     const store = getStore();
+
+    // Flush remaining clicks FIRST to get accurate count
+    if (clickLog.length > 0) {
+      store.clicks.push(...clickLog.splice(0));
+    }
+
     const dwellTimes = getSectionDwellTimes();
+    const totalClicks = store.clicks.filter(c => c.sessionId === currentSession.id).length;
     const sessionEnd = {
-      sessionId: currentSession.id,
-      visitorId: currentSession.visitorId,
       endedAt: new Date().toISOString(),
       duration: Math.round((Date.now() - new Date(currentSession.startedAt).getTime()) / 1000),
       maxScrollDepth,
       sectionDwellTimes: dwellTimes,
-      totalClicks: clickLog.length + (store.clicks.filter(c => c.sessionId === currentSession.id).length)
+      totalClicks
     };
 
     // Update session record
     const idx = store.sessions.findIndex(s => s.id === currentSession.id);
     if (idx >= 0) {
       Object.assign(store.sessions[idx], sessionEnd);
-    }
-
-    // Flush remaining clicks
-    if (clickLog.length > 0) {
-      store.clicks.push(...clickLog.splice(0));
     }
 
     saveStore(store);
@@ -302,65 +313,78 @@
   /* ---- Initialize ---- */
   const currentSession = getSession();
 
-  async function init() {
-    const store = getStore();
-    const deviceInfo = getDeviceInfo();
+  function init() {
+    try {
+      const store = getStore();
+      const deviceInfo = getDeviceInfo();
 
-    // Check if this visitor already exists
-    let visitor = store.visitors.find(v => v.id === currentSession.visitorId);
-    const geo = await fetchGeoLocation();
+      // Check if this visitor already exists
+      let visitor = store.visitors.find(v => v.id === currentSession.visitorId);
 
-    if (!visitor) {
-      visitor = {
-        id: currentSession.visitorId,
-        firstSeen: new Date().toISOString(),
-        lastSeen: new Date().toISOString(),
-        visitCount: 1,
-        device: deviceInfo,
-        geo: geo,
-        ageGroup: null // Can be set via optional survey prompt
-      };
-      store.visitors.push(visitor);
-    } else {
-      visitor.lastSeen = new Date().toISOString();
-      visitor.visitCount++;
-      if (geo) visitor.geo = geo;
-      visitor.device = deviceInfo;
-    }
+      if (!visitor) {
+        visitor = {
+          id: currentSession.visitorId,
+          firstSeen: new Date().toISOString(),
+          lastSeen: new Date().toISOString(),
+          visitCount: 1,
+          device: deviceInfo,
+          geo: null
+        };
+        store.visitors.push(visitor);
+      } else {
+        visitor.lastSeen = new Date().toISOString();
+        visitor.visitCount++;
+        visitor.device = deviceInfo;
+      }
 
-    // Record session (only if not already recorded for this session ID)
-    if (!store.sessions.some(s => s.id === currentSession.id)) {
-      store.sessions.push({
-        ...currentSession,
-        device: deviceInfo,
-        geo: geo
+      // Record session (only if not already recorded for this session ID)
+      if (!store.sessions.some(s => s.id === currentSession.id)) {
+        store.sessions.push({
+          ...currentSession,
+          device: deviceInfo,
+          geo: null
+        });
+      }
+
+      // Record pageview
+      store.pageviews.push({
+        timestamp: new Date().toISOString(),
+        sessionId: currentSession.id,
+        visitorId: currentSession.visitorId,
+        path: location.pathname + location.hash,
+        referrer: document.referrer || 'direct'
       });
+
+      saveStore(store);
+
+      // Set up trackers immediately (don't wait for geo)
+      setupSectionTracking();
+      setupClickTracking();
+      setupScrollTracking();
+
+      // Periodic flush
+      setInterval(flushData, CONFIG.flushInterval);
+
+      // Capture session end
+      window.addEventListener('beforeunload', recordSessionEnd);
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden') recordSessionEnd();
+      });
+
+      // Fetch geo in background — update records when it resolves
+      fetchGeoLocation().then(geo => {
+        if (!geo) return;
+        const s = getStore();
+        const v = s.visitors.find(v => v.id === currentSession.visitorId);
+        if (v) v.geo = geo;
+        const sess = s.sessions.find(ss => ss.id === currentSession.id);
+        if (sess) sess.geo = geo;
+        saveStore(s);
+      }).catch(() => {});
+    } catch (err) {
+      // Tracker must never break the host page
+      if (typeof console !== 'undefined') console.warn('[NIKEPIG Analytics] init error:', err);
     }
-
-    // Record pageview
-    store.pageviews.push({
-      timestamp: new Date().toISOString(),
-      sessionId: currentSession.id,
-      visitorId: currentSession.visitorId,
-      path: location.pathname + location.hash,
-      referrer: document.referrer || 'direct'
-    });
-
-    saveStore(store);
-
-    // Set up trackers
-    setupSectionTracking();
-    setupClickTracking();
-    setupScrollTracking();
-
-    // Periodic flush
-    setInterval(flushData, CONFIG.flushInterval);
-
-    // Capture session end
-    window.addEventListener('beforeunload', recordSessionEnd);
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'hidden') recordSessionEnd();
-    });
   }
 
   // Start when DOM is ready

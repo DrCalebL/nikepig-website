@@ -24,7 +24,6 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
-/* Header */
 .header { padding: 1.5rem 2rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
 .header h1 { font-size: 1.5rem; font-weight: 800; }
 .header h1 span { color: var(--accent); }
@@ -36,49 +35,43 @@ body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--te
 .btn-danger { border-color: var(--red); color: var(--red); }
 .btn-danger:hover { background: rgba(248,113,113,0.1); }
 
-/* Time filter */
 .time-filter { display: flex; gap: 0.25rem; background: var(--card); border-radius: 8px; padding: 3px; }
 .time-filter button { padding: 0.4rem 0.8rem; border: none; background: transparent; color: var(--text-dim); font-family: inherit; font-size: 0.8rem; border-radius: 6px; cursor: pointer; transition: 0.2s; }
 .time-filter button.active { background: var(--accent); color: #000; font-weight: 700; }
 
-/* Dashboard grid */
+.source-badge { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 4px; font-size: 0.7rem; font-weight: 700; margin-left: 0.5rem; }
+.source-supabase { background: var(--green); color: #000; }
+.source-local { background: var(--orange); color: #000; }
+
 .dashboard { padding: 1.5rem; display: grid; gap: 1.5rem; }
 .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
 .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
 .stat-card .label { font-size: 0.8rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; }
 .stat-card .value { font-size: 2rem; font-weight: 800; }
 .stat-card .sub { font-size: 0.8rem; color: var(--text-dim); margin-top: 0.25rem; }
-.stat-card .trend-up { color: var(--green); }
-.stat-card .trend-down { color: var(--red); }
 
-/* Chart panels */
 .panels { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
 .panel { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; }
 .panel-full { grid-column: 1 / -1; }
 .panel h2 { font-size: 1rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
 .panel h2 .icon { font-size: 1.2rem; }
 
-/* Bar chart */
 .bar-chart { display: flex; flex-direction: column; gap: 0.6rem; }
 .bar-row { display: flex; align-items: center; gap: 0.75rem; }
 .bar-label { min-width: 120px; font-size: 0.85rem; color: var(--text-dim); text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.bar-track { flex: 1; height: 28px; background: rgba(255,255,255,0.05); border-radius: 6px; overflow: hidden; position: relative; }
+.bar-track { flex: 1; height: 28px; background: rgba(255,255,255,0.05); border-radius: 6px; overflow: hidden; }
 .bar-fill { height: 100%; border-radius: 6px; display: flex; align-items: center; padding-left: 8px; font-size: 0.75rem; font-weight: 700; color: #000; min-width: 30px; transition: width 0.6s ease; }
-.bar-count { min-width: 40px; font-size: 0.85rem; font-weight: 600; text-align: right; }
 
-/* Table */
 .data-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
 .data-table th { text-align: left; padding: 0.6rem; color: var(--text-dim); font-weight: 600; border-bottom: 1px solid var(--border); text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px; }
 .data-table td { padding: 0.6rem; border-bottom: 1px solid rgba(255,255,255,0.04); }
 .data-table tr:hover td { background: rgba(255,255,255,0.02); }
 
-/* Heatmap */
 .heatmap-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 0.5rem; }
 .heatmap-cell { padding: 0.75rem; border-radius: 8px; text-align: center; font-size: 0.8rem; }
 .heatmap-cell .section-name { font-weight: 700; margin-bottom: 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .heatmap-cell .section-time { font-size: 1.1rem; font-weight: 800; }
 
-/* Map placeholder */
 .map-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.5rem; }
 .map-item { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.75rem; background: rgba(255,255,255,0.03); border-radius: 8px; }
 .map-flag { font-size: 1.3rem; }
@@ -87,22 +80,15 @@ body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--te
 .map-info .detail { font-size: 0.75rem; color: var(--text-dim); }
 .map-count { font-weight: 800; color: var(--accent); }
 
-/* Scroll depth visualization */
-.scroll-viz { position: relative; height: 200px; background: rgba(255,255,255,0.03); border-radius: 8px; overflow: hidden; }
-.scroll-bar { position: absolute; bottom: 0; left: 0; width: 100%; border-radius: 8px; transition: height 0.6s ease; }
-
-/* Click list */
 .click-list { max-height: 400px; overflow-y: auto; }
 .click-item { display: flex; gap: 0.75rem; padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); align-items: center; }
 .click-item .click-time { font-size: 0.75rem; color: var(--text-dim); min-width: 70px; }
 .click-item .click-element { font-size: 0.8rem; color: var(--accent); font-weight: 600; }
 .click-item .click-section { font-size: 0.75rem; color: var(--text-dim); }
 
-/* Empty state */
 .empty-state { text-align: center; padding: 3rem; color: var(--text-dim); }
 .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; }
 
-/* Responsive */
 @media (max-width: 900px) {
   .panels { grid-template-columns: 1fr; }
   .header { padding: 1rem; }
@@ -117,24 +103,21 @@ body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--te
 </head>
 <body>
 
-<!-- Auth gate: simple password protection -->
+<!-- Auth gate -->
 <div id="authGate" style="display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:1rem">
   <h1 style="font-size:1.5rem;font-weight:800"><span style="color:#D4B86A">$NIKEPIG</span> Analytics</h1>
   <p style="color:#9ca3af;font-size:0.9rem">Enter the dashboard password to continue</p>
   <div style="display:flex;gap:0.5rem">
     <input id="authInput" type="password" placeholder="Password" style="padding:0.6rem 1rem;border-radius:8px;border:1px solid #2a2e42;background:#1a1d2e;color:#e4e4e7;font-family:inherit;font-size:0.9rem;outline:none" autofocus>
-    <button onclick="checkAuth()" class="btn btn-accent" style="padding:0.6rem 1.2rem;border-radius:8px;background:#D4B86A;color:#000;border:none;font-family:inherit;font-weight:700;cursor:pointer">Enter</button>
+    <button onclick="checkAuth()" style="padding:0.6rem 1.2rem;border-radius:8px;background:#D4B86A;color:#000;border:none;font-family:inherit;font-weight:700;cursor:pointer">Enter</button>
   </div>
   <p id="authError" style="color:#f87171;font-size:0.8rem;display:none">Incorrect password</p>
 </div>
 <script>
-// Change this password to secure your dashboard
 const DASHBOARD_PASSWORD = 'nikepig-admin';
 const AUTH_KEY = 'nikepig_dash_auth';
-
 function checkAuth() {
-  const input = document.getElementById('authInput').value;
-  if (input === DASHBOARD_PASSWORD) {
+  if (document.getElementById('authInput').value === DASHBOARD_PASSWORD) {
     sessionStorage.setItem(AUTH_KEY, '1');
     showDashboard();
   } else {
@@ -142,17 +125,17 @@ function checkAuth() {
   }
 }
 document.getElementById('authInput').addEventListener('keydown', e => { if (e.key === 'Enter') checkAuth(); });
-
 function showDashboard() {
   document.getElementById('authGate').style.display = 'none';
   document.getElementById('dashboardMain').style.display = 'block';
+  refreshDashboard();
 }
-if (sessionStorage.getItem(AUTH_KEY) === '1') { showDashboard(); }
+if (sessionStorage.getItem(AUTH_KEY) === '1') showDashboard();
 </script>
 
 <div id="dashboardMain" style="display:none">
 <div class="header">
-  <h1><span>$NIKEPIG</span> Analytics</h1>
+  <h1><span>$NIKEPIG</span> Analytics <span class="source-badge" id="sourceBadge"></span></h1>
   <div style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap">
     <div class="time-filter" id="timeFilter">
       <button data-range="today" class="active">Today</button>
@@ -161,116 +144,47 @@ if (sessionStorage.getItem(AUTH_KEY) === '1') { showDashboard(); }
       <button data-range="all">All Time</button>
     </div>
     <div class="header-actions">
-      <button class="btn" onclick="exportData()">Export JSON</button>
       <button class="btn" onclick="exportCSV()">Export CSV</button>
       <button class="btn btn-accent" onclick="refreshDashboard()">Refresh</button>
-      <button class="btn btn-danger" onclick="clearData()">Clear Data</button>
     </div>
   </div>
 </div>
 
 <div class="dashboard">
-  <!-- KPI Cards -->
   <div class="stats-row" id="kpiCards"></div>
-
   <div class="panels">
-    <!-- Location / Geography -->
-    <div class="panel" id="panelLocation">
-      <h2><span class="icon">&#127758;</span> Visitor Locations</h2>
-      <div class="map-grid" id="locationGrid"></div>
-    </div>
-
-    <!-- Devices -->
-    <div class="panel" id="panelDevices">
-      <h2><span class="icon">&#128187;</span> Devices & Browsers</h2>
-      <div class="bar-chart" id="deviceChart"></div>
-    </div>
-
-    <!-- Section Dwell Time Heatmap -->
-    <div class="panel panel-full" id="panelDwell">
-      <h2><span class="icon">&#9200;</span> Section Attention Heatmap <span style="font-weight:400;font-size:0.8rem;color:var(--text-dim)">(avg seconds per section)</span></h2>
-      <div class="heatmap-grid" id="dwellHeatmap"></div>
-    </div>
-
-    <!-- Top Clicked Elements -->
-    <div class="panel" id="panelClicks">
-      <h2><span class="icon">&#128433;</span> Top Clicked Elements</h2>
-      <div class="bar-chart" id="clickChart"></div>
-    </div>
-
-    <!-- Referrers -->
-    <div class="panel" id="panelReferrers">
-      <h2><span class="icon">&#128279;</span> Traffic Sources</h2>
-      <div class="bar-chart" id="referrerChart"></div>
-    </div>
-
-    <!-- Scroll Depth -->
-    <div class="panel" id="panelScroll">
-      <h2><span class="icon">&#128200;</span> Scroll Depth Distribution</h2>
-      <div class="bar-chart" id="scrollChart"></div>
-    </div>
-
-    <!-- Languages -->
-    <div class="panel" id="panelLanguages">
-      <h2><span class="icon">&#127760;</span> Visitor Languages</h2>
-      <div class="bar-chart" id="languageChart"></div>
-    </div>
-
-    <!-- Recent Clicks Feed -->
-    <div class="panel panel-full" id="panelClickFeed">
-      <h2><span class="icon">&#128073;</span> Recent Click Activity</h2>
-      <div class="click-list" id="clickFeed"></div>
-    </div>
-
-    <!-- Sessions Table -->
-    <div class="panel panel-full" id="panelSessions">
-      <h2><span class="icon">&#128100;</span> Recent Sessions</h2>
-      <div style="overflow-x:auto">
-        <table class="data-table" id="sessionTable">
-          <thead>
-            <tr>
-              <th>Time</th>
-              <th>Location</th>
-              <th>Device</th>
-              <th>Browser</th>
-              <th>Duration</th>
-              <th>Scroll</th>
-              <th>Clicks</th>
-              <th>Referrer</th>
-            </tr>
-          </thead>
-          <tbody id="sessionBody"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- OS Breakdown -->
-    <div class="panel" id="panelOS">
-      <h2><span class="icon">&#128421;</span> Operating Systems</h2>
-      <div class="bar-chart" id="osChart"></div>
-    </div>
-
-    <!-- Screen Sizes -->
-    <div class="panel" id="panelScreens">
-      <h2><span class="icon">&#128250;</span> Screen Sizes</h2>
-      <div class="bar-chart" id="screenChart"></div>
-    </div>
+    <div class="panel"><h2><span class="icon">&#127758;</span> Visitor Locations</h2><div class="map-grid" id="locationGrid"></div></div>
+    <div class="panel"><h2><span class="icon">&#128187;</span> Devices & Browsers</h2><div class="bar-chart" id="deviceChart"></div></div>
+    <div class="panel panel-full"><h2><span class="icon">&#9200;</span> Section Attention Heatmap <span style="font-weight:400;font-size:0.8rem;color:var(--text-dim)">(avg seconds per section)</span></h2><div class="heatmap-grid" id="dwellHeatmap"></div></div>
+    <div class="panel"><h2><span class="icon">&#128433;</span> Top Clicked Elements</h2><div class="bar-chart" id="clickChart"></div></div>
+    <div class="panel"><h2><span class="icon">&#128279;</span> Traffic Sources</h2><div class="bar-chart" id="referrerChart"></div></div>
+    <div class="panel"><h2><span class="icon">&#128200;</span> Scroll Depth Distribution</h2><div class="bar-chart" id="scrollChart"></div></div>
+    <div class="panel"><h2><span class="icon">&#127760;</span> Visitor Languages</h2><div class="bar-chart" id="languageChart"></div></div>
+    <div class="panel panel-full"><h2><span class="icon">&#128073;</span> Recent Click Activity</h2><div class="click-list" id="clickFeed"></div></div>
+    <div class="panel panel-full"><h2><span class="icon">&#128100;</span> Recent Sessions</h2><div style="overflow-x:auto"><table class="data-table"><thead><tr><th>Time</th><th>Location</th><th>Device</th><th>Browser</th><th>Duration</th><th>Scroll</th><th>Clicks</th><th>Referrer</th></tr></thead><tbody id="sessionBody"></tbody></table></div></div>
+    <div class="panel"><h2><span class="icon">&#128421;</span> Operating Systems</h2><div class="bar-chart" id="osChart"></div></div>
+    <div class="panel"><h2><span class="icon">&#128250;</span> Screen Sizes</h2><div class="bar-chart" id="screenChart"></div></div>
   </div>
 </div>
-</div><!-- /dashboardMain -->
+</div>
 
 <script>
+/* ---- Configuration: match tracker.js ---- */
+const SUPABASE_URL = '';   // Same as tracker.js
+const SUPABASE_KEY = '';   // Same as tracker.js
 const STORAGE_KEY = 'nikepig_analytics';
-let currentRange = 'today';
 
-/* ---- HTML escaping to prevent XSS ---- */
+let currentRange = 'today';
+let dataSource = 'local';
+
+function supabaseEnabled() { return SUPABASE_URL && SUPABASE_KEY; }
+
+/* ---- HTML escaping ---- */
 function esc(str) {
   const div = document.createElement('div');
   div.textContent = String(str ?? '');
   return div.innerHTML;
 }
-
-/* ---- Safe href: only allow http(s) URLs ---- */
 function safeHref(url) {
   if (!url) return null;
   try {
@@ -280,23 +194,116 @@ function safeHref(url) {
   return null;
 }
 
-/* ---- Data Access ---- */
-function getStore() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || emptyStore(); }
-  catch { return emptyStore(); }
+/* ---- Supabase query helper ---- */
+async function supabaseSelect(table, query) {
+  const resp = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${query}`, {
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`
+    }
+  });
+  if (!resp.ok) throw new Error(`Supabase ${table}: ${resp.status}`);
+  return resp.json();
 }
-function emptyStore() {
-  return { visitors: [], sessions: [], pageviews: [], clicks: [], sectionViews: [], scrollDepths: [] };
+
+function getRangeCutoff() {
+  const now = new Date();
+  if (currentRange === 'today') return new Date(now - 24*60*60*1000).toISOString();
+  if (currentRange === '7d') return new Date(now - 7*24*60*60*1000).toISOString();
+  if (currentRange === '30d') return new Date(now - 30*24*60*60*1000).toISOString();
+  return null;
+}
+
+/* ---- Fetch all data from Supabase ---- */
+async function fetchFromSupabase() {
+  const cutoff = getRangeCutoff();
+  const timeFilter = cutoff ? `&started_at=gte.${cutoff}` : '';
+  const clickTimeFilter = cutoff ? `&timestamp=gte.${cutoff}` : '';
+
+  const [sessions, clicks, visitors, pageviews] = await Promise.all([
+    supabaseSelect('sessions', `select=*${timeFilter}&order=started_at.desc&limit=500`),
+    supabaseSelect('clicks', `select=*${clickTimeFilter}&order=timestamp.desc&limit=2000`),
+    supabaseSelect('visitors', 'select=*&order=last_seen.desc&limit=500'),
+    supabaseSelect('pageviews', `select=*${cutoff ? '&timestamp=gte.' + cutoff : ''}&order=timestamp.desc&limit=1000`)
+  ]);
+
+  // Transform Supabase rows to match local format
+  return {
+    sessions: sessions.map(s => ({
+      id: s.id,
+      visitorId: s.visitor_id,
+      startedAt: s.started_at,
+      endedAt: s.ended_at,
+      referrer: s.referrer,
+      utmSource: s.utm_source,
+      utmMedium: s.utm_medium,
+      utmCampaign: s.utm_campaign,
+      landingPage: s.landing_page,
+      duration: s.duration,
+      maxScrollDepth: s.max_scroll_depth,
+      sectionDwellTimes: s.section_dwell_times,
+      totalClicks: s.total_clicks,
+      device: {
+        device: s.device_type,
+        browser: s.browser,
+        os: s.os,
+        screenWidth: s.screen_width,
+        screenHeight: s.screen_height,
+        viewportWidth: s.viewport_width,
+        viewportHeight: s.viewport_height,
+        language: s.language,
+        touchSupport: s.touch_support,
+        pixelRatio: s.pixel_ratio
+      },
+      geo: s.country ? {
+        country: s.country,
+        countryCode: s.country_code,
+        region: s.region,
+        city: s.city
+      } : null
+    })),
+    clicks: clicks.map(c => ({
+      timestamp: c.timestamp,
+      sessionId: c.session_id,
+      tag: c.tag,
+      id: c.element_id,
+      className: c.class_name,
+      text: c.text,
+      href: c.href,
+      x: c.x,
+      y: c.y,
+      section: c.section
+    })),
+    visitors: visitors.map(v => ({
+      id: v.id,
+      firstSeen: v.first_seen,
+      lastSeen: v.last_seen,
+      visitCount: v.visit_count
+    })),
+    pageviews
+  };
+}
+
+/* ---- Fallback: localStorage ---- */
+function fetchFromLocal() {
+  try {
+    const store = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+    return {
+      sessions: store.sessions || [],
+      clicks: store.clicks || [],
+      visitors: store.visitors || [],
+      pageviews: store.pageviews || []
+    };
+  } catch {
+    return { sessions: [], clicks: [], visitors: [], pageviews: [] };
+  }
 }
 
 function filterByRange(items, dateField) {
-  const now = Date.now();
-  let cutoff = 0;
-  if (currentRange === 'today') cutoff = now - 24 * 60 * 60 * 1000;
-  else if (currentRange === '7d') cutoff = now - 7 * 24 * 60 * 60 * 1000;
-  else if (currentRange === '30d') cutoff = now - 30 * 24 * 60 * 60 * 1000;
-  else return items;
-  return items.filter(i => new Date(i[dateField]).getTime() > cutoff);
+  const cutoff = getRangeCutoff();
+  if (!cutoff) return items;
+  const cutoffMs = new Date(cutoff).getTime();
+  return items.filter(i => new Date(i[dateField]).getTime() > cutoffMs);
 }
 
 /* ---- Render Helpers ---- */
@@ -326,9 +333,7 @@ function countBy(arr, key) {
 function formatDuration(seconds) {
   if (!seconds || seconds < 1) return '< 1s';
   if (seconds < 60) return seconds + 's';
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
-  return m + 'm ' + s + 's';
+  return Math.floor(seconds / 60) + 'm ' + (seconds % 60) + 's';
 }
 
 function formatTime(iso) {
@@ -346,29 +351,47 @@ const countryFlags = {
 };
 
 /* ---- Main Render ---- */
-function refreshDashboard() {
-  const store = getStore();
-  const sessions = filterByRange(store.sessions, 'startedAt');
-  const clicks = filterByRange(store.clicks, 'timestamp');
-  const pageviews = filterByRange(store.pageviews, 'timestamp');
-  // Unique visitors in range
+async function refreshDashboard() {
+  let store;
+  const badge = document.getElementById('sourceBadge');
+
+  if (supabaseEnabled()) {
+    try {
+      store = await fetchFromSupabase();
+      dataSource = 'supabase';
+      badge.textContent = 'SUPABASE';
+      badge.className = 'source-badge source-supabase';
+    } catch (e) {
+      console.warn('Supabase fetch failed, falling back to localStorage:', e);
+      store = fetchFromLocal();
+      dataSource = 'local';
+      badge.textContent = 'LOCAL FALLBACK';
+      badge.className = 'source-badge source-local';
+    }
+  } else {
+    store = fetchFromLocal();
+    dataSource = 'local';
+    badge.textContent = 'LOCAL ONLY';
+    badge.className = 'source-badge source-local';
+  }
+
+  // For local data, apply time filter client-side (Supabase data is already filtered)
+  const sessions = dataSource === 'local' ? filterByRange(store.sessions, 'startedAt') : store.sessions;
+  const clicks = dataSource === 'local' ? filterByRange(store.clicks, 'timestamp') : store.clicks;
+  const pageviews = dataSource === 'local' ? filterByRange(store.pageviews, 'timestamp') : store.pageviews;
+
   const visitorIds = new Set(sessions.map(s => s.visitorId));
   const uniqueVisitors = visitorIds.size;
-
-  // Return visitors: only count visitors who have sessions in the filtered range AND visitCount > 1
   const visitorsInRange = store.visitors.filter(v => visitorIds.has(v.id));
   const returnVisitors = visitorsInRange.filter(v => v.visitCount > 1).length;
 
-  // Avg session duration
   const durations = sessions.filter(s => s.duration).map(s => s.duration);
   const avgDuration = durations.length ? Math.round(durations.reduce((a, b) => a + b, 0) / durations.length) : 0;
 
-  // Avg scroll depth
   const scrolls = sessions.filter(s => s.maxScrollDepth != null).map(s => s.maxScrollDepth);
   const avgScroll = scrolls.length ? Math.round(scrolls.reduce((a, b) => a + b, 0) / scrolls.length) : 0;
 
-  // Bounce rate (sessions with end data that lasted < 10s and had no scroll)
-  const bounces = sessions.filter(s => s.duration != null && (s.duration < 10 && (s.maxScrollDepth == null || s.maxScrollDepth === 0)));
+  const bounces = sessions.filter(s => s.duration != null && s.duration < 10 && (s.maxScrollDepth == null || s.maxScrollDepth === 0));
   const bounceRate = sessions.length ? Math.round((bounces.length / sessions.length) * 100) : 0;
 
   /* KPI Cards */
@@ -376,16 +399,10 @@ function refreshDashboard() {
     { label: 'Total Sessions', value: sessions.length, sub: `${pageviews.length} pageviews` },
     { label: 'Unique Visitors', value: uniqueVisitors, sub: `${returnVisitors} returning` },
     { label: 'Total Clicks', value: clicks.length, sub: `${sessions.length ? (clicks.length / sessions.length).toFixed(1) : 0} per session` },
-    { label: 'Avg Duration', value: formatDuration(avgDuration), sub: `${sessions.length} sessions measured` },
+    { label: 'Avg Duration', value: formatDuration(avgDuration), sub: `${durations.length} sessions measured` },
     { label: 'Avg Scroll Depth', value: avgScroll + '%', sub: `of ${scrolls.length} sessions` },
     { label: 'Bounce Rate', value: bounceRate + '%', sub: `${bounces.length} of ${sessions.length} sessions` }
-  ].map(k => `
-    <div class="stat-card">
-      <div class="label">${k.label}</div>
-      <div class="value">${k.value}</div>
-      <div class="sub">${k.sub}</div>
-    </div>
-  `).join('');
+  ].map(k => `<div class="stat-card"><div class="label">${k.label}</div><div class="value">${k.value}</div><div class="sub">${k.sub}</div></div>`).join('');
 
   /* Location Grid */
   const locationMap = {};
@@ -404,18 +421,11 @@ function refreshDashboard() {
   } else {
     locGrid.innerHTML = locations.slice(0, 12).map(loc => {
       const topCities = Object.entries(loc.cities).sort((a, b) => b[1] - a[1]).slice(0, 3).map(c => c[0]).join(', ');
-      return `<div class="map-item">
-        <span class="map-flag">${countryFlags[loc.code] || '\u{1F30D}'}</span>
-        <div class="map-info">
-          <div class="country">${esc(loc.country)}</div>
-          <div class="detail">${esc(topCities)}</div>
-        </div>
-        <span class="map-count">${loc.count}</span>
-      </div>`;
+      return `<div class="map-item"><span class="map-flag">${countryFlags[loc.code] || '\u{1F30D}'}</span><div class="map-info"><div class="country">${esc(loc.country)}</div><div class="detail">${esc(topCities)}</div></div><span class="map-count">${loc.count}</span></div>`;
     }).join('');
   }
 
-  /* Devices & Browsers (combined) */
+  /* Devices & Browsers */
   const browserData = countBy(sessions, s => s.device?.browser || 'unknown');
   const deviceData = countBy(sessions, s => s.device?.device || 'unknown');
   const combined = [...deviceData.map(d => ({...d, label: d.label + ' (device)'})), ...browserData.map(d => ({...d, label: d.label + ' (browser)'}))];
@@ -423,10 +433,8 @@ function refreshDashboard() {
 
   /* Section Dwell Times */
   const dwellMap = {};
-  let dwellCount = 0;
   sessions.forEach(s => {
     if (!s.sectionDwellTimes) return;
-    dwellCount++;
     for (const [section, time] of Object.entries(s.sectionDwellTimes)) {
       if (!dwellMap[section]) dwellMap[section] = { total: 0, count: 0 };
       dwellMap[section].total += time;
@@ -434,47 +442,34 @@ function refreshDashboard() {
     }
   });
   const dwellHeatmap = document.getElementById('dwellHeatmap');
-  const dwellEntries = Object.entries(dwellMap).map(([name, d]) => ({
-    name, avg: Math.round(d.total / d.count)
-  })).sort((a, b) => b.avg - a.avg);
-
+  const dwellEntries = Object.entries(dwellMap).map(([name, d]) => ({ name, avg: Math.round(d.total / d.count) })).sort((a, b) => b.avg - a.avg);
   if (!dwellEntries.length) {
     dwellHeatmap.innerHTML = '<div class="empty-state"><div class="icon">&#9200;</div>No dwell time data yet</div>';
   } else {
     const maxDwell = Math.max(...dwellEntries.map(d => d.avg));
     dwellHeatmap.innerHTML = dwellEntries.map(d => {
       const intensity = Math.min(d.avg / Math.max(maxDwell, 1), 1);
-      const r = Math.round(212 + (216 - 212) * intensity);
-      const g = Math.round(184 + (160 - 184) * intensity);
-      const b = Math.round(106 + (168 - 106) * intensity);
-      const bg = `rgba(${r},${g},${b},${0.15 + intensity * 0.35})`;
-      return `<div class="heatmap-cell" style="background:${bg}">
-        <div class="section-name">${esc(d.name)}</div>
-        <div class="section-time">${formatDuration(d.avg)}</div>
-      </div>`;
+      const bg = `rgba(${Math.round(212+4*intensity)},${Math.round(184-24*intensity)},${Math.round(106+62*intensity)},${0.15+intensity*0.35})`;
+      return `<div class="heatmap-cell" style="background:${bg}"><div class="section-name">${esc(d.name)}</div><div class="section-time">${formatDuration(d.avg)}</div></div>`;
     }).join('');
   }
 
   /* Top Clicked */
   const clickLabels = clicks.map(c => {
-    if (c.href && c.href !== 'null') {
-      try { return new URL(c.href).pathname || c.href; } catch { return c.href; }
-    }
+    if (c.href && c.href !== 'null') { try { return new URL(c.href).pathname || c.href; } catch { return c.href; } }
     return c.text?.slice(0, 40) || c.tag || 'element';
   });
   const clickCounts = {};
   clickLabels.forEach(l => { clickCounts[l] = (clickCounts[l] || 0) + 1; });
-  const topClicks = Object.entries(clickCounts).map(([label, count]) => ({ label, count })).sort((a, b) => b.count - a.count);
-  renderBarChart('clickChart', topClicks, 'var(--accent2)');
+  renderBarChart('clickChart', Object.entries(clickCounts).map(([label, count]) => ({ label, count })).sort((a, b) => b.count - a.count), 'var(--accent2)');
 
   /* Referrers */
-  const referrerData = countBy(sessions, s => {
+  renderBarChart('referrerChart', countBy(sessions, s => {
     if (!s.referrer || s.referrer === 'direct') return 'Direct';
     try { return new URL(s.referrer).hostname; } catch { return s.referrer; }
-  });
-  renderBarChart('referrerChart', referrerData, 'var(--accent3)');
+  }), 'var(--accent3)');
 
-  /* Scroll Depth Distribution */
+  /* Scroll Depth */
   const scrollBuckets = { '0-25%': 0, '25-50%': 0, '50-75%': 0, '75-100%': 0 };
   sessions.forEach(s => {
     const d = s.maxScrollDepth;
@@ -486,22 +481,13 @@ function refreshDashboard() {
   });
   renderBarChart('scrollChart', Object.entries(scrollBuckets).map(([label, count]) => ({ label, count })), 'var(--blue)');
 
-  /* Languages */
   renderBarChart('languageChart', countBy(sessions, s => s.device?.language || 'unknown'), 'var(--orange)');
-
-  /* OS */
   renderBarChart('osChart', countBy(sessions, s => s.device?.os || 'unknown'), 'var(--green)');
-
-  /* Screen Sizes */
-  const screenData = countBy(sessions, s => {
-    if (!s.device) return 'unknown';
-    return s.device.screenWidth + 'x' + s.device.screenHeight;
-  });
-  renderBarChart('screenChart', screenData, 'var(--accent)');
+  renderBarChart('screenChart', countBy(sessions, s => s.device ? s.device.screenWidth + 'x' + s.device.screenHeight : 'unknown'), 'var(--accent)');
 
   /* Recent Click Feed */
   const feedEl = document.getElementById('clickFeed');
-  const recentClicks = clicks.slice(-50).reverse();
+  const recentClicks = clicks.slice(0, 50);
   if (!recentClicks.length) {
     feedEl.innerHTML = '<div class="empty-state"><div class="icon">&#128073;</div>No clicks recorded yet</div>';
   } else {
@@ -517,7 +503,7 @@ function refreshDashboard() {
 
   /* Sessions Table */
   const tbody = document.getElementById('sessionBody');
-  const recentSessions = sessions.slice(-30).reverse();
+  const recentSessions = sessions.slice(0, 30);
   if (!recentSessions.length) {
     tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--text-dim)">No sessions yet</td></tr>';
   } else {
@@ -537,7 +523,7 @@ function refreshDashboard() {
   }
 }
 
-/* ---- Time filter ---- */
+/* Time filter */
 document.getElementById('timeFilter').addEventListener('click', e => {
   if (e.target.dataset.range) {
     currentRange = e.target.dataset.range;
@@ -547,53 +533,23 @@ document.getElementById('timeFilter').addEventListener('click', e => {
   }
 });
 
-/* ---- Export ---- */
-function exportData() {
-  const store = getStore();
-  const blob = new Blob([JSON.stringify(store, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = 'nikepig-analytics-' + new Date().toISOString().slice(0, 10) + '.json';
-  a.click(); URL.revokeObjectURL(url);
-}
-
+/* Export CSV */
 function exportCSV() {
-  const store = getStore();
-  const sessions = store.sessions || [];
-  const headers = ['Date', 'Visitor ID', 'Country', 'City', 'Device', 'Browser', 'OS', 'Language', 'Duration (s)', 'Scroll Depth %', 'Clicks', 'Referrer'];
-  const rows = sessions.map(s => [
-    s.startedAt,
-    s.visitorId,
-    s.geo?.country || '',
-    s.geo?.city || '',
-    s.device?.device || '',
-    s.device?.browser || '',
-    s.device?.os || '',
-    s.device?.language || '',
-    s.duration || '',
-    s.maxScrollDepth || '',
-    s.totalClicks || '',
-    s.referrer || 'direct'
-  ]);
+  const tbody = document.getElementById('sessionBody');
+  const rows = Array.from(tbody.querySelectorAll('tr')).map(tr =>
+    Array.from(tr.querySelectorAll('td')).map(td => td.textContent.trim())
+  );
+  const headers = ['Time', 'Location', 'Device', 'Browser', 'Duration', 'Scroll', 'Clicks', 'Referrer'];
   const csv = [headers, ...rows].map(r => r.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(',')).join('\n');
   const blob = new Blob([csv], { type: 'text/csv' });
-  const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url; a.download = 'nikepig-analytics-' + new Date().toISOString().slice(0, 10) + '.csv';
-  a.click(); URL.revokeObjectURL(url);
+  a.href = URL.createObjectURL(blob);
+  a.download = 'nikepig-analytics-' + new Date().toISOString().slice(0, 10) + '.csv';
+  a.click();
 }
 
-function clearData() {
-  if (confirm('Are you sure? This will delete ALL analytics data.')) {
-    localStorage.removeItem(STORAGE_KEY);
-    localStorage.removeItem('nikepig_vid');
-    refreshDashboard();
-  }
-}
-
-/* ---- Auto-refresh every 30s ---- */
+/* Auto-refresh every 30s */
 setInterval(refreshDashboard, 30000);
-refreshDashboard();
 </script>
 </body>
 </html>

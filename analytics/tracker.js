@@ -1,8 +1,8 @@
 /* ================================================================
-   NIKEPIG Visitor Analytics Tracker v1.0
+   NIKEPIG Visitor Analytics Tracker v2.0
    Comprehensive client-side analytics: location, clicks, section
    dwell time, scroll depth, sessions, devices, referrers.
-   Data stored in localStorage + optional remote endpoint.
+   Data sent to Supabase + localStorage fallback.
    ================================================================ */
 (function () {
   'use strict';
@@ -10,16 +10,65 @@
   const STORAGE_KEY = 'nikepig_analytics';
   const SESSION_KEY = 'nikepig_session';
   const CONFIG = {
-    // Set this to your analytics endpoint to persist data server-side
-    // e.g. a Supabase function, Google Apps Script, or any POST endpoint
-    remoteEndpoint: null,
-    // Free IP geolocation API (HTTPS, no key needed, 1k/day)
-    geoAPI: 'https://ipwho.is/',
+    // ---- Supabase configuration ----
+    // Replace these with your Supabase project values
+    supabaseUrl: '',   // e.g. 'https://abcdefgh.supabase.co'
+    supabaseKey: '',   // Your anon/public key (safe to expose in client code)
     // How often to flush to localStorage (ms)
     flushInterval: 5000,
+    // Free IP geolocation API (HTTPS, no key needed, 10k/month)
+    geoAPI: 'https://ipwho.is/',
     // Max clicks to buffer in memory before forcing a flush
     maxClickBuffer: 500
   };
+
+  function supabaseEnabled() {
+    return CONFIG.supabaseUrl && CONFIG.supabaseKey;
+  }
+
+  /* ---- Supabase REST helper ---- */
+  function supabaseInsert(table, rows) {
+    if (!supabaseEnabled() || !rows.length) return Promise.resolve();
+    return fetch(`${CONFIG.supabaseUrl}/rest/v1/${table}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': CONFIG.supabaseKey,
+        'Authorization': `Bearer ${CONFIG.supabaseKey}`,
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify(rows)
+    }).catch(() => {});
+  }
+
+  function supabaseUpsert(table, rows) {
+    if (!supabaseEnabled() || !rows.length) return Promise.resolve();
+    return fetch(`${CONFIG.supabaseUrl}/rest/v1/${table}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': CONFIG.supabaseKey,
+        'Authorization': `Bearer ${CONFIG.supabaseKey}`,
+        'Prefer': 'resolution=merge-duplicates,return=minimal'
+      },
+      body: JSON.stringify(rows)
+    }).catch(() => {});
+  }
+
+  function supabaseUpdate(table, match, data) {
+    if (!supabaseEnabled()) return Promise.resolve();
+    const params = Object.entries(match).map(([k, v]) => `${k}=eq.${encodeURIComponent(v)}`).join('&');
+    return fetch(`${CONFIG.supabaseUrl}/rest/v1/${table}?${params}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': CONFIG.supabaseKey,
+        'Authorization': `Bearer ${CONFIG.supabaseKey}`,
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify(data)
+    }).catch(() => {});
+  }
 
   /* ---- Utility helpers ---- */
   function generateId() {
@@ -177,13 +226,12 @@
   }
 
   function getSectionDwellTimes() {
-    // Flush any currently-visible sections
     const now = Date.now();
     const result = {};
     for (const [id, total] of Object.entries(sectionTotalTime)) {
       let t = total;
       if (sectionTimers[id]) t += now - sectionTimers[id];
-      result[id] = Math.round(t / 1000); // seconds
+      result[id] = Math.round(t / 1000);
     }
     return result;
   }
@@ -209,7 +257,6 @@
         section: el.closest('section')?.id || el.closest('section')?.className?.split(' ')[0] || 'unknown'
       };
       clickLog.push(entry);
-      // Prevent unbounded memory growth
       if (clickLog.length >= CONFIG.maxClickBuffer) flushData();
     }, { capture: true });
   }
@@ -239,12 +286,26 @@
   function flushData() {
     const store = getStore();
 
-    // Append clicks
     if (clickLog.length > 0) {
-      store.clicks.push(...clickLog.splice(0));
+      const newClicks = clickLog.splice(0);
+      store.clicks.push(...newClicks);
+
+      // Send clicks to Supabase
+      supabaseInsert('clicks', newClicks.map(c => ({
+        session_id: c.sessionId,
+        timestamp: c.timestamp,
+        tag: c.tag,
+        element_id: c.id,
+        class_name: c.className,
+        text: c.text,
+        href: c.href,
+        x: c.x,
+        y: c.y,
+        section: c.section
+      })));
     }
 
-    // Keep store size manageable (retain last 30 days)
+    // Keep localStorage manageable (retain last 30 days)
     const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
     store.clicks = store.clicks.filter(c => new Date(c.timestamp).getTime() > cutoff);
     store.sessions = store.sessions.filter(s => new Date(s.startedAt).getTime() > cutoff);
@@ -262,8 +323,21 @@
     const store = getStore();
 
     // Flush remaining clicks FIRST to get accurate count
-    if (clickLog.length > 0) {
-      store.clicks.push(...clickLog.splice(0));
+    const remainingClicks = clickLog.splice(0);
+    if (remainingClicks.length) {
+      store.clicks.push(...remainingClicks);
+      supabaseInsert('clicks', remainingClicks.map(c => ({
+        session_id: c.sessionId,
+        timestamp: c.timestamp,
+        tag: c.tag,
+        element_id: c.id,
+        class_name: c.className,
+        text: c.text,
+        href: c.href,
+        x: c.x,
+        y: c.y,
+        section: c.section
+      })));
     }
 
     const dwellTimes = getSectionDwellTimes();
@@ -276,39 +350,22 @@
       totalClicks
     };
 
-    // Update session record
+    // Update local session record
     const idx = store.sessions.findIndex(s => s.id === currentSession.id);
     if (idx >= 0) {
       Object.assign(store.sessions[idx], sessionEnd);
     }
 
     saveStore(store);
-    sendToRemote(store);
-  }
 
-  /* ---- Remote endpoint (optional) ---- */
-  function sendToRemote(store) {
-    if (!CONFIG.remoteEndpoint) return;
-    try {
-      const payload = JSON.stringify({
-        session: currentSession,
-        dwellTimes: getSectionDwellTimes(),
-        scrollDepth: maxScrollDepth,
-        clicks: store.clicks.filter(c => c.sessionId === currentSession.id)
-      });
-      // Use sendBeacon for reliability on page unload
-      if (navigator.sendBeacon) {
-        const blob = new Blob([payload], { type: 'application/json' });
-        navigator.sendBeacon(CONFIG.remoteEndpoint, blob);
-      } else {
-        fetch(CONFIG.remoteEndpoint, {
-          method: 'POST',
-          body: payload,
-          headers: { 'Content-Type': 'application/json' },
-          keepalive: true
-        }).catch(() => {});
-      }
-    } catch {}
+    // Update Supabase session with end data
+    supabaseUpdate('sessions', { id: currentSession.id }, {
+      ended_at: sessionEnd.endedAt,
+      duration: sessionEnd.duration,
+      max_scroll_depth: sessionEnd.maxScrollDepth,
+      section_dwell_times: sessionEnd.sectionDwellTimes,
+      total_clicks: sessionEnd.totalClicks
+    });
   }
 
   /* ---- Initialize ---- */
@@ -319,7 +376,6 @@
       const store = getStore();
       const deviceInfo = getDeviceInfo();
 
-      // Check if this visitor already exists
       let visitor = store.visitors.find(v => v.id === currentSession.visitorId);
 
       if (!visitor) {
@@ -338,7 +394,7 @@
         visitor.device = deviceInfo;
       }
 
-      // Record session (only if not already recorded for this session ID)
+      // Record session locally
       if (!store.sessions.some(s => s.id === currentSession.id)) {
         store.sessions.push({
           ...currentSession,
@@ -348,31 +404,67 @@
       }
 
       // Record pageview
-      store.pageviews.push({
+      const pageview = {
         timestamp: new Date().toISOString(),
         sessionId: currentSession.id,
         visitorId: currentSession.visitorId,
         path: location.pathname + location.hash,
         referrer: document.referrer || 'direct'
-      });
+      };
+      store.pageviews.push(pageview);
 
       saveStore(store);
 
-      // Set up trackers immediately (don't wait for geo)
+      // Send session + pageview to Supabase
+      supabaseUpsert('visitors', [{
+        id: visitor.id,
+        first_seen: visitor.firstSeen,
+        last_seen: visitor.lastSeen,
+        visit_count: visitor.visitCount
+      }]);
+
+      supabaseInsert('sessions', [{
+        id: currentSession.id,
+        visitor_id: currentSession.visitorId,
+        started_at: currentSession.startedAt,
+        referrer: currentSession.referrer,
+        utm_source: currentSession.utmSource,
+        utm_medium: currentSession.utmMedium,
+        utm_campaign: currentSession.utmCampaign,
+        landing_page: currentSession.landingPage,
+        device_type: deviceInfo.device,
+        browser: deviceInfo.browser,
+        os: deviceInfo.os,
+        screen_width: deviceInfo.screenWidth,
+        screen_height: deviceInfo.screenHeight,
+        viewport_width: deviceInfo.viewportWidth,
+        viewport_height: deviceInfo.viewportHeight,
+        language: deviceInfo.language,
+        touch_support: deviceInfo.touchSupport,
+        pixel_ratio: deviceInfo.pixelRatio
+      }]);
+
+      supabaseInsert('pageviews', [{
+        session_id: pageview.sessionId,
+        visitor_id: pageview.visitorId,
+        timestamp: pageview.timestamp,
+        path: pageview.path,
+        referrer: pageview.referrer
+      }]);
+
+      // Set up trackers
       setupSectionTracking();
       setupClickTracking();
       setupScrollTracking();
 
-      // Periodic flush
       setInterval(flushData, CONFIG.flushInterval);
 
-      // Capture session end
       window.addEventListener('beforeunload', recordSessionEnd);
       document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'hidden') recordSessionEnd();
       });
 
-      // Fetch geo in background — update records when it resolves
+      // Fetch geo in background
       fetchGeoLocation().then(geo => {
         if (!geo) return;
         const s = getStore();
@@ -381,14 +473,24 @@
         const sess = s.sessions.find(ss => ss.id === currentSession.id);
         if (sess) sess.geo = geo;
         saveStore(s);
+
+        // Update Supabase with geo data
+        supabaseUpdate('sessions', { id: currentSession.id }, {
+          country: geo.country,
+          country_code: geo.countryCode,
+          region: geo.region,
+          city: geo.city,
+          latitude: geo.lat,
+          longitude: geo.lon,
+          timezone: geo.timezone,
+          isp: geo.isp
+        });
       }).catch(() => {});
     } catch (err) {
-      // Tracker must never break the host page
       if (typeof console !== 'undefined') console.warn('[NIKEPIG Analytics] init error:', err);
     }
   }
 
-  // Start when DOM is ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {

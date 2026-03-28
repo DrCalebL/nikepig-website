@@ -12,8 +12,8 @@
   const CONFIG = {
     // ---- Supabase configuration ----
     // Replace these with your Supabase project values
-    supabaseUrl: '',   // e.g. 'https://abcdefgh.supabase.co'
-    supabaseKey: '',   // Your anon/public key (safe to expose in client code)
+    supabaseUrl: 'https://yurrhnhduhosigalfopo.supabase.co',
+    supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1cnJobmhkdWhvc2lnYWxmb3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3MTI3NDIsImV4cCI6MjA5MDI4ODc0Mn0.EozFWDGm2dbafGrjenySyOym6M-IU8_SRcI_wKbtBto',
     // How often to flush to localStorage (ms)
     flushInterval: 5000,
     // Free IP geolocation API (HTTPS, no key needed, 10k/month)

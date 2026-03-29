@@ -275,7 +275,7 @@
         href: el.href || el.closest('a')?.href || null,
         x: e.clientX,
         y: e.clientY,
-        section: el.closest('section')?.id || el.closest('section')?.className?.split(' ')[0] || 'unknown'
+        section: el.closest('section')?.id || el.closest('section')?.className?.split(' ')[0] || el.closest('nav')?.id || el.closest('header')?.id || el.closest('footer')?.id || el.closest('[data-section]')?.dataset?.section || 'unknown'
       };
       clickLog.push(entry);
       if (clickLog.length >= CONFIG.maxClickBuffer) flushData();

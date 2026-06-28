@@ -367,6 +367,8 @@ section{position:relative;z-index:1}
   .nike-art-grid{grid-template-columns:repeat(3,1fr);gap:0.8rem}
   /* NIKEVERSE */
   .nikeverse-grid{grid-template-columns:repeat(2,1fr);gap:1.5rem}
+  /* desktop-only "center lone last card" must NOT leak below 3 cols — it forces an implicit 2nd column and overlaps cards (Safari mobile) */
+  .nikeverse-grid>.verse-card:last-child:nth-child(3n+1){grid-column:auto}
   .verse-card{min-height:300px;padding:2rem 2rem 5.5rem}
   .verse-card-btn{bottom:2rem;left:2rem}
   .verse-desc{font-size:1rem}

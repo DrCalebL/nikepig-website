@@ -12,6 +12,9 @@
 <meta name="theme-color" content="#1E2838">
 <title>$NIKEPIG | The OG Pig of Cardano</title>
 <meta name="description" content="$NIKEPIG - Charles Hoskinson's legendary pet pig Nike, now immortalized on the Cardano blockchain.">
+<link rel="preload" as="image" href="assets/art/bg-16x9-mobile.webp" media="(max-width:768px)" fetchpriority="high">
+<link rel="preload" as="image" href="assets/art/bg-16x9.webp" media="(min-width:769px)" fetchpriority="high">
+<link rel="preload" as="image" href="assets/art/comic-cover-manga.webp">
 <link href="https://fonts.cdnfonts.com/css/more-sugar" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
@@ -64,7 +67,7 @@
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth;overflow-x:hidden;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
 body{font-family:'Nunito',sans-serif;background:rgb(15,18,25);color:var(--navy);overflow-x:hidden;cursor:url('icons/pig-cursor.png') 16 16,auto;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
-body::before{content:'';position:fixed;inset:0;z-index:-1;background:rgb(15,18,25) url('assets/art/bg-16x9.png') center center/cover no-repeat;pointer-events:none}
+body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100vh;height:100lvh;z-index:-1;background:rgb(15,18,25) url('assets/art/bg-16x9.webp') center center/cover no-repeat;pointer-events:none}
 img{max-width:100%;height:auto}
 a{text-decoration:none;color:inherit;-webkit-tap-highlight-color:transparent}
 ::-webkit-scrollbar{width:10px}
@@ -196,7 +199,8 @@ section{position:relative}
 .art-gallery{padding:5rem 2rem;background:rgba(20,18,30,0.75);backdrop-filter:blur(12px);border-radius:30px;max-width:1200px;margin:2rem auto;box-shadow:0 8px 40px rgba(0,0,0,0.3)}
 .art-grid{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem}
 .art-card{position:relative;border-radius:16px;overflow:hidden;aspect-ratio:2/3;border:3px solid rgba(255,255,255,0.5);transition:all 0.4s cubic-bezier(0.16,1,0.3,1);display:block;box-shadow:0 8px 30px rgba(90,72,128,0.08)}
-.art-card img{width:100%;height:100%;object-fit:cover;transition:transform 0.6s ease}
+.art-card img{width:100%;height:100%;object-fit:cover;transition:transform 0.6s ease;transform:translateZ(0);backface-visibility:hidden}
+.art-card.repaint img{transform:translateZ(0) scale(1.0001)}
 .art-card:hover img{transform:scale(1.08)}
 .art-card-overlay{position:absolute;bottom:0;left:0;right:0;padding:2.5rem 0.8rem 0.8rem;background:linear-gradient(transparent,rgba(30,40,56,0.9))}
 .art-card-title{font-family:'More Sugar',sans-serif;font-size:0.95rem;color:white;display:block}
@@ -522,6 +526,9 @@ section{position:relative;z-index:1}
   .particles{display:none}
   .hero-pig{animation:pigFloat 4s ease-in-out infinite}
 }
+@media(max-width:768px){
+  body::before{background-image:url('assets/art/bg-16x9-mobile.webp')}
+}
 </style>
 </head>
 <body>
@@ -617,7 +624,7 @@ section{position:relative;z-index:1}
     <div class="art-card reveal reveal-delay-1"><img src="assets/art/comic-cover-7.png" alt=""><div class="art-card-overlay"><span class="art-card-title">Cover 6</span></div></div>
   </div>
   <div style="display:flex;justify-content:center;margin-top:1.2rem">
-    <div class="art-card reveal" style="max-width:calc((1100px - 2.4rem) / 3)"><img src="assets/art/comic-cover-manga.webp" alt="" width="900" height="1273" decoding="async" loading="eager"><div class="art-card-overlay"><span class="art-card-title">Cover 7</span></div></div>
+    <div class="art-card reveal" id="cover7card" style="max-width:calc((1100px - 2.4rem) / 3)"><img src="assets/art/comic-cover-manga.webp" alt="" width="900" height="1273" decoding="sync" loading="eager" id="cover7img"><div class="art-card-overlay"><span class="art-card-title">Cover 7</span></div></div>
   </div>
   <div style="text-align:center;margin-top:2.5rem" class="reveal"><a href="https://discord.gg/RPwVazfB2G" target="_blank" class="cta-btn" style="font-size:1.1rem;padding:1rem 2.5rem"><img src="icons/pig.png" alt="NikePig" class="icon-inline"> Join Discord for Mint Updates</a></div>
 </section>
@@ -754,6 +761,7 @@ const revealObs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIn
 const revealEls=document.querySelectorAll('.reveal');
 revealEls.forEach(el=>revealObs.observe(el));
 revealEls.forEach(el=>{el.querySelectorAll('img').forEach(img=>{const reassert=()=>{if(el.classList.contains('active')){img.style.opacity='1'}};if(img.complete){reassert()}else{img.addEventListener('load',reassert,{once:true})}})});
+(function(){const card=document.getElementById('cover7card'),img=document.getElementById('cover7img');if(!card||!img)return;const paint=()=>{card.classList.add('active');requestAnimationFrame(()=>{card.classList.add('repaint');requestAnimationFrame(()=>requestAnimationFrame(()=>card.classList.remove('repaint')))})};if(img.decode){img.decode().then(paint).catch(paint)}else if(img.complete){paint()}else{img.addEventListener('load',paint,{once:true})}})();
 setTimeout(()=>{revealEls.forEach(el=>{const r=el.getBoundingClientRect();if(r.top<window.innerHeight&&r.bottom>0){el.classList.add('active')}})},2500);
 const counterObs=new IntersectionObserver(entries=>{entries.forEach(entry=>{if(entry.isIntersecting){const el=entry.target,target=parseInt(el.dataset.target);const suffix=el.textContent.includes('%')?'%':'+';let current=0;const inc=target/60;const timer=setInterval(()=>{current+=inc;if(current>=target){current=target;clearInterval(timer)}el.textContent=Math.floor(current).toLocaleString()+suffix},25);counterObs.unobserve(el)}})},{threshold:0.5});
 document.querySelectorAll('.stat-number[data-target]').forEach(c=>counterObs.observe(c));

@@ -63,7 +63,8 @@
 
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth;overflow-x:hidden;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
-body{font-family:'Nunito',sans-serif;background:rgb(15,18,25) url('assets/art/bg-16x9.png') no-repeat center center fixed;background-size:cover;color:var(--navy);overflow-x:hidden;cursor:url('icons/pig-cursor.png') 16 16,auto;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+body{font-family:'Nunito',sans-serif;background:rgb(15,18,25);color:var(--navy);overflow-x:hidden;cursor:url('icons/pig-cursor.png') 16 16,auto;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+body::before{content:'';position:fixed;inset:0;z-index:-1;background:rgb(15,18,25) url('assets/art/bg-16x9.png') center center/cover no-repeat;pointer-events:none}
 img{max-width:100%;height:auto}
 a{text-decoration:none;color:inherit;-webkit-tap-highlight-color:transparent}
 ::-webkit-scrollbar{width:10px}
@@ -149,13 +150,10 @@ section{position:relative}
 /* =========== STATS (wheat) =========== */
 .stats{padding:4rem 2rem;background:rgba(20,18,30,0.75);backdrop-filter:blur(12px);border-radius:30px;max-width:1200px;margin:2rem auto;box-shadow:0 8px 40px rgba(0,0,0,0.3)}
 .stats-grid{max-width:1000px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.5rem}
-.stat-card{text-align:center;padding:2.5rem 1.5rem;background:rgba(255,255,255,0.5);border:2px solid rgba(212,184,106,0.15);border-radius:20px;transition:all 0.4s ease;backdrop-filter:blur(10px)}
-.stat-card:hover{transform:translateY(-6px);border-color:var(--wheat);box-shadow:0 15px 40px rgba(212,184,106,0.1)}
+.stats .stat-card{padding:0;background:none;border:none;backdrop-filter:none;overflow:hidden;border-radius:20px;aspect-ratio:1/1;transition:all 0.4s ease}
+.stats .stat-graphic{display:block;width:100%;height:100%;object-fit:cover}
+.stats .stat-card:hover{transform:translateY(-6px);box-shadow:0 18px 45px rgba(212,184,106,0.25)}
 .icon-inline{width:1.2em;height:1.2em;vertical-align:middle;display:inline-block;margin-right:0.3em}
-.stat-icon{font-size:2.5rem;margin-bottom:0.8rem}
-.stat-icon .icon-inline{width:2.5rem;height:2.5rem;margin-right:0}
-.stat-number{font-family:'More Sugar',sans-serif;font-size:2.8rem;letter-spacing:1px;color:var(--sunset-light)}
-.stat-label{font-weight:700;color:var(--wheat-pale);opacity:1;margin-top:0.3rem;font-size:0.85rem;text-transform:uppercase;letter-spacing:2px}
 
 /* =========== ABOUT (sunset pale) =========== */
 .about{padding:5rem 2rem;background:rgba(20,18,30,0.75);backdrop-filter:blur(12px);border-radius:30px;max-width:1200px;margin:2rem auto;box-shadow:0 8px 40px rgba(0,0,0,0.3)}
@@ -408,11 +406,7 @@ section{position:relative;z-index:1}
   /* STATS */
   .stats{padding:2.5rem 1rem;border-radius:0;margin:0}
   .stats-grid{grid-template-columns:repeat(2,1fr);gap:0.8rem}
-  .stat-card{padding:1.5rem 1rem;border-radius:14px}
-  .stat-number{font-size:2rem}
-  .stat-label{font-size:0.7rem;letter-spacing:1.5px}
-  .stat-icon{font-size:2rem;margin-bottom:0.5rem}
-  .stat-icon .icon-inline{width:2rem;height:2rem}
+  .stats .stat-card{border-radius:14px}
   /* ABOUT */
   .about{padding:3rem 1.2rem}
   .about-container{gap:2rem}
@@ -498,9 +492,6 @@ section{position:relative;z-index:1}
   .social-link--primary{padding:0.5rem 0.8rem;font-size:0.75rem}
   .contract-addr{max-width:90px;font-size:0.65rem}
   .stats-grid{gap:0.6rem}
-  .stat-card{padding:1.2rem 0.8rem}
-  .stat-number{font-size:1.6rem}
-  .stat-label{font-size:0.6rem}
   .gif-grid{grid-template-columns:repeat(2,1fr)}
   .art-grid{grid-template-columns:repeat(2,1fr);gap:0.5rem}
   .exchange-logo{flex:1 1 100%}
@@ -527,7 +518,6 @@ section{position:relative;z-index:1}
 }
 /* iOS: fixed bg kills scroll perf, noise overlay wastes GPU */
 @media(max-width:1024px){
-  body{background-attachment:scroll}
   body::after{display:none}
   .particles{display:none}
   .hero-pig{animation:pigFloat 4s ease-in-out infinite}
@@ -571,10 +561,10 @@ section{position:relative;z-index:1}
 </section>
 <section class="stats wheat-section">
   <div class="stats-grid">
-    <div class="stat-card reveal"><div class="stat-icon"><img src="icons/market-growth.png" alt="Market Growth" class="icon-inline"></div><div class="stat-number">$38M</div><div class="stat-label">Peak Market Cap</div></div>
-    <div class="stat-card reveal reveal-delay-1"><div class="stat-icon"><img src="icons/pie-chart.png" alt="Community Power" class="icon-inline"></div><div class="stat-number">0%</div><div class="stat-label">Creator Allocation</div></div>
-    <div class="stat-card reveal reveal-delay-3"><div class="stat-icon"><img src="icons/shield-lock.png" alt="Protected" class="icon-inline"></div><div class="stat-number">0</div><div class="stat-label">Inflation</div></div>
-    <div class="stat-card reveal"><div class="stat-icon"><img src="icons/repeat.png" alt="Crypto Market" class="icon-inline"></div><div class="stat-number">100%</div><div class="stat-label">Supply in Circulation</div></div>
+    <div class="stat-card reveal"><img src="assets/art/stat-marketcap.webp" alt="$38M peak market cap" class="stat-graphic" loading="lazy" decoding="async" width="1024" height="1024"></div>
+    <div class="stat-card reveal reveal-delay-1"><img src="assets/art/stat-allocation.webp" alt="0% creator allocation" class="stat-graphic" loading="lazy" decoding="async" width="1024" height="1024"></div>
+    <div class="stat-card reveal reveal-delay-3"><img src="assets/art/stat-inflation.webp" alt="Zero inflation" class="stat-graphic" loading="lazy" decoding="async" width="1024" height="1024"></div>
+    <div class="stat-card reveal"><img src="assets/art/stat-supply.webp" alt="100% of supply in circulation" class="stat-graphic" loading="lazy" decoding="async" width="1024" height="1024"></div>
   </div>
 </section>
 <section class="about sunset-section" id="about">
@@ -627,7 +617,7 @@ section{position:relative;z-index:1}
     <div class="art-card reveal reveal-delay-1"><img src="assets/art/comic-cover-7.png" alt=""><div class="art-card-overlay"><span class="art-card-title">Cover 6</span></div></div>
   </div>
   <div style="display:flex;justify-content:center;margin-top:1.2rem">
-    <div class="art-card reveal" style="max-width:calc((1100px - 2.4rem) / 3)"><img src="assets/art/comic-cover-manga.png" alt=""><div class="art-card-overlay"><span class="art-card-title">Cover 7</span></div></div>
+    <div class="art-card reveal" style="max-width:calc((1100px - 2.4rem) / 3)"><img src="assets/art/comic-cover-manga.webp" alt="" width="900" height="1273" decoding="async" loading="eager"><div class="art-card-overlay"><span class="art-card-title">Cover 7</span></div></div>
   </div>
   <div style="text-align:center;margin-top:2.5rem" class="reveal"><a href="https://discord.gg/RPwVazfB2G" target="_blank" class="cta-btn" style="font-size:1.1rem;padding:1rem 2.5rem"><img src="icons/pig.png" alt="NikePig" class="icon-inline"> Join Discord for Mint Updates</a></div>
 </section>
@@ -761,7 +751,10 @@ function toggleNav(){const nl=document.getElementById('navLinks');nl.classList.t
 document.querySelectorAll('.nav-links a').forEach(a=>a.addEventListener('click',()=>{document.getElementById('navLinks').classList.remove('open');document.body.style.overflow=''}));
 function copyContract(){const addr=document.getElementById('contractAddr').textContent;const btn=document.getElementById('copyBtn');if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(addr).then(()=>{btn.textContent='COPIED!';btn.style.background='#4A6838';setTimeout(()=>{btn.textContent='COPY';btn.style.background=''},2000)})}else{const ta=document.createElement('textarea');ta.value=addr;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);btn.textContent='COPIED!';btn.style.background='#4A6838';setTimeout(()=>{btn.textContent='COPY';btn.style.background=''},2000)}}
 const revealObs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('active');revealObs.unobserve(e.target)}})},{threshold:0.08,rootMargin:'0px 0px -30px 0px'});
-document.querySelectorAll('.reveal').forEach(el=>revealObs.observe(el));
+const revealEls=document.querySelectorAll('.reveal');
+revealEls.forEach(el=>revealObs.observe(el));
+revealEls.forEach(el=>{el.querySelectorAll('img').forEach(img=>{const reassert=()=>{if(el.classList.contains('active')){img.style.opacity='1'}};if(img.complete){reassert()}else{img.addEventListener('load',reassert,{once:true})}})});
+setTimeout(()=>{revealEls.forEach(el=>{const r=el.getBoundingClientRect();if(r.top<window.innerHeight&&r.bottom>0){el.classList.add('active')}})},2500);
 const counterObs=new IntersectionObserver(entries=>{entries.forEach(entry=>{if(entry.isIntersecting){const el=entry.target,target=parseInt(el.dataset.target);const suffix=el.textContent.includes('%')?'%':'+';let current=0;const inc=target/60;const timer=setInterval(()=>{current+=inc;if(current>=target){current=target;clearInterval(timer)}el.textContent=Math.floor(current).toLocaleString()+suffix},25);counterObs.unobserve(el)}})},{threshold:0.5});
 document.querySelectorAll('.stat-number[data-target]').forEach(c=>counterObs.observe(c));
 if(!isMobile){document.addEventListener('mousemove',e=>{const pig=document.getElementById('heroPig');if(!pig)return;const x=(e.clientX/window.innerWidth-0.5)*12;const y=(e.clientY/window.innerHeight-0.5)*12;pig.style.transform=`translateY(${-12+y*0.3}px) translateX(${x*0.3}px)`})}

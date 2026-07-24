@@ -80,3 +80,24 @@ Comic 7 harden) · `ea957ce` (Comic 7 out of reveal).
 observing, every `.reveal` img gets a `reassert()` (`load` once / `complete`) that re-sets
 `opacity:1` when its card is active, plus a 2500ms safety sweep. The single biggest offender (the
 full-size Comic 7 manga cover) is kept **out of the reveal system** rather than patched.
+
+---
+
+## Remove AscendEX CEX (delisted / exchange shut down)
+
+AscendEX (the site's only centralized-exchange listing) closed down, so its buy-step card was
+removed from the **How to Buy** (`#buy`) section. Change was run through the full multi-agent
+workflow (2-lens brainstorm → single builder on `index.html` → 2-lens review → orchestrator QC +
+Playwright).
+
+- Deleted the entire 3rd `.buy-step` card (step-number "3", `ascendex-logo.png`, "CEX listing"
+  copy, `ascendex.com` link). Eternl (1) + Vespr (2) remain.
+- The `.buy-steps` grid uses an **inline** `grid-template-columns` that overrides the base
+  `auto-fit` rule, so the columns had to be edited inline: `repeat(3,1fr);max-width:900px` →
+  `repeat(2,1fr);max-width:640px` — keeps the two remaining cards centered at their original
+  per-card width instead of stretching. Mobile `@media(max-width:768px)` already forces a single
+  column, so no mobile edit was needed.
+- Deleted the now-orphaned `assets/art/ascendex-logo.png` asset.
+- Verified: repo-wide `grep -rni ascend` on tracked content is clean; Playwright shows 2 cards,
+  2 equal columns on desktop, 1 column at 375px, 0 page errors (the 2 console lines are external
+  font fetches failing under `file://`, unrelated).

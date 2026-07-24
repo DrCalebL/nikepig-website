@@ -11,6 +11,22 @@ gotchas only. History lives elsewhere.
 **Per shipped change:** append the story to `docs/branch-log.md`; update `CLAUDE.md` only if a
 *durable architectural fact* changed; commit + push on the designated dev branch.
 
+## Full multi-agent workflow (default for any non-trivial change — read first)
+Every substantive change ships through this pipeline (scale the agent count to the task; a truly
+one-line typo fix can skip it):
+1. **Brainstorm + plan** — orchestrator spawns multiple **Opus** agents with *distinct lenses*
+   (layout/CSS, content/regression, mobile, contract) to advise on approach. They advise; they do
+   **not** edit.
+2. **Builder wave** — one or more **Opus** builders implement. Because the site is a single-file
+   client, **usually ONE builder owns `index.html`** (avoid concurrent writers on the same file).
+3. **Reviewer wave** — multiple **Opus** reviewers, again on distinct lenses (contract/regression ·
+   visual/mobile · cross-file), verify the diff.
+4. **Orchestrator QC** — the orchestrator fixes all findings *including nits*, re-verifies with
+   Playwright (0 `pageerror`; check the regression-prone areas: bg, reveal, sticker sizing, grid).
+5. **Docs** — append the narrative to `docs/branch-log.md`; update `CLAUDE.md` only if a durable
+   fact changed.
+6. **Ship** — commit + push (and rebase) on the designated dev branch. No PR unless asked.
+
 ## What this is
 The official marketing site for **$NIKEPIG — the OG Pig of Cardano** (a crypto/memecoin token
 project). A **self-contained static single page** — no framework, no build step, no deps. The
@@ -95,11 +111,8 @@ stable filename.
 - **Deploy:** push `main` → GitHub Pages publishes to `nikepig.com`. No env vars, no functions.
 
 ## Workflow for non-trivial changes
-Brainstorm/plan (orchestrator + Opus agents, distinct lenses) → Opus builder wave (single-file
-client ⇒ usually ONE builder owns `index.html`) → Opus reviewer wave (contract/regression ·
-visual/mobile · cross-file) → orchestrator QC (fix findings incl. nits, re-verify with Playwright)
-→ append to `docs/branch-log.md` (+ update `CLAUDE.md` only if a durable fact changed) → commit +
-push on the dev branch.
+See **"Full multi-agent workflow"** at the top of this file — that is the canonical pipeline
+(brainstorm → builder wave → reviewer wave → orchestrator QC → docs → ship).
 
 ## Repo-scope + git constraints (this session's rules — keep honoring)
 - Commit/push **only** on the designated dev branch `claude/paddle-payments-setup-0h567q`; never

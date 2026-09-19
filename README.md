@@ -88,7 +88,7 @@ nikepig-website/
 ├── CNAME               # GitHub Pages custom domain
 ├── README.md           # This file
 └── assets/
-    ├── art/            # Nano Banana Pro 2 artwork & community art
+    ├── art/            # AI-generated artwork & community art
     │   ├── nft-portrait.png
     │   ├── charles-and-nike.png
     │   ├── origin-tweet.png
@@ -116,5 +116,5 @@ nikepig-website/
 ## Built with
 - Pure HTML/CSS/JS (no frameworks, no build step)
 - Google Fonts (Bangers, Lilita One, Fredoka)
-- Nano Banana Pro 2 generated artwork
+- AI-generated artwork
 - Community memes

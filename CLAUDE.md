@@ -14,12 +14,12 @@ gotchas only. History lives elsewhere.
 ## Full multi-agent workflow (default for any non-trivial change — read first)
 Every substantive change ships through this pipeline (scale the agent count to the task; a truly
 one-line typo fix can skip it):
-1. **Brainstorm + plan** — orchestrator spawns multiple **Opus** agents with *distinct lenses*
+1. **Brainstorm + plan** — orchestrator spawns multiple **AI** agents with *distinct lenses*
    (layout/CSS, content/regression, mobile, contract) to advise on approach. They advise; they do
    **not** edit.
-2. **Builder wave** — one or more **Opus** builders implement. Because the site is a single-file
+2. **Builder wave** — one or more **AI** builders implement. Because the site is a single-file
    client, **usually ONE builder owns `index.html`** (avoid concurrent writers on the same file).
-3. **Reviewer wave** — multiple **Opus** reviewers, again on distinct lenses (contract/regression ·
+3. **Reviewer wave** — multiple **AI** reviewers, again on distinct lenses (contract/regression ·
    visual/mobile · cross-file), verify the diff.
 4. **Orchestrator QC** — the orchestrator fixes all findings *including nits*, re-verifies with
    Playwright (0 `pageerror`; check the regression-prone areas: bg, reveal, sticker sizing, grid).
@@ -89,15 +89,15 @@ product-card grid, JS-rendered into `#nikeverse-cards`) → `#memes` → `#gifs`
   'Nunito' (body) via Google Fonts `<link>`. Section bg classes (`sunset-section`/`wheat-section`/
   `navy-section`) are translucent over the fixed ranch bg.
 
-## Sticker-art pipeline (Higgsfield)
-Title/stat logos are **Higgsfield GPT-Image-2** (`gpt_image_2`) generations → `remove_background`
-for cutouts → re-encoded to **WebP with alpha** (`sharp` at `/tmp/imgtools/node_modules/sharp`).
-Gotchas: **`upload.higgsfield.ai` is blocked by the org egress proxy (403 CONNECT)** — you cannot
-attach a reference image; use a detailed style prompt instead (or `media_import_url` to confirm a
-`media_id` when a `job_id` is rejected, e.g. after `remove_background`). Generation is capped at
-**8 concurrent jobs**. Match the Battlegrounds die-cut sticker style (thick keyline, flat vibrant
-cel fills, hard offset shadow) for consistency. Commit the final WebP/PNG into `assets/art/` at a
-stable filename.
+## Sticker-art pipeline
+Title/stat logos are **AI image-model** generations with the background removed for cutouts →
+re-encoded to **WebP with alpha** (`sharp` at `/tmp/imgtools/node_modules/sharp`).
+Gotchas: **the image-model upload host is blocked by the org egress proxy (403 CONNECT)** — you
+cannot attach a reference image; use a detailed style prompt instead (and re-import the asset to
+confirm it when a raw job id is rejected after background removal). Generation is capped at a small
+number of concurrent jobs. Match the Battlegrounds die-cut sticker style (thick keyline, flat
+vibrant cel fills, hard offset shadow) for consistency. Commit the final WebP/PNG into `assets/art/`
+at a stable filename.
 
 ## Run / test / deploy
 - **Local:** open `index.html` directly, or `python3 -m http.server`. No install.

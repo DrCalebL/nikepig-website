@@ -13,20 +13,20 @@ logo) should use a varied die-cut **sticker-font title logo** in the same art/fo
 stat cards — "highly varied colours + font choices matching the product type so each card grabs
 attention," with the title centred and placed into the card like the Shards comic card's title.
 
-**Built:** 9 Higgsfield GPT-Image-2 die-cut sticker title logos (transparent WebP, alpha, 760px
+**Built:** 9 AI-generated die-cut sticker title logos (transparent WebP, alpha, 760px
 wide), one per product, replacing the old `<div class="verse-title">` text with
 `<img class="verse-title-img">`. Slugs + intrinsic dims:
 `title-meme-machine` 760×455 · `title-nike-rocket` 760×494 · `title-pfp-nfts` 760×432 ·
 `title-oinkening` 760×391 · `title-charles-ranch` 760×490 · `title-posting` 760×286 ·
 `title-greased` 760×357 · `title-rwa` 760×410 · `title-dimensional` 760×459. Colour/font per
 product theme (rocket = chrome/flame, ranch = western wood, posting = clean social, etc.).
-Dimensional cutout used `media_import_url` to confirm a `media_id` after `remove_background`
-rejected the raw `job_id`.
+Dimensional cutout needed a re-import to confirm the asset after the background-removal step
+rejected the raw job.
 
 **Shards resize:** the existing `shards-logo.png` (2000×811) was sized up to match the other
 card logos (it was rendering small).
 
-**QC pass (Opus reviewer wave → orchestrator fixes, commit `ee8df47`):**
+**QC pass (AI reviewer wave → orchestrator fixes, commit `ee8df47`):**
 - `.verse-title-img` capped at `max-height:115px` (+ `width:auto;max-width:80%`) so the varied
   intrinsic aspect ratios render at uniform visual weight across the grid.
 - Removed the dead `.verse-title` CSS rules (desktop + mobile) left over from the text titles.
@@ -49,7 +49,7 @@ card a **single standardized font colour** (different per card), **centred/symme
 Accepted set: `$38M` peak market cap (magenta/yellow) · `0%` creator allocation (cyan/white, the
 "big centred badge" gen `4625312b`) · `0` inflation (violet/lime) · `100%` community (orange/cyan).
 Generated borderless then cropped on canvas (earlier gold-rim gens had uneven borders). The
-`upload.higgsfield.ai` reference-image host is **blocked by the org egress proxy** (403 CONNECT) —
+the image-model reference-image upload host is **blocked by the org egress proxy** (403 CONNECT) —
 used a detailed style prompt instead of attaching a reference.
 
 CSS: `.stats .stat-card{padding:0;background:none;border:none;backdrop-filter:none;overflow:hidden;

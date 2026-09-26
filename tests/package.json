@@ -2,7 +2,7 @@
   "name": "nikepig-website-tests",
   "private": true,
   "scripts": {
-    "unit": "node --test unit/",
+    "unit": "node --test \"unit/**/*.test.js\"",
     "e2e": "playwright test",
     "sync": "node tools/sync-fallback.js"
   },

@@ -83,9 +83,9 @@ body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backgr
 /* =========== NAV =========== */
 nav{position:fixed;top:0;left:0;width:100%;z-index:1000;padding:1rem 2.5rem;display:flex;justify-content:space-between;align-items:center;background:rgba(30,40,56,0.75);backdrop-filter:blur(24px) saturate(1.4);border-bottom:1px solid rgba(212,184,106,0.15);transition:all 0.4s ease}
 nav.scrolled{padding:0.6rem 2.5rem;background:rgba(30,40,56,0.95)}
-.nav-logo{font-family:'More Sugar',sans-serif;font-size:2rem;letter-spacing:2px;background:linear-gradient(135deg,var(--wheat-light),var(--sunset-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:flex;align-items:center}
+.nav-logo{font-family:'More Sugar',sans-serif;font-size:2rem;letter-spacing:2px;background:linear-gradient(135deg,var(--wheat-light),var(--sunset-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:flex;align-items:center;flex-shrink:0}
 .nav-logo span{font-family:'Nunito',sans-serif;font-size:0.85rem;font-weight:700;-webkit-text-fill-color:var(--purple-pale);opacity:1;letter-spacing:1px}
-.nav-links{display:flex;gap:2rem;align-items:center}
+.nav-links{display:flex;gap:clamp(.8rem,1.4vw,2rem);align-items:center}
 .nav-links a{font-weight:700;font-size:0.95rem;color:var(--wheat-pale);transition:all 0.3s ease;position:relative;letter-spacing:0.5px}
 .nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:2px;background:var(--wheat);border-radius:2px;transition:width 0.3s ease}
 .nav-links a:hover::after{width:100%}
@@ -213,7 +213,19 @@ section{position:relative}
 .nikeverse-container{max-width:1100px;margin:0 auto;text-align:center}
 .nikeverse-hero-img{max-width:800px;margin:0 auto 3rem;border-radius:20px;overflow:hidden;border:3px solid rgba(212,184,106,0.2);box-shadow:0 20px 60px rgba(90,72,128,0.1)}
 .nikeverse-hero-img img{width:100%;height:auto;display:block}
-.nikeverse-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;margin-top:3rem}.nikeverse-grid>.verse-card:last-child:nth-child(3n+1){grid-column:2}
+.nikeverse-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;margin-top:3rem}
+/* 3-col: 6 half-tracks, cards span 2, so a lone last card or a trailing pair can be centred.
+   Scoped to >900px so the explicit placements never leak into 2/1-col layouts (implicit columns overlap cards on Safari mobile). */
+@media(min-width:901px){
+  .nikeverse-grid{grid-template-columns:repeat(6,1fr)}
+  .nikeverse-grid>.verse-card{grid-column:span 2}
+  .nikeverse-grid>.verse-card:last-child:nth-child(3n+1){grid-column:3/span 2}
+  .nikeverse-grid>.verse-card:nth-last-child(2):nth-child(3n+1){grid-column:2/span 2}
+}
+/* 2-col: centre an odd last card at single-card width (gap is 1.5rem here) */
+@media(min-width:601px) and (max-width:900px){
+  .nikeverse-grid>.verse-card:last-child:nth-child(odd){grid-column:1/-1;justify-self:center;width:calc(50% - .75rem)}
+}
 .verse-card{background:rgba(20,20,30,0.85);border:none;border-radius:20px;padding:3rem 2.5rem 6rem;transition:all 0.4s ease;position:relative;overflow:hidden;text-align:left;min-height:380px;display:flex;flex-direction:column;justify-content:flex-start}
 .verse-card::before{display:none}
 .verse-card:hover::before{opacity:1}
@@ -340,13 +352,15 @@ footer{padding:3rem 2rem;border-top:1px solid rgba(212,184,106,0.08);text-align:
 /* ===== SECTION OVERLAP ===== */
 section{position:relative;z-index:1}
 
-@media(max-width:900px){
-  #nikeverse-cards{top:-50px!important}
-  /* NAV */
-  .nav-links{position:fixed;top:0;right:-100%;width:75%;height:100vh;background:rgba(30,40,56,0.98);flex-direction:column;justify-content:center;gap:1.2rem;transition:right 0.4s ease;backdrop-filter:blur(20px);padding:1.5rem}
+/* NAV: 12 links no longer fit on one row below ~1180px, so the drawer takes over up to 1280px */
+@media(max-width:1280px){
+  .nav-links{position:fixed;top:0;right:-100%;width:75%;max-width:420px;height:100vh;background:rgba(30,40,56,0.98);flex-direction:column;justify-content:center;gap:1.2rem;transition:right 0.4s ease;backdrop-filter:blur(20px);padding:1.5rem}
   .nav-links a{font-size:0.9rem}
   .nav-links.open{right:0}
   .nav-toggle{display:flex}
+}
+@media(max-width:900px){
+  #nikeverse-cards{top:-50px!important}
   /* HERO */
   .hero-pig{width:300px;height:300px;margin-top:4rem}
   .hero-tagline{max-width:90%}
@@ -368,8 +382,6 @@ section{position:relative;z-index:1}
   .nike-art-grid{grid-template-columns:repeat(3,1fr);gap:0.8rem}
   /* NIKEVERSE */
   .nikeverse-grid{grid-template-columns:repeat(2,1fr);gap:1.5rem}
-  /* desktop-only "center lone last card" must NOT leak below 3 cols — it forces an implicit 2nd column and overlaps cards (Safari mobile) */
-  .nikeverse-grid>.verse-card:last-child:nth-child(3n+1){grid-column:auto}
   .verse-card{min-height:300px;padding:2rem 2rem 5.5rem}
   .verse-card-btn{bottom:2rem;left:2rem}
   .verse-desc{font-size:1rem}

@@ -44,24 +44,24 @@ Main site (`index.html`) changes:
    - **Overflow:** when the rows are full, one repeating `lot-extension.webp` segment is added to the right and filling continues there. The scene then scrolls horizontally. There is no episode cap.
    - **Coordinates:** positions are percentages of the **base-scene width and height**. Each `lot-extension` segment is exactly one base-scene width, so segment *n* adds *n* × 100% to x.
    - **Row capacities per base scene:** back row 5, middle row 4, front row 3 (12 cars). Extension segments hold 12 cars each in the same rows.
-   - **Anchor measurement:** the special-spot coordinates, row baselines and scales are **measured from the generated background** and stored in one `LAYOUT` constant in `cartoons/index.html`.
+   - **Anchor measurement:** the special-spot coordinates, row baselines and scales are **measured from the generated background** and stored in one layout constant. *(As built: it lives as `DEFAULT_LAYOUT` in `cartoons/drivein-core.js`, next to the pure `layoutProps` engine, so unit tests can check it; the current values are placeholder geometry that keeps the special spots outside the landscape screen footprint.)*
 3. **Screen**:
    - It is an overlaid element (frame art plus a content box), not part of the background painting. The painting leaves a blank screen-support area.
    - It animates between 9:16 and 16:9 according to the selected episode's `format`.
    - **Idle:** a "Now showing: Nikeverse" title card.
    - **Preview:** the thumbnail (`https://i.ytimg.com/vi/<id>/hqdefault.jpg`, `object-fit: cover`, which crops the 4:3 image to the vertical content in the 9:16 box), the title and a play button.
-   - **Playing:** an iframe from `https://www.youtube-nocookie.com/embed/<id>?autoplay=1&playsinline=1&rel=0`, with `allow="autoplay; encrypted-media; picture-in-picture; fullscreen"` and `allowfullscreen`. iOS may still require a tap on YouTube's own play button; that's acceptable. A small "Watch on YouTube" link sits under the screen at all times, for any selected episode.
+   - **Playing:** an iframe from `https://www.youtube-nocookie.com/embed/<id>?autoplay=1&playsinline=1&rel=0`, with `allow="autoplay; encrypted-media; picture-in-picture; fullscreen"` and `allowfullscreen`. iOS may still require a tap on YouTube's own play button; that's acceptable. A small "Watch on YouTube" link is shown for any selected, already-premiered episode. *(As built: on desktop it is a pill beside the screen's top-right corner so it never covers props or the player; in the stacked mobile layout it sits just below the screen.)*
    - **Coming soon:** a "Premieres <date>" card over the episode's **prop art** (no thumbnail request), with no player.
 4. **Props**:
    - Each prop is a `<button>` holding the prop image, with `aria-label` "Play <title>" or "<title>, premieres <date>".
    - Hover or focus lifts and glows the prop and shows a small title tag.
-   - Props before their premiere are dimmed and carry a "Premieres" tag.
+   - Props before their premiere are dimmed and carry a "Premieres" tag. *(As built: the badge shows the date only, e.g. "27 Sept", so it fits small props; the `aria-label` keeps the full "<title>, premieres <date>" wording.)*
    - The public/coming-soon state is computed on each page load from `premiere` against the current time, so no edit is needed at premiere.
 
 ## Interaction
 
 - **Desktop:** hover or focus previews on the screen, and a click plays. **While a video is playing, hover and focus only show the title tag and never change the screen.** Switching needs a click on another prop, which stops the current video and plays the new one, or Esc, which stops playback and returns to preview. Leaving all props keeps the last preview.
-- **Touch:** the first tap previews and the second tap on the same prop plays. The mechanism is pointer-type detection (`pointerType` on `pointerdown`, plus `matchMedia('(hover: hover)')`) and a `previewedId` state: a touch activation plays only if that prop is already the one previewed; otherwise it previews. Emulated mouse events from touch are ignored.
+- **Touch:** the first tap previews and the second tap on the same prop plays. The mechanism is pointer-type detection (`pointerType` on `pointerdown`, plus `matchMedia('(hover: hover)')`) and a `previewedId` state: a touch activation plays only if that prop is already the one previewed; otherwise it previews. Emulated mouse events from touch are ignored. *(As built: touch is detected from `pointerType === 'touch'` on `pointerdown`/`pointerenter`, and a click or focus within a short window (800 ms) after a touch pointerdown is treated as touch; `matchMedia('(hover: hover)')` only gates the hover styles.)*
 - **Keyboard:** Tab moves through the props in catalogue order, Enter or Space plays, and Esc stops the video.
 - Only one iframe exists at a time. Switching removes the old iframe, which stops its audio.
 
@@ -73,6 +73,8 @@ Main site (`index.html`) changes:
 - **Stale doc:** fix the stale `CLAUDE.md` line that says the `#nft` grid is JS-rendered (it's static markup) during the docs step.
 
 ## Mobile (portrait, under 768 px)
+
+*(As built: the stacked layout applies to portrait viewports under 768 px and to any portrait viewport with aspect ratio at most 4:5, e.g. portrait tablets; landscape phones use the desktop layout.)*
 
 - The screen is sticky at the top of the viewport and takes about 45% of its height.
 - Below it, the **whole scene** (background plus props, with the same percentage coordinates) is scaled to fill the remaining height and scrolls **horizontally** with scroll snap on props. There is no separate mobile crop.
@@ -130,7 +132,7 @@ Poster ×2, snack ×1 and booth ×1 exactly fill the four special spots at launc
 
 - **Catalogue fails to load:** the lot shows "Episodes are warming up, try again" and the screen stays on the idle card.
 - **Thumbnail fails:** fall back to the prop image on the screen.
-- **Missing prop image:** show a generic car silhouette labelled with the title.
+- **Missing prop image:** show a generic car silhouette labelled with the title. *(As built: the image falls back to the per-type placeholder silhouette, `props/placeholder-<prop>.svg`; the title is on the button's tag and `aria-label`.)*
 - **Embed blocked** (for example by a privacy extension): this can't be detected reliably, so the always-visible "Watch on YouTube" link covers it (`https://youtube.com/shorts/<id>`, or `watch?v=` for landscape episodes).
 - `prefers-reduced-motion` turns off the prop lift and screen-resize animations; the screen snaps instead.
 

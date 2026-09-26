@@ -24,14 +24,14 @@ Everything is static: no framework, build step or dependencies, matching the mai
 ```
 cartoons/
   index.html        page markup, inline CSS + JS (house style: single self-contained file)
-  episodes.json     the episode catalogue (the only file edited per upload)
-  art/              bg-4k source, bg-desktop.webp, bg-mobile.webp, lot-extension.webp, screen-frame.webp
+  episodes.json     the episode catalogue (the only file edited per upload; one prop image is added alongside)
+  art/              bg-4k source, bg-desktop.webp, lot-extension.webp, screen-frame.webp
   props/            one WebP cutout (alpha) per episode
 ```
 
 Main site (`index.html`) changes:
 - A **"Cartoons"** link in `#navbar`, pointing to `cartoons/`.
-- A **Nikeverse Cartoons** card in the `#nft` Nikeverse grid, with a sticker title logo (`assets/art/title-cartoons.webp`) that follows the existing `.verse-title-img` rules.
+- A **Nikeverse Cartoons** card in the `#nft` Nikeverse grid, copied from an existing static card block (the grid is static markup, around line 636), with a sticker title logo (`assets/art/title-cartoons.webp`) that follows the existing `.verse-title-img` rules. The nav wrap must be checked on mobile.
 - Nothing else on the main page changes.
 
 ## Units
@@ -42,14 +42,16 @@ Main site (`index.html`) changes:
    - **Special spots:** poster board ×2, snack counter ×1 and booth window ×1 are fixed anchor points in the art, each with its own coordinates. They are filled in catalogue order. If a special prop has no free spot, it falls back to a car row.
    - **Car rows:** three perspective rows. The back row is smallest and highest; the front row is largest and lowest. Rows fill left to right, starting with the front row.
    - **Overflow:** when the rows are full, one repeating `lot-extension.webp` segment is added to the right and filling continues there. The scene then scrolls horizontally. There is no episode cap.
-   - Positions are percentages of the scene, so the layout scales with the viewport.
+   - **Coordinates:** positions are percentages of the **base-scene width and height**. Each `lot-extension` segment is exactly one base-scene width, so segment *n* adds *n* × 100% to x.
+   - **Row capacities per base scene:** back row 5, middle row 4, front row 3 (12 cars). Extension segments hold 12 cars each in the same rows.
+   - **Anchor measurement:** the special-spot coordinates, row baselines and scales are **measured from the generated background** and stored in one `LAYOUT` constant in `cartoons/index.html`.
 3. **Screen**:
    - It is an overlaid element (frame art plus a content box), not part of the background painting. The painting leaves a blank screen-support area.
    - It animates between 9:16 and 16:9 according to the selected episode's `format`.
    - **Idle:** a "Now showing: Nikeverse" title card.
-   - **Preview:** the thumbnail (`https://i.ytimg.com/vi/<id>/hqdefault.jpg`), the title and a play button.
-   - **Playing:** an iframe from `https://www.youtube-nocookie.com/embed/<id>?autoplay=1&playsinline=1&rel=0`.
-   - **Coming soon:** a "Premieres <date>" card with no player.
+   - **Preview:** the thumbnail (`https://i.ytimg.com/vi/<id>/hqdefault.jpg`, `object-fit: cover`, which crops the 4:3 image to the vertical content in the 9:16 box), the title and a play button.
+   - **Playing:** an iframe from `https://www.youtube-nocookie.com/embed/<id>?autoplay=1&playsinline=1&rel=0`, with `allow="autoplay; encrypted-media; picture-in-picture; fullscreen"` and `allowfullscreen`. iOS may still require a tap on YouTube's own play button; that's acceptable. A small "Watch on YouTube" link sits under the screen at all times, for any selected episode.
+   - **Coming soon:** a "Premieres <date>" card over the episode's **prop art** (no thumbnail request), with no player.
 4. **Props**:
    - Each prop is a `<button>` holding the prop image, with `aria-label` "Play <title>" or "<title>, premieres <date>".
    - Hover or focus lifts and glows the prop and shows a small title tag.
@@ -58,22 +60,23 @@ Main site (`index.html`) changes:
 
 ## Interaction
 
-- **Desktop:** hover or focus previews on the screen. A click plays. Hovering over another prop stops the current embed and previews the new one. Leaving all props keeps the last preview.
-- **Touch:** the first tap previews and the second tap on the same prop plays. Tapping another prop switches the preview.
+- **Desktop:** hover or focus previews on the screen, and a click plays. **While a video is playing, hover and focus only show the title tag and never change the screen.** Switching needs a click on another prop, which stops the current video and plays the new one, or Esc, which stops playback and returns to preview. Leaving all props keeps the last preview.
+- **Touch:** the first tap previews and the second tap on the same prop plays. The mechanism is pointer-type detection (`pointerType` on `pointerdown`, plus `matchMedia('(hover: hover)')`) and a `previewedId` state: a touch activation plays only if that prop is already the one previewed; otherwise it previews. Emulated mouse events from touch are ignored.
 - **Keyboard:** Tab moves through the props in catalogue order, Enter or Space plays, and Esc stops the video.
 - Only one iframe exists at a time. Switching removes the old iframe, which stops its audio.
 
 ## Mobile (portrait, under 768 px)
 
 - The screen is sticky at the top of the viewport and takes about 45% of its height.
-- The lot sits below it as a horizontally scrollable strip with scroll snap.
+- Below it, the **whole scene** (background plus props, with the same percentage coordinates) is scaled to fill the remaining height and scrolls **horizontally** with scroll snap on props. There is no separate mobile crop.
 - Props have a tap target of at least 44 px.
-- `bg-mobile.webp` is a crop of the 4K source.
+- On load, the scroller starts centred on the snack bar and screen area.
 
 ## Art pipeline (at build time)
 
 - **Background:** one 4K generation in Tripo3D (GPT Image 2.5). It shows a night drive-in in the Nikeverse Meme Machine 2D cartoon style (bold outlines, painted, vivid, no text): a starry sky over ranch hills, an **empty** lot with three row lines, the snack bar (left), the projector booth (right), two empty poster boards, and a blank area where the screen frame sits.
-- **Derived art:** the desktop WebP, the mobile crop, and a seamlessly tiling `lot-extension.webp` strip, cut from or generated to match the background.
+- **Derived art:** the desktop WebP and a seamlessly tiling `lot-extension.webp` strip, cut from or generated to match the background.
+- **Main-site sticker:** `assets/art/title-cartoons.webp`, a die-cut sticker logo reading "Nikeverse Cartoons" in the house `.verse-title-img` style.
 - **Screen frame:** a separate cutout: the tall screen frame and its support.
 - **Props:** one cutout per episode, in the same style with a transparent background, hinting at the story. Examples:
   - C14: a pickup with a daisy on the antenna.
@@ -85,31 +88,43 @@ Main site (`index.html`) changes:
 
 ## Launch catalogue
 
-| # | id | Title | YouTube | Format | Premiere (+08:00) |
-|---|---|---|---|---|---|
-| 1 | pilot | The Apple Chip Ledger | KCV8nHowlpo | landscape | public |
-| 2 | c2 | Do Your Cutest Thing | NR6ogdyPKVI | landscape | public |
-| 3 | c3 | 45-Minute Diner Wait | 9mZ-7DSqlhw | portrait | public |
-| 4 | c4 | Apple Chip Intervention | g3YqccJJMhM | portrait | public |
-| 5 | c5 | Time for chores! | O1ketGJn30k | portrait | public |
-| 6 | c6 | Moral Support | UFt6lYeoTn8 | portrait | public |
-| 7 | c7 | Father-in-Law Chat | TVqPTvtZ06U | portrait | public |
-| 8 | c8 | The 6 AM Negotiation | vpWMmHa_ups | portrait | public |
-| 9 | c9 | The Void | Pu5IT4YgGqg | portrait | public |
-| 10 | c10 | Order in the Yard | rlubzu5TNZ8 | portrait | 2026-09-27T01:00 |
-| 11 | c11 | The Coat Rack | R1lDhWt_96g | portrait | 2026-09-28T01:00 |
-| 12 | c12 | Low-Maintenance | F7CV6N0rygE | portrait | 2026-09-29T01:00 |
-| 13 | c13 | Worth It | vIue1jLRDuw | portrait | 2026-09-30T01:00 |
-| 14 | c14 | Forever Hungry | 4COtDWxmMLQ | portrait | 2026-10-01T01:00 |
+The site links the **corrected re-uploads** where they exist (user, 2026-09-26: "upload all the caption inconsistent size and logo messed up ones onto YouTube only … then linking them to my site"; the older uploads stay on YouTube as duplicates). C3–C9 are corrected and Public. C10–C12 are corrected and **Unlisted**, so they embed without spoiling their scheduled premieres, and the site still gates them by `premiere`. For episodes that are already public, `premiere` is a fixed past date: `"2026-09-01T00:00:00+08:00"`.
 
-The IDs were read from YouTube Studio on 2026-09-26. Episodes marked "public" get `premiere` set to their actual publish date.
+| # | id | Title | YouTube (site) | Format | Premiere (+08:00) | prop | Prop concept |
+|---|---|---|---|---|---|---|---|
+| 1 | pilot | The Apple Chip Ledger | KCV8nHowlpo | landscape | past | poster | Poster board: Charles holding the apple-chip ledger |
+| 2 | c2 | Do Your Cutest Thing | NR6ogdyPKVI | landscape | past | poster | Poster board: Poppy doing her cutest face |
+| 3 | c3 | 45-Minute Diner Wait | rt7cQLtGyEE | portrait | past | car | 1950s diner-style car with a "45 min" wait sign on the roof |
+| 4 | c4 | Apple Chip Intervention | irGVaTJJyb4 | portrait | past | car | Station wagon stuffed with apple-chip bags in the back window |
+| 5 | c5 | Time for chores! | wCXxBkEbMgI | portrait | past | car | Car draped in a bedsheet, one pig trotter sticking out |
+| 6 | c6 | Moral Support | s4WUUF-3D_Y | portrait | past | car | Small hatchback with a mattress strapped to the roof |
+| 7 | c7 | Father-in-Law Chat | P4_XraZPen0 | portrait | past | car | Family sedan, Nike asleep on the back seat |
+| 8 | c8 | The 6 AM Negotiation | aTbG9rtgaa8 | portrait | past | car | Pickup with a giant alarm clock on the dashboard showing 6:00 |
+| 9 | c9 | The Void | corrected upload pending (fallback Pu5IT4YgGqg) | portrait | past | booth | Projector-booth window with an empty chip bag hanging from it |
+| 10 | c10 | Order in the Yard | sbbO2273RNc | portrait | 2026-09-27T01:00 | car | Car with a judge's gavel and a single apple chip on the hood |
+| 11 | c11 | The Coat Rack | 0tqDl-UKomE | portrait | 2026-09-28T01:00 | car | Car with a coat rack and a grocery bag on the roof |
+| 12 | c12 | Low-Maintenance | fTT7cx6ap8s | portrait | 2026-09-29T01:00 | car | Ranch pickup with a hay bale and a butterfly in the bed |
+| 13 | c13 | Worth It | vIue1jLRDuw | portrait | 2026-09-30T01:00 | snack | Snack-bar counter sign: "HUGS — 4 CHIPS" |
+| 14 | c14 | Forever Hungry | 4COtDWxmMLQ | portrait | 2026-10-01T01:00 | car | Pickup with a white daisy on the antenna |
+
+Poster ×2, snack ×1 and booth ×1 exactly fill the four special spots at launch. There are 10 cars.
+
+## Build order
+
+1. **Code first, on placeholder art.** Use simple flat SVG/WebP placeholders (night gradient, grey car silhouettes, coloured boxes for the special spots) so the page, the layout engine and the tests can be built and verified with no generation available.
+2. **Art.** Generate the background, screen frame, props and sticker in Tripo3D (the user's Chrome extension, GPT Image 2.5, 4K). The user may need to be at the computer. Generation is never attempted through a blocked upload host.
+3. **Measure and swap.** Measure the special-spot coordinates and row baselines from the final background into `LAYOUT`, swap in the real art, then re-run the tests.
+
+## Local testing
+
+`fetch('episodes.json')` fails under `file://`, so local testing uses `python -m http.server` from the repo root. The page also carries an inline `<script type="application/json" id="episodes-fallback">` copy of the catalogue, used when the fetch fails. It's regenerated from `episodes.json` whenever the catalogue changes, and a test asserts the two match.
 
 ## Error handling
 
 - **Catalogue fails to load:** the lot shows "Episodes are warming up, try again" and the screen stays on the idle card.
 - **Thumbnail fails:** fall back to the prop image on the screen.
 - **Missing prop image:** show a generic car silhouette labelled with the title.
-- **Embed blocked** (for example by a privacy extension): the screen shows a "Watch on YouTube" link to `https://youtube.com/shorts/<id>`, or `watch?v=` for landscape episodes.
+- **Embed blocked** (for example by a privacy extension): this can't be detected reliably, so the always-visible "Watch on YouTube" link covers it (`https://youtube.com/shorts/<id>`, or `watch?v=` for landscape episodes).
 - `prefers-reduced-motion` turns off the prop lift and screen-resize animations; the screen snaps instead.
 
 ## Testing
@@ -118,7 +133,7 @@ The IDs were read from YouTube Studio on 2026-09-26. Episodes marked "public" ge
 - The page must produce zero `pageerror` events.
 - The layout engine must place props without overlap using the launch catalogue and synthetic catalogues of 5 and 30 entries.
 - The screen must switch between 9:16 and 16:9 correctly.
-- Freeze the clock before and after a premiere to check that the coming-soon state flips.
+- Freeze the clock before and after a premiere, e.g. 2026-09-26T16:59Z vs 17:01Z for C10, to check that the coming-soon state flips.
 - Check one embed's iframe `src`.
 - On the main page, the nav link and grid card must resolve, with no regressions in the site's existing Playwright checks (bg, reveal, sticker sizing).
 

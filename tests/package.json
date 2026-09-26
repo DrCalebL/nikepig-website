@@ -1,0 +1,12 @@
+{
+  "name": "nikepig-website-tests",
+  "private": true,
+  "scripts": {
+    "unit": "node --test unit/",
+    "e2e": "playwright test",
+    "sync": "node tools/sync-fallback.js"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.1"
+  }
+}

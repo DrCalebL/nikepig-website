@@ -3,7 +3,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const root = path.join(__dirname, '../..');
-const json = JSON.stringify(JSON.parse(fs.readFileSync(path.join(root, 'cartoons/episodes.json'), 'utf8')));
+const json = JSON.stringify(JSON.parse(fs.readFileSync(path.join(root, 'cartoons/episodes.json'), 'utf8'))).replace(/</g, '\\u003c');
 const htmlPath = path.join(root, 'cartoons/index.html');
 const html = fs.readFileSync(htmlPath, 'utf8');
 const re = /(<script type="application\/json" id="episodes-fallback">)([\s\S]*?)(<\/script>)/;

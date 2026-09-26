@@ -8,20 +8,25 @@
   var FORMATS = ['portrait', 'landscape'];
   var FIELDS = ['id', 'title', 'youtube', 'format', 'premiere', 'prop', 'image', 'alt'];
   var YT_ID = /^[A-Za-z0-9_-]{11}$/;
+  var ID_FORMAT = /^[a-z0-9-]+$/;
+  var PREMIERE_FORMAT = /^\d{4}-\d\d-\d\dT\d\d:\d\d(:\d\d)?(Z|[+-]\d\d:\d\d)$/;
 
   function validateEpisodes(list) {
     if (!Array.isArray(list)) throw new Error('episodes must be an array');
-    var seen = {};
+    var seen = Object.create(null);
     return list.map(function (e, i) {
       var where = 'episode[' + i + ']';
+      if (!e || typeof e !== 'object') throw new Error(where + ': not an object');
       FIELDS.forEach(function (k) {
         if (typeof e[k] !== 'string' || !e[k]) throw new Error(where + ': missing ' + k);
       });
-      if (seen[e.id]) throw new Error(where + ': duplicate id ' + e.id);
+      if (!ID_FORMAT.test(e.id)) throw new Error(where + ': bad id');
+      if (Object.prototype.hasOwnProperty.call(seen, e.id)) throw new Error(where + ': duplicate id ' + e.id);
       seen[e.id] = true;
       if (!YT_ID.test(e.youtube)) throw new Error(where + ': bad youtube id');
       if (FORMATS.indexOf(e.format) < 0) throw new Error(where + ': bad format');
       if (PROP_TYPES.indexOf(e.prop) < 0) throw new Error(where + ': bad prop');
+      if (!PREMIERE_FORMAT.test(e.premiere)) throw new Error(where + ': premiere needs ISO datetime with offset');
       var t = Date.parse(e.premiere);
       if (isNaN(t)) throw new Error(where + ': bad premiere');
       return Object.assign({}, e, { premiereMs: t });
@@ -69,6 +74,7 @@
         }
         k -= row.xs.length;
       }
+      throw new Error('layout: fillOrder does not cover all rows');
     });
     return { props: out, segments: Math.max(1, Math.ceil(car / perSeg)) };
   }

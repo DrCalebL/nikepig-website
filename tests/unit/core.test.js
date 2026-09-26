@@ -18,8 +18,21 @@ test('validateEpisodes rejects bad input', () => {
   assert.throws(() => D.validateEpisodes([ep({ youtube: 'short' })]), /bad youtube/);
   assert.throws(() => D.validateEpisodes([ep({ format: 'square' })]), /bad format/);
   assert.throws(() => D.validateEpisodes([ep({ prop: 'boat' })]), /bad prop/);
-  assert.throws(() => D.validateEpisodes([ep({ premiere: 'soon' })]), /bad premiere/);
+  assert.throws(() => D.validateEpisodes([ep({ premiere: 'soon' })]), /premiere needs ISO/);
   assert.throws(() => D.validateEpisodes([ep(), ep()]), /duplicate id/);
+});
+
+test('validateEpisodes rejects a premiere without an explicit UTC offset', () => {
+  assert.throws(() => D.validateEpisodes([ep({ premiere: '2026-10-02T01:00:00' })]), /premiere needs ISO/);
+});
+
+test('validateEpisodes rejects malformed ids, including prototype-pollution attempts', () => {
+  assert.throws(() => D.validateEpisodes([ep({ id: 'Bad_ID' })]), /bad id/);
+  assert.throws(() => D.validateEpisodes([ep({ id: '__proto__' })]), /bad id/);
+});
+
+test('validateEpisodes rejects non-object entries', () => {
+  assert.throws(() => D.validateEpisodes([null]), /not an object/);
 });
 
 test('isComingSoon flips exactly at the premiere instant', () => {
@@ -68,6 +81,19 @@ test('empty catalogue still yields one segment', () => {
   assert.equal(D.layoutProps([], L).segments, 1);
 });
 
+test('layoutProps throws when fillOrder does not cover all rows', () => {
+  const L2 = {
+    special: {},
+    rows: [
+      { y: 10, scale: 1, xs: [1, 2] },
+      { y: 20, scale: 1, xs: [1, 2] },
+      { y: 30, scale: 1, xs: [1, 2, 3] },
+    ],
+    fillOrder: [2], // rows 0 and 1 are never reachable
+  };
+  assert.throws(() => D.layoutProps(mk(4), L2), /layout: fillOrder does not cover all rows/);
+});
+
 const soon = new Set(['c10']);
 const ctx = { comingSoon: id => soon.has(id) };
 const R = (s, e) => D.reduce(s, e, ctx);
@@ -98,6 +124,16 @@ test('touch: first tap previews, second tap on the same prop plays', () => {
 
 test('coming-soon episodes never play', () => {
   const s = R(D.INITIAL, { type: 'activate', id: 'c10', pointer: 'mouse' });
+  assert.deepEqual(s, { mode: 'preview', id: 'c10' });
+});
+
+test('touch tap on a different prop while playing previews that prop instead', () => {
+  const s = R({ mode: 'playing', id: 'c3' }, { type: 'activate', id: 'c4', pointer: 'touch' });
+  assert.deepEqual(s, { mode: 'preview', id: 'c4' });
+});
+
+test('activating a coming-soon episode while something is playing previews it, not the playing one', () => {
+  const s = R({ mode: 'playing', id: 'c3' }, { type: 'activate', id: 'c10', pointer: 'mouse' });
   assert.deepEqual(s, { mode: 'preview', id: 'c10' });
 });
 

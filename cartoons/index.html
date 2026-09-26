@@ -23,9 +23,10 @@ body{background:var(--night);color:#fff;font-family:'Nunito',sans-serif;min-heig
   background:url(art/bg-placeholder.svg) left top/calc(100%/var(--segments,1)) 100% no-repeat,
              url(art/lot-extension-placeholder.svg) left top/calc(100%/var(--segments,1)) 100% repeat-x}
 .prop{position:absolute;left:calc(var(--x)*1%/var(--segments,1));top:calc(var(--y)*1%);
-  width:calc(var(--s)*var(--prop-w)*1%/var(--segments,1));min-width:44px;min-height:44px;
+  width:calc(var(--s)*var(--prop-w)*1%/var(--segments,1));
   transform:translate(-50%,-100%);background:none;border:0;padding:0;cursor:pointer;display:flex;align-items:flex-end;justify-content:center;
   transition:transform .2s,filter .2s;scroll-snap-align:center}
+.prop::before{content:'';position:absolute;left:50%;top:50%;width:max(100%,44px);height:max(100%,44px);transform:translate(-50%,-50%)}
 .prop img{width:100%;height:auto;display:block;pointer-events:none;filter:drop-shadow(0 6px 10px rgba(0,0,0,.6))}
 .prop:hover,.prop:focus-visible,.prop[aria-current="true"]{transform:translate(-50%,-104%) scale(1.06);filter:drop-shadow(0 0 14px var(--glow))}
 .prop:focus-visible{outline:3px solid var(--glow);outline-offset:4px}

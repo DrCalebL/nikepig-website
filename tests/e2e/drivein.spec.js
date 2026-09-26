@@ -87,8 +87,24 @@ test('touch: first tap previews, second tap plays', async ({ browser }) => {
   await expect(page.locator('#screen-content iframe')).toHaveCount(0);
   await c5.tap();
   await expect(page.locator('#screen-content iframe')).toHaveAttribute('src', /wCXxBkEbMgI/);
+  const hit = await c5.evaluate(el => {
+    const s = getComputedStyle(el, '::before');
+    return { w: parseFloat(s.width), h: parseFloat(s.height) };
+  });
+  expect(hit.w).toBeGreaterThanOrEqual(44);
+  expect(hit.h).toBeGreaterThanOrEqual(44);
   const tb = await c5.boundingBox();
-  expect(Math.min(tb.width, tb.height)).toBeGreaterThanOrEqual(44);
+  const imgBox = await c5.locator('img').boundingBox();
+  expect(imgBox.width).toBeCloseTo(tb.width, 0);
+  await ctx.close();
+});
+
+test('renders 14 props with no page errors at deviceScaleFactor 2', async ({ browser }) => {
+  const ctx = await browser.newContext({ baseURL: 'http://127.0.0.1:8123', viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2 });
+  const page = await ctx.newPage();
+  await page.route(/(youtube-nocookie\.com|ytimg\.com|youtube\.com)/, r => r.abort());
+  const errors = await open(page);
+  expect(errors).toEqual([]);
   await ctx.close();
 });
 

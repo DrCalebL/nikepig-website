@@ -31,15 +31,25 @@ test('hover previews and the screen changes shape by format', async ({ page }) =
   await expect(screen).toHaveAttribute('data-mode', 'preview');
   await expect(screen).toHaveAttribute('data-format', 'portrait');
   await expect(page.locator('#screen-content strong')).toHaveText('45-Minute Diner Wait');
+  await expect(page.locator('.prop[data-id="c3"]')).toHaveAttribute('aria-label', 'Play 45-Minute Diner Wait');
   await page.locator('.prop[data-id="pilot"]').hover();
   await expect(screen).toHaveAttribute('data-format', 'landscape');
   // width animates (.45s); poll until it settles wider than tall
   await expect.poll(async () => { const b = await screen.boundingBox(); return b.width > b.height; }).toBe(true);
 });
 
-test('mobile: screen sits above the lot and stays pinned while the page scrolls', async ({ page }) => {
+test('mobile: screen sits above the lot', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await open(page);
+  const s = await page.locator('#screen').boundingBox();
+  const l = await page.locator('#lot').boundingBox();
+  expect(s.y + s.height).toBeLessThanOrEqual(l.y + 1);
+});
+
+test('mobile: landscape screen never overflows into the lot on short viewports', async ({ page }) => {
+  await page.setViewportSize({ width: 667, height: 375 });
+  await open(page);
+  await page.locator('.prop[data-id="pilot"]').focus();
   const s = await page.locator('#screen').boundingBox();
   const l = await page.locator('#lot').boundingBox();
   expect(s.y + s.height).toBeLessThanOrEqual(l.y + 1);
@@ -52,6 +62,7 @@ test('click plays the embed, and hovering elsewhere does not interrupt it', asyn
   const frame = page.locator('#screen-content iframe');
   await expect(frame).toHaveAttribute('src', 'https://www.youtube-nocookie.com/embed/rt7cQLtGyEE?autoplay=1&playsinline=1&rel=0');
   await expect(frame).toHaveAttribute('allow', /autoplay/);
+  await expect(page.locator('#announce')).toHaveText('Now playing 45-Minute Diner Wait');
   await page.locator('.prop[data-id="c4"]').hover();
   await expect(frame).toHaveAttribute('src', /rt7cQLtGyEE/);
   await expect(page.locator('#watch-link')).toHaveAttribute('href', 'https://youtube.com/shorts/rt7cQLtGyEE');
@@ -60,23 +71,37 @@ test('click plays the embed, and hovering elsewhere does not interrupt it', asyn
   await expect(page.locator('#screen')).toHaveAttribute('data-mode', 'preview');
 });
 
+test('play button keeps focus in the page instead of dropping to body', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await open(page);
+  await page.locator('.prop[data-id="c3"]').hover();
+  await page.locator('.play').focus();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#screen-content iframe')).toHaveCount(1);
+  const isBody = await page.evaluate(() => document.activeElement === document.body);
+  expect(isBody).toBe(false);
+});
+
 test('coming-soon flips at the premiere instant and never plays before it', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  await open(page, '2026-09-26T16:59:00Z');
+  await page.clock.install({ time: new Date('2026-09-26T16:59:30Z') });
+  await page.goto('/cartoons/');
+  await expect(page.locator('.prop')).toHaveCount(14);
   const c10 = page.locator('.prop[data-id="c10"]');
   await expect(c10).toHaveAttribute('data-soon', 'true');
+  await expect(c10).toHaveAttribute('aria-label', /^Order in the Yard, premieres 27 Sept?$/);
   await c10.click();
   await expect(page.locator('#screen-content iframe')).toHaveCount(0);
   await expect(page.locator('#screen')).toHaveAttribute('data-mode', 'soon');
-  await expect(page.locator('#screen-content')).toContainText('Premieres 27 Sept');
+  await expect(page.locator('#screen-content')).toContainText(/Premieres 27 Sept?/);
   await expect(page.locator('#watch-link')).toBeHidden();
 
-  await open(page, '2026-09-26T17:01:00Z');
-  await expect(page.locator('.prop[data-id="c10"]')).toHaveAttribute('data-soon', 'false');
+  await page.clock.runFor('01:00');
+  await expect(c10).toHaveAttribute('data-soon', 'false');
 });
 
-test('touch: first tap previews, second tap plays', async ({ browser }) => {
-  const ctx = await browser.newContext({ baseURL: 'http://127.0.0.1:8123', viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+test('touch: first tap previews, second tap plays', async ({ browser }, testInfo) => {
+  const ctx = await browser.newContext({ baseURL: testInfo.project.use.baseURL, viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
   const page = await ctx.newPage();
   await page.route(/(youtube-nocookie\.com|ytimg\.com|youtube\.com)/, r => r.abort());
   await open(page);
@@ -99,8 +124,8 @@ test('touch: first tap previews, second tap plays', async ({ browser }) => {
   await ctx.close();
 });
 
-test('renders 14 props with no page errors at deviceScaleFactor 2', async ({ browser }) => {
-  const ctx = await browser.newContext({ baseURL: 'http://127.0.0.1:8123', viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2 });
+test('renders 14 props with no page errors at deviceScaleFactor 2', async ({ browser }, testInfo) => {
+  const ctx = await browser.newContext({ baseURL: testInfo.project.use.baseURL, viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2 });
   const page = await ctx.newPage();
   await page.route(/(youtube-nocookie\.com|ytimg\.com|youtube\.com)/, r => r.abort());
   const errors = await open(page);

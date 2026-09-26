@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="none">
+  <rect width="1600" height="900" fill="#0b1026"/><path d="M0 500 Q400 460 800 500 T1600 500 V900 H0Z" fill="#1f2d24"/>
+  <rect x="0" y="580" width="1600" height="320" fill="#2a2a2e"/>
+  <g stroke="#555" stroke-dasharray="12 10" stroke-width="3"><line x1="0" y1="648" x2="1600" y2="648"/><line x1="0" y1="756" x2="1600" y2="756"/><line x1="0" y1="882" x2="1600" y2="882"/></g>
+</svg>

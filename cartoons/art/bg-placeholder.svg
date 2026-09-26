@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="none">
+  <defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b1026"/><stop offset=".55" stop-color="#27204a"/><stop offset="1" stop-color="#1a1a1a"/></linearGradient></defs>
+  <rect width="1600" height="900" fill="url(#sky)"/>
+  <path d="M0 520 Q300 430 620 500 T1600 480 V900 H0Z" fill="#1f2d24"/>
+  <rect x="0" y="580" width="1600" height="320" fill="#2a2a2e"/>
+  <g stroke="#555" stroke-dasharray="12 10" stroke-width="3"><line x1="0" y1="648" x2="1600" y2="648"/><line x1="0" y1="756" x2="1600" y2="756"/><line x1="0" y1="882" x2="1600" y2="882"/></g>
+  <rect x="120" y="520" width="230" height="110" fill="#5a3b2b"/><text x="235" y="585" fill="#ffd36e" font-size="28" text-anchor="middle" font-family="sans-serif">SNACK BAR</text>
+  <rect x="1180" y="430" width="170" height="130" fill="#3b3b52"/><text x="1265" y="505" fill="#aac" font-size="22" text-anchor="middle" font-family="sans-serif">BOOTH</text>
+  <rect x="770" y="580" width="60" height="80" fill="#333"/>
+</svg>

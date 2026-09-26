@@ -114,3 +114,17 @@ test('URL helpers', () => {
   assert.equal(D.watchUrl({ youtube: 'KCV8nHowlpo', format: 'landscape' }), 'https://www.youtube.com/watch?v=KCV8nHowlpo');
   assert.equal(D.formatPremiere(Date.parse('2026-10-01T01:00:00+08:00')), '1 Oct');
 });
+
+const fs = require('node:fs');
+const path = require('node:path');
+const CAT = path.join(__dirname, '../../cartoons/episodes.json');
+
+test('launch catalogue is valid, has 14 episodes and fills all four special spots', () => {
+  const eps = D.validateEpisodes(JSON.parse(fs.readFileSync(CAT, 'utf8')));
+  assert.equal(eps.length, 14);
+  const { props, segments } = D.layoutProps(eps, D.DEFAULT_LAYOUT);
+  assert.equal(segments, 1);
+  for (const s of ['poster-1', 'poster-2', 'snack-1', 'booth-1'])
+    assert.ok(props.some(p => p.slot === s), s + ' unused');
+  for (const e of eps) assert.ok(fs.existsSync(path.join(__dirname, '../../cartoons', e.image)), e.image + ' missing');
+});

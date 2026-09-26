@@ -73,6 +73,37 @@
     return { props: out, segments: Math.max(1, Math.ceil(car / perSeg)) };
   }
 
+  var INITIAL = Object.freeze({ mode: 'idle', id: null });
+
+  function reduce(state, ev, ctx) {
+    switch (ev.type) {
+      case 'hover':
+        if (state.mode === 'playing') return state;
+        if (state.mode === 'preview' && state.id === ev.id) return state;
+        return { mode: 'preview', id: ev.id };
+      case 'activate':
+        if (ctx.comingSoon(ev.id)) return { mode: 'preview', id: ev.id };
+        if (ev.pointer === 'touch' && !(state.mode === 'preview' && state.id === ev.id))
+          return { mode: 'preview', id: ev.id };
+        if (state.mode === 'playing' && state.id === ev.id) return state;
+        return { mode: 'playing', id: ev.id };
+      case 'escape':
+        return state.mode === 'playing' ? { mode: 'preview', id: state.id } : state;
+      default:
+        return state;
+    }
+  }
+
+  function embedUrl(id) { return 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1&playsinline=1&rel=0'; }
+  function thumbUrl(id) { return 'https://i.ytimg.com/vi/' + id + '/hqdefault.jpg'; }
+  function watchUrl(ep) {
+    return ep.format === 'landscape' ? 'https://www.youtube.com/watch?v=' + ep.youtube : 'https://youtube.com/shorts/' + ep.youtube;
+  }
+  function formatPremiere(ms) {
+    return new Date(ms).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'Asia/Singapore' });
+  }
+
   return { validateEpisodes: validateEpisodes, isComingSoon: isComingSoon, layoutProps: layoutProps,
-           DEFAULT_LAYOUT: DEFAULT_LAYOUT, PROP_W: PROP_W };
+           DEFAULT_LAYOUT: DEFAULT_LAYOUT, PROP_W: PROP_W, INITIAL: INITIAL, reduce: reduce,
+           embedUrl: embedUrl, thumbUrl: thumbUrl, watchUrl: watchUrl, formatPremiere: formatPremiere };
 });

@@ -67,3 +67,50 @@ test('no two props share a slot and row spacing fits the props', () => {
 test('empty catalogue still yields one segment', () => {
   assert.equal(D.layoutProps([], L).segments, 1);
 });
+
+const soon = new Set(['c10']);
+const ctx = { comingSoon: id => soon.has(id) };
+const R = (s, e) => D.reduce(s, e, ctx);
+
+test('hover previews, but never interrupts playback', () => {
+  let s = R(D.INITIAL, { type: 'hover', id: 'c3' });
+  assert.deepEqual(s, { mode: 'preview', id: 'c3' });
+  s = R(s, { type: 'activate', id: 'c3', pointer: 'mouse' });
+  assert.deepEqual(s, { mode: 'playing', id: 'c3' });
+  assert.equal(R(s, { type: 'hover', id: 'c4' }), s);
+});
+
+test('mouse/keyboard click plays directly, and switches episodes while playing', () => {
+  let s = R(D.INITIAL, { type: 'activate', id: 'c5', pointer: 'keyboard' });
+  assert.deepEqual(s, { mode: 'playing', id: 'c5' });
+  s = R(s, { type: 'activate', id: 'c6', pointer: 'mouse' });
+  assert.deepEqual(s, { mode: 'playing', id: 'c6' });
+});
+
+test('touch: first tap previews, second tap on the same prop plays', () => {
+  let s = R(D.INITIAL, { type: 'activate', id: 'c7', pointer: 'touch' });
+  assert.deepEqual(s, { mode: 'preview', id: 'c7' });
+  s = R(s, { type: 'activate', id: 'c8', pointer: 'touch' });
+  assert.deepEqual(s, { mode: 'preview', id: 'c8' });
+  s = R(s, { type: 'activate', id: 'c8', pointer: 'touch' });
+  assert.deepEqual(s, { mode: 'playing', id: 'c8' });
+});
+
+test('coming-soon episodes never play', () => {
+  const s = R(D.INITIAL, { type: 'activate', id: 'c10', pointer: 'mouse' });
+  assert.deepEqual(s, { mode: 'preview', id: 'c10' });
+});
+
+test('escape stops playback back to preview', () => {
+  const s = R({ mode: 'playing', id: 'c3' }, { type: 'escape' });
+  assert.deepEqual(s, { mode: 'preview', id: 'c3' });
+  assert.equal(R(D.INITIAL, { type: 'escape' }), D.INITIAL);
+});
+
+test('URL helpers', () => {
+  assert.equal(D.embedUrl('rt7cQLtGyEE'), 'https://www.youtube-nocookie.com/embed/rt7cQLtGyEE?autoplay=1&playsinline=1&rel=0');
+  assert.equal(D.thumbUrl('rt7cQLtGyEE'), 'https://i.ytimg.com/vi/rt7cQLtGyEE/hqdefault.jpg');
+  assert.equal(D.watchUrl({ youtube: 'rt7cQLtGyEE', format: 'portrait' }), 'https://youtube.com/shorts/rt7cQLtGyEE');
+  assert.equal(D.watchUrl({ youtube: 'KCV8nHowlpo', format: 'landscape' }), 'https://www.youtube.com/watch?v=KCV8nHowlpo');
+  assert.equal(D.formatPremiere(Date.parse('2026-10-01T01:00:00+08:00')), '1 Oct');
+});

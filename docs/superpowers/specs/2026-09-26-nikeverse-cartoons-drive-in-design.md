@@ -69,7 +69,7 @@ Main site (`index.html`) changes:
 - **Coming soon:** a coming-soon prop's click, tap or Enter only shows its "Premieres" card. It never creates an iframe, and the "Watch on YouTube" link is hidden until the premiere.
 - **Screen on wide lots:** when extension segments make the scene scroll sideways on desktop, the screen stays pinned (`position: sticky`) at the left of the viewport, so it never scrolls away.
 - **Tap targets:** each prop `<button>` has a minimum hit area of 44×44 px. It's padded around the image on small back-row props; the art itself is never enlarged.
-- **C9:** ship with `Pu5IT4YgGqg` and swap in the corrected upload's ID once it's live. Editing an existing entry is also a one-line `episodes.json` change.
+- **C9:** uses the corrected upload `3mm3QSeXjo8`. Editing an existing entry is a one-line `episodes.json` change.
 - **Stale doc:** fix the stale `CLAUDE.md` line that says the `#nft` grid is JS-rendered (it's static markup) during the docs step.
 
 ## Mobile (portrait, under 768 px)
@@ -107,7 +107,7 @@ The site links the **corrected re-uploads** where they exist (user, 2026-09-26: 
 | 6 | c6 | Moral Support | s4WUUF-3D_Y | portrait | past | car | Small hatchback with a mattress strapped to the roof |
 | 7 | c7 | Father-in-Law Chat | P4_XraZPen0 | portrait | past | car | Family sedan, Nike asleep on the back seat |
 | 8 | c8 | The 6 AM Negotiation | aTbG9rtgaa8 | portrait | past | car | Pickup with a giant alarm clock on the dashboard showing 6:00 |
-| 9 | c9 | The Void | corrected upload pending (fallback Pu5IT4YgGqg) | portrait | past | booth | Projector-booth window with an empty chip bag hanging from it |
+| 9 | c9 | The Void | 3mm3QSeXjo8 | portrait | past | booth | Projector-booth window with an empty chip bag hanging from it |
 | 10 | c10 | Order in the Yard | sbbO2273RNc | portrait | 2026-09-27T01:00 | car | Car with a judge's gavel and a single apple chip on the hood |
 | 11 | c11 | The Coat Rack | 0tqDl-UKomE | portrait | 2026-09-28T01:00 | car | Car with a coat rack and a grocery bag on the roof |
 | 12 | c12 | Low-Maintenance | fTT7cx6ap8s | portrait | 2026-09-29T01:00 | car | Ranch pickup with a hay bale and a butterfly in the bed |

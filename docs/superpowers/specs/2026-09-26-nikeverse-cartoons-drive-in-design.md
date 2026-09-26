@@ -65,6 +65,13 @@ Main site (`index.html`) changes:
 - **Keyboard:** Tab moves through the props in catalogue order, Enter or Space plays, and Esc stops the video.
 - Only one iframe exists at a time. Switching removes the old iframe, which stops its audio.
 
+**Clarifications (spec review 2):**
+- **Coming soon:** a coming-soon prop's click, tap or Enter only shows its "Premieres" card. It never creates an iframe, and the "Watch on YouTube" link is hidden until the premiere.
+- **Screen on wide lots:** when extension segments make the scene scroll sideways on desktop, the screen stays pinned (`position: sticky`) at the left of the viewport, so it never scrolls away.
+- **Tap targets:** each prop `<button>` has a minimum hit area of 44×44 px. It's padded around the image on small back-row props; the art itself is never enlarged.
+- **C9:** ship with `Pu5IT4YgGqg` and swap in the corrected upload's ID once it's live. Editing an existing entry is also a one-line `episodes.json` change.
+- **Stale doc:** fix the stale `CLAUDE.md` line that says the `#nft` grid is JS-rendered (it's static markup) during the docs step.
+
 ## Mobile (portrait, under 768 px)
 
 - The screen is sticky at the top of the viewport and takes about 45% of its height.

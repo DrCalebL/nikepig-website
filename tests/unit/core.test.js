@@ -28,3 +28,42 @@ test('isComingSoon flips exactly at the premiere instant', () => {
   assert.equal(D.isComingSoon(e, Date.parse('2026-09-26T17:00:00Z')), false);
   assert.equal(D.isComingSoon(e, Date.parse('2026-09-26T17:01:00Z')), false);
 });
+
+const L = D.DEFAULT_LAYOUT;
+const mk = (n, prop = 'car') => D.validateEpisodes(Array.from({ length: n }, (_, i) =>
+  ep({ id: prop + i, youtube: ('x' + String(i).padStart(10, '0')).slice(0, 11), prop })));
+
+test('special props fill their spots in order, then fall back to car rows', () => {
+  const eps = mk(3, 'poster');
+  const { props } = D.layoutProps(eps, L);
+  assert.equal(props[0].slot, 'poster-1');
+  assert.equal(props[1].slot, 'poster-2');
+  assert.match(props[2].slot, /^s0-r2-0$/); // overflow poster becomes first front-row car slot
+});
+
+test('cars fill front row first, then middle, then back; 12 per segment', () => {
+  const { props, segments } = D.layoutProps(mk(12), L);
+  assert.equal(segments, 1);
+  assert.deepEqual(props.slice(0, 3).map(p => p.slot), ['s0-r2-0', 's0-r2-1', 's0-r2-2']);
+  assert.equal(props[3].slot, 's0-r1-0');
+  assert.equal(props[7].slot, 's0-r0-0');
+});
+
+test('overflow adds lot segments, offset by 100% each', () => {
+  const { props, segments } = D.layoutProps(mk(30), L);
+  assert.equal(segments, 3);
+  assert.equal(props[12].slot, 's1-r2-0');
+  assert.equal(props[12].x, 100 + L.rows[2].xs[0]);
+});
+
+test('no two props share a slot and row spacing fits the props', () => {
+  const { props } = D.layoutProps(mk(30), L);
+  assert.equal(new Set(props.map(p => p.slot)).size, props.length);
+  for (const row of L.rows)
+    for (let i = 1; i < row.xs.length; i++)
+      assert.ok(row.xs[i] - row.xs[i - 1] >= D.PROP_W * row.scale, 'row too tight');
+});
+
+test('empty catalogue still yields one segment', () => {
+  assert.equal(D.layoutProps([], L).segments, 1);
+});

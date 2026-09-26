@@ -50,6 +50,7 @@ test('mobile: landscape screen never overflows into the lot on short viewports',
   await page.setViewportSize({ width: 667, height: 375 });
   await open(page);
   await page.locator('.prop[data-id="pilot"]').focus();
+  await expect(page.locator('#screen')).toHaveAttribute('data-format', 'landscape');
   const s = await page.locator('#screen').boundingBox();
   const l = await page.locator('#lot').boundingBox();
   expect(s.y + s.height).toBeLessThanOrEqual(l.y + 1);

@@ -10,7 +10,25 @@ async function open(page, when = '2026-10-05T00:00:00Z') {
   page.on('pageerror', e => errors.push(e.message));
   await page.clock.setFixedTime(new Date(when));
   await page.goto('/cartoons/');
-  await expect(page.locator('.prop')).toHaveCount(14);
+  await expect(page.locator('.prop[data-id]')).toHaveCount(14);
+  return errors;
+}
+
+// Synthetic catalogue: e0/e1 posters, e2 snack, e3 booth, the rest row props; one day apart, oldest first.
+// Odd ids ship without an image (generic reel icon).
+const day = i => new Date(Date.parse('2026-01-01T00:00:00+08:00') + i * 864e5).toISOString().replace('.000Z', 'Z');
+const synthCat = n => Array.from({ length: n }, (_, i) => Object.assign({
+  id: 'e' + i, title: 'Episode ' + i, youtube: ('y' + String(i).padStart(10, '0')).slice(0, 11), format: 'portrait',
+  premiere: day(i), prop: ['poster', 'poster', 'snack', 'booth'][i] || 'car', alt: 'Prop ' + i,
+}, i % 2 ? {} : { image: 'props/placeholder-car.svg' }));
+
+async function openSynth(page, n = 30, hash = '') {
+  const errors = [];
+  page.on('pageerror', e => errors.push(e.message));
+  await page.route('**/cartoons/episodes.json', r => r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(synthCat(n)) }));
+  await page.clock.setFixedTime(new Date('2026-10-05T00:00:00Z'));
+  await page.goto('/cartoons/' + hash);
+  await expect(page.locator('.prop[data-id]')).toHaveCount(Math.min(n, 16));
   return errors;
 }
 
@@ -20,6 +38,32 @@ for (const [w, h] of [[375, 812], [768, 1024], [1440, 900], [2560, 1440]]) {
     const errors = await open(page);
     expect(errors).toEqual([]);
     await expect(page.locator('#screen')).toHaveAttribute('data-mode', 'idle');
+    await expect(page.locator('.crate')).toHaveCount(0);
+    await expect(page.locator('#all-btn')).toBeVisible();
+  });
+
+  test(`a 30-episode catalogue caps the lot and the crate opens the list at ${w}px`, async ({ page }) => {
+    await page.setViewportSize({ width: w, height: h });
+    const errors = await openSynth(page);
+    const crate = page.locator('.crate');
+    await expect(crate).toHaveCount(1);
+    await crate.scrollIntoViewIfNeeded();
+    await crate.click();
+    await expect(page.locator('#all-eps')).toHaveJSProperty('open', true);
+    await expect(page.locator('#all-list .ep-item')).toHaveCount(30);
+    expect(await page.evaluate(() => Math.max(document.documentElement.scrollWidth - innerWidth, 0))).toBe(0);
+    expect(errors).toEqual([]);
+  });
+
+  test(`every prop is clickable just below its top edge at ${w}px`, async ({ page }) => {
+    await page.setViewportSize({ width: w, height: h });
+    await open(page);
+    const bad = await page.evaluate(() => [...document.querySelectorAll('.prop[data-id]')].filter(p => {
+      p.scrollIntoView({ inline: 'center', block: 'nearest' });
+      const r = p.getBoundingClientRect(), hit = document.elementFromPoint(r.left + r.width / 2, r.top + 3);
+      return !hit || hit.closest('.prop') !== p;
+    }).map(p => p.dataset.id));
+    expect(bad).toEqual([]);
   });
 }
 
@@ -140,12 +184,15 @@ test('landscape preview does not cover any prop centre', async ({ page }) => {
 });
 
 test('topbar title never overlaps the screen', async ({ page }) => {
-  for (const [w, h] of [[1024, 768], [1440, 900], [2560, 1440], [900, 1200]]) {
+  for (const [w, h] of [[375, 812], [1024, 768], [1440, 900], [2560, 1440], [900, 1200]]) {
     await page.setViewportSize({ width: w, height: h });
     await open(page);
     const t = await page.locator('.topbar h1').boundingBox();
     const s = await page.locator('#screen').boundingBox();
     expect(t.y + t.height, `${w}px`).toBeLessThanOrEqual(s.y);
+    const bb = await page.locator('#all-btn').boundingBox();
+    expect(bb.y + bb.height, `${w}px button`).toBeLessThanOrEqual(s.y);
+    expect(bb.x + bb.width, `${w}px button`).toBeLessThanOrEqual(w);
   }
 });
 
@@ -155,7 +202,128 @@ test('hovered prop rises above neighbours', async ({ page }) => {
   const c6 = page.locator('.prop[data-id="c6"]');
   await c6.hover();
   expect(await c6.evaluate(e => getComputedStyle(e).zIndex)).toBe('5');
-  expect(await page.locator('.prop[data-id="c3"]').evaluate(e => getComputedStyle(e).zIndex)).toBe('1');
+  expect(await page.locator('.prop[data-id="c8"]').evaluate(e => getComputedStyle(e).zIndex)).toBe('1');
+  // rows stack front over back: newest (c14) is on the front row; c6-c8 (same premiere, later in the catalogue) on the back row
+  expect(await page.locator('.prop[data-id="c14"]').evaluate(e => +getComputedStyle(e).zIndex)).toBeGreaterThan(1);
+});
+
+test('All episodes button lists every episode newest first with premiere badges', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.clock.setFixedTime(new Date('2026-09-27T12:00:00Z'));
+  await page.goto('/cartoons/');
+  await page.locator('#all-btn').click();
+  const items = page.locator('#all-list .ep-item');
+  await expect(items).toHaveCount(14);
+  await expect(items.first()).toContainText('Forever Hungry');
+  await expect(items.first().locator('.badge')).toHaveText(/^Premieres 1 Oct$/);
+  await expect(page.locator('.ep-item[data-id="c10"] .badge')).toHaveCount(0);
+  await expect(page.locator('#all-search')).toBeFocused();
+});
+
+test('search filters the list by title or id', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await open(page);
+  await page.locator('#all-btn').click();
+  await page.locator('#all-search').fill('coat');
+  await expect(page.locator('#all-list .ep-item:visible')).toHaveCount(1);
+  await expect(page.locator('#all-list .ep-item:visible')).toContainText('The Coat Rack');
+  await page.locator('#all-search').fill('c2');
+  await expect(page.locator('#all-list .ep-item:visible')).toHaveCount(1);
+  await page.locator('#all-search').fill('zzzz');
+  await expect(page.locator('#all-list .ep-item:visible')).toHaveCount(0);
+  await expect(page.locator('#all-empty')).toBeVisible();
+});
+
+test('choosing an episode with a prop previews it, scrolls to it and focuses it; Enter plays', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await open(page);
+  await page.locator('#all-btn').click();
+  await page.locator('.ep-item[data-id="pilot"]').click();
+  await expect(page.locator('#all-eps')).toHaveJSProperty('open', false);
+  await expect(page.locator('#screen')).toHaveAttribute('data-mode', 'preview');
+  await expect(page.locator('#screen-content strong')).toHaveText('The Apple Chip Ledger');
+  const pilot = page.locator('.prop[data-id="pilot"]');
+  await expect(pilot).toBeFocused();
+  await expect(pilot).toBeInViewport();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#screen-content iframe')).toHaveAttribute('src', /KCV8nHowlpo/);
+});
+
+test('choosing an archived episode previews it and focuses the screen', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await openSynth(page);
+  await page.locator('#all-btn').click();
+  await page.locator('#all-search').fill('Episode 5');
+  await page.locator('.ep-item[data-id="e5"]').click();
+  await expect(page.locator('#screen')).toHaveAttribute('data-mode', 'preview');
+  await expect(page.locator('#screen-content strong')).toHaveText('Episode 5');
+  await expect(page.locator('#screen')).toBeFocused();
+  expect(await page.evaluate(() => location.hash)).toBe('#ep=e5');
+});
+
+test('list item and prop fall back to the reel icon when an episode has no image', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await openSynth(page);
+  await expect(page.locator('.prop[data-id="e29"] img')).toHaveAttribute('src', 'props/placeholder-reel.svg');
+  await expect(page.locator('.prop[data-id="e28"] img')).toHaveAttribute('src', 'props/placeholder-car.svg');
+  await page.locator('#all-btn').click();
+  await expect(page.locator('.ep-item[data-id="e5"] img')).toHaveAttribute('src', 'props/placeholder-reel.svg');
+});
+
+test('Esc closes the list without stopping playback', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await open(page);
+  await page.locator('.prop[data-id="c3"]').click();
+  await expect(page.locator('#screen-content iframe')).toHaveCount(1);
+  await page.locator('#all-btn').click();
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#all-eps')).toHaveJSProperty('open', false);
+  await expect(page.locator('#screen-content iframe')).toHaveCount(1);
+});
+
+test('skip link opens the list', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await open(page);
+  const skip = page.locator('.skip-link');
+  await skip.focus();
+  await expect(skip).toBeInViewport();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#all-eps')).toHaveJSProperty('open', true);
+  expect(await page.evaluate(() => location.hash)).toBe('');
+});
+
+test('#ep=<id> deep link preselects that episode, and hashchange follows', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  const errors = [];
+  page.on('pageerror', e => errors.push(e.message));
+  await page.clock.setFixedTime(new Date('2026-10-05T00:00:00Z'));
+  await page.goto('/cartoons/#ep=c10');
+  await expect(page.locator('#screen')).toHaveAttribute('data-mode', 'preview');
+  await expect(page.locator('#screen-content strong')).toHaveText('Order in the Yard');
+  await expect(page.locator('#screen-content iframe')).toHaveCount(0);
+  await page.evaluate(() => { location.hash = '#ep=c3'; });
+  await expect(page.locator('#screen-content strong')).toHaveText('45-Minute Diner Wait');
+  await page.evaluate(() => { location.hash = '#ep=nope'; });
+  await expect(page.locator('#screen-content strong')).toHaveText('45-Minute Diner Wait');
+  expect(errors).toEqual([]);
+});
+
+test('deep link to a coming-soon episode shows its premiere card', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.clock.setFixedTime(new Date('2026-09-26T12:00:00Z'));
+  await page.goto('/cartoons/#ep=c10');
+  await expect(page.locator('#screen')).toHaveAttribute('data-mode', 'soon');
+});
+
+test('selecting an episode updates the hash without adding history', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await open(page);
+  const before = await page.evaluate(() => history.length);
+  await page.locator('.prop[data-id="c4"]').hover();
+  await expect.poll(() => page.evaluate(() => location.hash)).toBe('#ep=c4');
+  await page.locator('.prop[data-id="c5"]').click();
+  await expect.poll(() => page.evaluate(() => location.hash)).toBe('#ep=c5');
+  expect(await page.evaluate(() => history.length)).toBe(before);
 });
 
 test('click plays the embed, and hovering elsewhere does not interrupt it', async ({ page }) => {
@@ -189,7 +357,7 @@ test('coming-soon flips at the premiere instant and never plays before it', asyn
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.clock.install({ time: new Date('2026-09-26T16:59:30Z') });
   await page.goto('/cartoons/');
-  await expect(page.locator('.prop')).toHaveCount(14);
+  await expect(page.locator('.prop[data-id]')).toHaveCount(14);
   const c10 = page.locator('.prop[data-id="c10"]');
   await expect(c10).toHaveAttribute('data-soon', 'true');
   await expect(c10).toHaveAttribute('aria-label', /^Order in the Yard, premieres 27 Sept?$/);

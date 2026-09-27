@@ -13,18 +13,17 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--night);color:#fff;font-family:'Nunito',sans-serif;min-height:100vh;overflow-x:hidden}
 .topbar{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;gap:1rem;align-items:center;justify-content:space-between;padding:.6rem 1rem;background:linear-gradient(rgba(0,0,0,.65),transparent);pointer-events:none}
-.topbar a,.topbar h1{pointer-events:auto}
+.topbar a,.topbar h1,.topbar button{pointer-events:auto}
+.topbar h1{white-space:nowrap}
+@media (max-width:480px){.topbar{gap:.5rem;padding:.25rem .75rem}.topbar .bk{display:none}.topbar a{font-size:1.3rem;min-width:32px;min-height:32px;display:flex;align-items:center}}
 .topbar a{color:var(--wheat);text-decoration:none;font-weight:800}
 .topbar h1{font-family:'More Sugar',cursive;line-height:1.1;font-size:clamp(1.1rem,2.6vw,1.9rem);color:var(--glow);text-shadow:0 2px 10px rgba(0,0,0,.6)}
 .theatre{position:relative;width:100vw;height:min(100vh,56.25vw);--th:min(100vh,56.25vw)}
 .lot{position:absolute;inset:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin}
-.scene{position:relative;height:100%;width:calc(var(--segments,1)*100%);
-  background:url(art/bg-placeholder.svg) left top/calc(100%/var(--segments,1)) 100% no-repeat,
-             url(art/lot-extension-placeholder.svg) left top/calc(100%/var(--segments,1)) 100% repeat-x}
-.prop{position:absolute;left:calc(var(--x)*1%/var(--segments,1));top:calc(var(--y)*1%);
-  width:calc(var(--s)*var(--prop-w)*1%/var(--segments,1));
+.scene{position:relative;height:100%;width:100%;background:url(art/bg-placeholder.svg) left top/100% 100% no-repeat}
+.prop{position:absolute;left:calc(var(--x)*1%);top:calc(var(--y)*1%);width:calc(var(--s)*var(--prop-w)*1%);
   transform:translate(-50%,-100%);background:none;border:0;padding:0;cursor:pointer;display:flex;align-items:flex-end;justify-content:center;
-  transition:transform .2s,filter .2s;scroll-snap-align:center;z-index:1}
+  transition:transform .2s,filter .2s;scroll-snap-align:center;z-index:var(--z,1)}
 .prop:hover,.prop:focus-visible,.prop[aria-current="true"]{z-index:5}
 .prop::before{content:'';position:absolute;left:50%;top:50%;width:max(100%,44px);height:max(100%,44px);transform:translate(-50%,-50%)}
 .prop img{width:100%;height:auto;display:block;pointer-events:none;filter:drop-shadow(0 6px 10px rgba(0,0,0,.6))}
@@ -36,6 +35,26 @@ body{background:var(--night);color:#fff;font-family:'Nunito',sans-serif;min-heig
   .prop:hover{transform:translate(-50%,-104%) scale(1.06);filter:drop-shadow(0 0 14px var(--glow))}
   .prop:hover .tag{opacity:1}
 }
+.all-btn{background:var(--glow);color:#111;border:0;border-radius:999px;padding:.3rem .8rem;font:inherit;font-weight:800;font-size:clamp(.8rem,1vw,1rem);cursor:pointer;white-space:nowrap;min-height:36px}
+@media (max-width:767px) and (orientation:portrait),(orientation:portrait) and (max-aspect-ratio:4/5){.topbar{padding-top:.25rem;padding-bottom:.25rem}.all-btn{min-height:32px;padding:.2rem .7rem}}
+.skip-link{position:fixed;left:1rem;top:3.2rem;z-index:40;background:var(--glow);color:#111;padding:.4rem .8rem;border-radius:.5rem;font-weight:800;text-decoration:none}
+.skip-link:not(:focus){clip-path:inset(50%);width:1px;height:1px;overflow:hidden;padding:0;white-space:nowrap}
+.all-eps{margin:auto;width:min(32rem,92vw);max-height:min(85vh,42rem);background:#141a3a;color:#fff;border:2px solid var(--glow);border-radius:.8rem;padding:.8rem 1rem 1rem}
+.all-eps[open]{display:flex;flex-direction:column}
+.all-eps::backdrop{background:rgba(0,0,0,.65)}
+.all-head{display:flex;justify-content:space-between;align-items:center;gap:1rem}
+.all-head h2{font-family:'More Sugar',cursive;color:var(--glow);font-size:1.4rem;font-weight:400}
+.all-close{background:none;border:0;color:#fff;font-size:1.6rem;cursor:pointer;min-width:44px;min-height:44px}
+#all-search{width:100%;padding:.5rem .7rem;border-radius:.5rem;border:1px solid #556;background:var(--night);color:#fff;font:inherit;margin:.3rem 0 .6rem}
+.all-eps ul{list-style:none;overflow-y:auto;display:grid;gap:.35rem;min-height:0}
+.all-eps li[hidden]{display:none}
+.ep-item{display:flex;align-items:center;gap:.7rem;width:100%;text-align:left;background:rgba(255,255,255,.06);border:0;border-radius:.5rem;padding:.35rem .6rem;color:inherit;font:inherit;cursor:pointer}
+.ep-item:hover,.ep-item:focus-visible{background:rgba(255,211,110,.2);outline:2px solid var(--glow)}
+.ep-item img{width:3rem;height:3rem;object-fit:contain;flex:none}
+.ep-item .t{font-weight:800;flex:1;min-width:0}
+.ep-item .d{color:var(--wheat);font-size:.85rem;white-space:nowrap}
+.ep-item .badge{background:var(--glow);color:#111;font-weight:800;font-size:.75rem;padding:.1rem .4rem;border-radius:.4rem;white-space:nowrap}
+#all-empty{color:var(--wheat);text-align:center;padding:.5rem}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .prop[data-soon="true"] img{filter:brightness(.55) saturate(.6)}
 .prop .soon{position:absolute;top:0;left:50%;transform:translate(-50%,-30%);max-width:100%;overflow:hidden;text-overflow:ellipsis;background:var(--glow);color:#111;font-weight:800;font-size:clamp(.55rem,.8vw,.8rem);padding:.1rem .45rem;border-radius:.4rem;white-space:nowrap}
@@ -43,6 +62,7 @@ body{background:var(--night);color:#fff;font-family:'Nunito',sans-serif;min-heig
 .screen-wrap{position:absolute;inset:0;pointer-events:none;z-index:10;
   --sh:calc(var(--th)*.58);--st:calc(var(--th)*.08);--swp:calc(var(--sh)*9/16);--swl:min(calc(var(--sh)*16/9),96vw)}
 .lot{z-index:1}
+.screen:focus{outline:none}
 .screen{position:absolute;left:50%;top:var(--st);height:var(--sh);width:var(--swp);transform:translateX(-50%);
   background:#05060c;border-radius:.4rem;box-shadow:0 0 60px rgba(255,211,110,.25);pointer-events:auto;overflow:hidden;transition:width .45s ease}
 .screen[data-format="landscape"]{width:var(--swl)}
@@ -70,13 +90,13 @@ body{background:var(--night);color:#fff;font-family:'Nunito',sans-serif;min-heig
     top:calc(var(--st) + var(--sh) + .3rem);transition:none}
   .screen[data-format="landscape"]~.watch-link{top:calc(var(--st) + var(--swl)*9/16 + .3rem)}
   .lot{position:relative;height:55vh;height:55svh;scroll-snap-type:x proximity}
-  .scene{height:100%;width:calc(55vh*16/9*var(--segments,1))}
+  .scene{height:100%;width:calc(55vh*16/9)}
 }
 @supports (height:1svh){
   @media (max-width:767px) and (orientation:portrait),(orientation:portrait) and (max-aspect-ratio:4/5){
     .theatre{--th:45svh}
     .screen-wrap{--sh:calc(45svh - 4.8rem)}
-    .scene{width:calc(55svh*16/9*var(--segments,1))}
+    .scene{width:calc(55svh*16/9)}
   }
 }
 @media (prefers-reduced-motion:reduce){
@@ -86,18 +106,24 @@ body{background:var(--night);color:#fff;font-family:'Nunito',sans-serif;min-heig
 </style>
 </head>
 <body>
-<header class="topbar"><a href="../">← nikepig.com</a><h1>Nikeverse Cartoons</h1><span></span></header>
+<header class="topbar"><a href="../" aria-label="Back to nikepig.com">←<span class="bk"> nikepig.com</span></a><h1>Nikeverse Cartoons</h1><button type="button" class="all-btn" id="all-btn" hidden>All episodes</button></header>
 <main class="theatre" id="theatre">
   <div class="screen-wrap">
-    <div class="screen" id="screen" data-format="portrait" data-mode="idle">
+    <div class="screen" id="screen" data-format="portrait" data-mode="idle" tabindex="-1">
       <div class="screen-content" id="screen-content"></div><div class="screen-frame"></div>
     </div>
     <a class="watch-link" id="watch-link" target="_blank" rel="noopener" hidden>Watch on YouTube ↗</a>
   </div>
-  <div class="lot" id="lot"><div class="scene" id="scene"></div></div>
+  <div class="lot" id="lot"><a class="skip-link" id="skip-link" href="#all-eps" hidden>Skip to all episodes</a><div class="scene" id="scene"></div></div>
   <p class="status" id="status" role="status" hidden></p>
   <p id="announce" class="sr-only" aria-live="polite"></p>
 </main>
+<dialog class="all-eps" id="all-eps" aria-labelledby="all-eps-title">
+  <div class="all-head"><h2 id="all-eps-title">All episodes</h2><button type="button" class="all-close" id="all-close" aria-label="Close">×</button></div>
+  <input type="search" id="all-search" placeholder="Search by title" aria-label="Search episodes" autocomplete="off" autofocus>
+  <ul id="all-list"></ul>
+  <p id="all-empty" hidden>No episodes match.</p>
+</dialog>
 <script type="application/json" id="episodes-fallback">[{"id":"pilot","title":"The Apple Chip Ledger","youtube":"KCV8nHowlpo","format":"landscape","premiere":"2026-09-01T00:00:00+08:00","prop":"poster","image":"props/placeholder-poster.svg","alt":"Poster board: Charles holding the apple-chip ledger"},{"id":"c2","title":"Do Your Cutest Thing","youtube":"NR6ogdyPKVI","format":"landscape","premiere":"2026-09-01T00:00:00+08:00","prop":"poster","image":"props/placeholder-poster.svg","alt":"Poster board: Poppy doing her cutest face"},{"id":"c3","title":"45-Minute Diner Wait","youtube":"rt7cQLtGyEE","format":"portrait","premiere":"2026-09-01T00:00:00+08:00","prop":"car","image":"props/placeholder-car.svg","alt":"1950s diner-style car with a 45 min wait sign on the roof"},{"id":"c4","title":"Apple Chip Intervention","youtube":"irGVaTJJyb4","format":"portrait","premiere":"2026-09-01T00:00:00+08:00","prop":"car","image":"props/placeholder-car.svg","alt":"Station wagon stuffed with apple-chip bags"},{"id":"c5","title":"Time for chores!","youtube":"wCXxBkEbMgI","format":"portrait","premiere":"2026-09-01T00:00:00+08:00","prop":"car","image":"props/placeholder-car.svg","alt":"Car draped in a bedsheet with a pig trotter sticking out"},{"id":"c6","title":"Moral Support","youtube":"s4WUUF-3D_Y","format":"portrait","premiere":"2026-09-01T00:00:00+08:00","prop":"car","image":"props/placeholder-car.svg","alt":"Small hatchback with a mattress strapped to the roof"},{"id":"c7","title":"Father-in-Law Chat","youtube":"P4_XraZPen0","format":"portrait","premiere":"2026-09-01T00:00:00+08:00","prop":"car","image":"props/placeholder-car.svg","alt":"Family sedan with Nike asleep on the back seat"},{"id":"c8","title":"The 6 AM Negotiation","youtube":"aTbG9rtgaa8","format":"portrait","premiere":"2026-09-01T00:00:00+08:00","prop":"car","image":"props/placeholder-car.svg","alt":"Pickup with a giant alarm clock showing 6:00"},{"id":"c9","title":"The Void","youtube":"3mm3QSeXjo8","format":"portrait","premiere":"2026-09-01T00:00:00+08:00","prop":"booth","image":"props/placeholder-booth.svg","alt":"Projector-booth window with an empty chip bag"},{"id":"c10","title":"Order in the Yard","youtube":"sbbO2273RNc","format":"portrait","premiere":"2026-09-27T01:00:00+08:00","prop":"car","image":"props/placeholder-car.svg","alt":"Car with a judge's gavel and an apple chip on the hood"},{"id":"c11","title":"The Coat Rack","youtube":"0tqDl-UKomE","format":"portrait","premiere":"2026-09-28T01:00:00+08:00","prop":"car","image":"props/placeholder-car.svg","alt":"Car with a coat rack and a grocery bag on the roof"},{"id":"c12","title":"Low-Maintenance","youtube":"fTT7cx6ap8s","format":"portrait","premiere":"2026-09-29T01:00:00+08:00","prop":"car","image":"props/placeholder-car.svg","alt":"Ranch pickup with a hay bale and a butterfly"},{"id":"c13","title":"Worth It","youtube":"vIue1jLRDuw","format":"portrait","premiere":"2026-09-30T01:00:00+08:00","prop":"snack","image":"props/placeholder-snack.svg","alt":"Snack-bar sign: HUGS 4 CHIPS"},{"id":"c14","title":"Forever Hungry","youtube":"4COtDWxmMLQ","format":"portrait","premiere":"2026-10-01T01:00:00+08:00","prop":"car","image":"props/placeholder-car.svg","alt":"Pickup with a white daisy on the antenna"}]</script>
 <script src="drivein-core.js"></script>
 <script>
@@ -114,13 +140,13 @@ body{background:var(--night);color:#fff;font-family:'Nunito',sans-serif;min-heig
     scr.dataset.format = ep ? ep.format : 'portrait';
     scr.dataset.mode = state.mode;
     c.textContent = ''; link.hidden = true;
-    document.querySelectorAll('.prop').forEach(function (b) { b.setAttribute('aria-current', String(!!ep && b.dataset.id === ep.id)); });
+    document.querySelectorAll('.prop[data-id]').forEach(function (b) { b.setAttribute('aria-current', String(!!ep && b.dataset.id === ep.id)); });
     if (!ep) {
       c.append(el('em', '', 'Now showing'), el('strong', '', 'Nikeverse Cartoons'), el('em', '', 'Pick a car to preview'));
       return;
     }
     if (D.isComingSoon(ep, now())) {
-      var art = el('img', 'soon-art'); art.src = ep.image; art.alt = ep.alt;
+      var art = el('img', 'soon-art'); art.src = D.propImage(ep); art.alt = ep.alt;
       c.append(art, el('strong', '', ep.title), el('em', 'soon-label', 'Premieres ' + D.formatPremiere(ep.premiereMs)));
       scr.dataset.mode = 'soon';
       return;
@@ -135,7 +161,7 @@ body{background:var(--night);color:#fff;font-family:'Nunito',sans-serif;min-heig
       return;
     }
     var t = el('img', 'thumb'); t.alt = ''; t.src = D.thumbUrl(ep.youtube);
-    t.onerror = function () { t.onerror = null; t.src = ep.image; };
+    t.onerror = function () { t.onerror = null; t.src = D.propImage(ep); };
     var play = el('button', 'play', '▶'); play.type = 'button'; play.setAttribute('aria-label', 'Play ' + ep.title);
     play.onclick = function () {
       var id = ep.id;
@@ -160,18 +186,62 @@ body{background:var(--night);color:#fff;font-family:'Nunito',sans-serif;min-heig
     }
     if (next.mode === prevMode && next.id === prevId) return;
     state = next; renderScreen();
+    if (next.id && next.id !== prevId && location.hash !== D.formatHash(next.id))
+      history.replaceState(history.state, '', D.formatHash(next.id));
+  }
+
+  function propImg(ep) {
+    var img = el('img'); img.src = D.propImage(ep); img.alt = ''; img.decoding = 'async';
+    img.onerror = function () { img.onerror = null; img.src = 'props/placeholder-' + ep.prop + '.svg'; };
+    return img;
+  }
+
+  // "All episodes" list: newest first, rebuilt on open so premiere badges are current.
+  function openList() {
+    var ul = $('all-list'), t = now();
+    ul.textContent = '';
+    eps.map(function (e, i) { return { e: e, i: i }; })
+      .sort(function (a, b) { return (b.e.premiereMs - a.e.premiereMs) || (a.i - b.i); })
+      .forEach(function (x) {
+        var ep = x.e, li = el('li'), b = el('button', 'ep-item'), soon = D.isComingSoon(ep, t);
+        b.type = 'button'; b.dataset.id = ep.id;
+        b.append(propImg(ep), el('span', 't', ep.title));
+        b.append(soon ? el('span', 'badge', 'Premieres ' + D.formatPremiere(ep.premiereMs)) : el('span', 'd', D.formatPremiere(ep.premiereMs)));
+        b.addEventListener('click', function () { choose(ep.id); });
+        li.append(b); ul.append(li);
+      });
+    filterList();
+    $('all-eps').showModal();
+  }
+  function filterList() {
+    var q = $('all-search').value.trim().toLowerCase(), shown = 0;
+    $('all-list').querySelectorAll('li').forEach(function (li) {
+      var ep = byId[li.firstChild.dataset.id];
+      li.hidden = !!q && ep.title.toLowerCase().indexOf(q) < 0 && ep.id.indexOf(q) < 0;
+      if (!li.hidden) shown++;
+    });
+    $('all-empty').hidden = shown > 0;
+  }
+  function choose(id) {
+    $('all-eps').close();
+    dispatch({ type: 'select', id: id });
+    var b = document.querySelector('.prop[data-id="' + id + '"]');
+    if (b) { b.scrollIntoView({ inline: 'center', block: 'nearest' }); b.focus({ preventScroll: true }); }
+    else $('screen').focus();
+  }
+
+  function place(b, p) {
+    b.style.setProperty('--x', p.x); b.style.setProperty('--y', p.y); b.style.setProperty('--s', p.scale); b.style.setProperty('--z', p.z);
   }
 
   function renderProps() {
     var lay = D.layoutProps(eps, D.DEFAULT_LAYOUT), scene = $('scene');
-    document.documentElement.style.setProperty('--segments', lay.segments);
     lay.props.forEach(function (p) {
       var ep = byId[p.id], soon = D.isComingSoon(ep, now());
       var b = el('button', 'prop'); b.type = 'button'; b.dataset.id = ep.id; b.dataset.soon = String(soon);
-      b.style.setProperty('--x', p.x); b.style.setProperty('--y', p.y); b.style.setProperty('--s', p.scale);
+      place(b, p);
       b.setAttribute('aria-label', soon ? ep.title + ', premieres ' + D.formatPremiere(ep.premiereMs) : 'Play ' + ep.title);
-      var img = el('img'); img.src = ep.image; img.alt = ''; img.loading = 'lazy'; img.decoding = 'async';
-      img.onerror = function () { img.onerror = null; img.src = 'props/placeholder-' + ep.prop + '.svg'; };
+      var img = propImg(ep); img.loading = 'lazy';
       b.append(img, el('span', 'tag', ep.title));
       if (soon) b.append(el('span', 'soon', D.formatPremiere(ep.premiereMs)));
       b.addEventListener('pointerenter', function (e) { if (e.pointerType !== 'touch') dispatch({ type: 'hover', id: ep.id }); });
@@ -183,6 +253,19 @@ body{background:var(--night);color:#fff;font-family:'Nunito',sans-serif;min-heig
       });
       scene.append(b);
     });
+    if (lay.crate) {
+      var c = el('button', 'prop crate'); c.type = 'button'; place(c, lay.crate);
+      c.setAttribute('aria-label', 'All episodes (' + lay.archive.length + ' older in the reel crate)');
+      var ci = el('img'); ci.src = 'props/placeholder-crate.svg'; ci.alt = ''; ci.decoding = 'async';
+      c.append(ci, el('span', 'tag', 'All episodes'));
+      c.addEventListener('click', openList);
+      scene.append(c);
+    }
+  }
+
+  function selectFromHash() {
+    var id = D.parseHash(location.hash, Object.keys(byId));
+    if (id) dispatch({ type: 'select', id: id });
   }
 
   var MAX_TIMEOUT = 2147483647, refreshTimer = null;
@@ -210,11 +293,18 @@ body{background:var(--night);color:#fff;font-family:'Nunito',sans-serif;min-heig
   try { eps = D.validateEpisodes(list); if (!eps.length) throw new Error('empty'); }
   catch (e) { var s = $('status'); s.hidden = false; requestAnimationFrame(function () { s.textContent = 'Episodes are warming up, try again'; }); renderScreen(); return; }
   eps.forEach(function (e) { byId[e.id] = e; });
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') dispatch({ type: 'escape' }); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('all-eps').open) dispatch({ type: 'escape' }); });
+  $('all-btn').addEventListener('click', openList);
+  $('skip-link').addEventListener('click', function (e) { e.preventDefault(); openList(); });
+  $('all-close').addEventListener('click', function () { $('all-eps').close(); });
+  $('all-search').addEventListener('input', filterList);
+  $('all-btn').hidden = false; $('skip-link').hidden = false;
   renderProps(); renderScreen(); scheduleRefresh();
   if (matchMedia('(max-width:767px) and (orientation:portrait), (orientation:portrait) and (max-aspect-ratio:4/5)').matches) {
-    var lot = $('lot'); lot.scrollLeft = (lot.scrollWidth / (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--segments')) || 1) - lot.clientWidth) / 2;
+    var lot = $('lot'); lot.scrollLeft = (lot.scrollWidth - lot.clientWidth) / 2;
   }
+  selectFromHash();
+  addEventListener('hashchange', selectFromHash);
 })();
 </script>
 </body>

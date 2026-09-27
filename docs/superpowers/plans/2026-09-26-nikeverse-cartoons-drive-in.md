@@ -1214,6 +1214,15 @@ TDD throughout: write each failing test, watch it fail, implement, watch it pass
 
 ---
 
+### Task 12B: Generic seat-saver props (option C)
+
+- [ ] **Step 1 (core, TDD):** `propImage(ep)` returns `ep.image` when set, otherwise `props/generic-<k>.webp` where `k = hash(ep.id) % GENERIC_COUNT + 1` (stable per id). Unit tests: same id → same prop; ids spread across all 12; explicit `image` wins.
+- [ ] **Step 2 (page):** the `onerror` fallback stays `props/placeholder-reel.svg`. The archive list uses the same `propImage`.
+- [ ] **Step 3 (art):** cut the 12 seat-savers out of the Tripo sheet (rembg + connected components) into `cartoons/props/generic-1..12.webp` via `process-art.py`.
+- [ ] **Step 4:** run all tests and commit.
+
+---
+
 ### Task 13: Final QC, docs and ship to the branch
 
 - [ ] **Step 1: Re-run the reviewer wave (Task 9, Step 1) on the final art state.** Fix everything, then re-run all tests.

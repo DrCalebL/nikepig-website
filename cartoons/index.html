@@ -155,7 +155,11 @@ body{background:var(--night);color:#fff;font-family:'Nunito',sans-serif;min-heig
    screen and the lot scrolls sideways; the screen stays put in the middle of the viewport with its top on the seam and
    its bottom on the wall bottom, so the barn wall slides behind it. svh: no vertical page scroll, so the URL bar never
    collapses and the layout never jumps. --tb (only on short phones) keeps the reel hit areas clear of the topbar's. */
+.hint-touch{display:none}
+@keyframes nudge{0%,100%{transform:translateX(0)}50%{transform:translateX(.35rem)}}
 @media (max-width:767px) and (orientation:portrait),(orientation:portrait) and (max-aspect-ratio:4/5){
+  .hint-desk{display:none}.hint-touch{display:block}
+  .hint-touch.swipe{color:var(--glow);font-weight:800;animation:nudge 1.6s ease-in-out infinite}
   body{min-height:0}
   .theatre{height:100vh;--vh:100vh;--tb:max(0px,calc(72px - 9.1vh));--sch:calc(var(--vh) - var(--tb));--sw:calc(var(--sch)*var(--ar));--top:var(--tb)}
   /* no scrollbar: it would take height from the lot and lift the scene off the screen's geometry */
@@ -178,7 +182,7 @@ body{background:var(--night);color:#fff;font-family:'Nunito',sans-serif;min-heig
     .theatre{height:100svh;--vh:100svh;--tb:max(0px,calc(72px - 9.1svh))}
   }
 }
-@media (prefers-reduced-motion:reduce){
+@media (prefers-reduced-motion:reduce){.hint-touch{animation:none!important}
   .screen,.reel,.reel .tag,.watch-link{transition:none}
 }
 </style>
@@ -237,7 +241,8 @@ body{background:var(--night);color:#fff;font-family:'Nunito',sans-serif;min-heig
     c.textContent = ''; link.hidden = true;
     markCurrent();
     if (!ep) {
-      c.append(el('em', '', 'Now showing'), el('strong', '', 'Nikeverse Cartoons'), el('em', '', 'Pick a reel to preview'));
+      c.append(el('em', '', 'Now showing'), el('strong', '', 'Nikeverse Cartoons'), el('em', 'hint-desk', 'Pick a reel to preview'),
+        el('em', 'hint-touch swipe', '\u2039 Swipe left or right \u203A'), el('em', 'hint-touch', 'then tap a reel to watch'));
       return;
     }
     if (D.isComingSoon(ep, now())) {

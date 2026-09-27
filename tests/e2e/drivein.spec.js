@@ -912,3 +912,18 @@ test('phone: tapping a reel previews it, a second tap plays; the title tag paint
   expect(errors).toEqual([]);
   await ctx.close();
 });
+
+test('phones show a swipe hint on the idle screen; desktop keeps "Pick a reel to preview"', async ({ browser }) => {
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+  const page = await ctx.newPage();
+  await open(page);
+  await expect(page.locator('#screen-content .hint-touch.swipe')).toBeVisible();
+  await expect(page.locator('#screen-content .hint-touch.swipe')).toContainText('Swipe left or right');
+  await expect(page.locator('#screen-content .hint-desk')).toBeHidden();
+  await ctx.close();
+  const desk = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  await open(desk);
+  await expect(desk.locator('#screen-content .hint-desk')).toBeVisible();
+  await expect(desk.locator('#screen-content .hint-touch').first()).toBeHidden();
+  await desk.close();
+});

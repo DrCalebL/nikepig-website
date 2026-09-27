@@ -67,6 +67,12 @@ body{background:var(--night);color:#fff;font-family:'Nunito',sans-serif;min-heig
     background:radial-gradient(circle,rgba(255,236,180,.28),rgba(255,211,110,.1) 68%,transparent 71%)}
   .reel:hover .tag{opacity:1}
 }
+/* Direction markers: newest episode hangs on the leftmost reel. */
+.end-mark{position:absolute;top:calc(var(--y)*1%);z-index:11;display:inline-flex;align-items:center;gap:.3rem;white-space:nowrap;font-family:'More Sugar',cursive;font-size:clamp(.7rem,1.05vw,1.05rem);line-height:1;padding:.25rem .65rem;border-radius:999px;background:rgba(11,16,38,.82);color:var(--glow);border:1.5px solid rgba(255,211,110,.75);box-shadow:0 0 12px rgba(255,211,110,.35);text-shadow:0 1px 4px #000}
+.end-mark.latest{left:calc(var(--x)*1%);pointer-events:none}
+.end-mark.older{right:calc(var(--x)*1%);cursor:pointer;font-weight:400}
+.end-mark.older:hover,.end-mark.older:focus-visible{background:var(--glow);color:#111;text-shadow:none}
+.reel .new{position:absolute;top:-18%;right:-22%;z-index:1;pointer-events:none;background:#e6392f;color:#fff;font-weight:900;letter-spacing:.03em;font-size:clamp(.55rem,.72vw,.8rem);line-height:1;padding:.18rem .38rem;border-radius:.4rem;border:1.5px solid #fff;box-shadow:0 0 10px rgba(230,57,47,.85)}
 .all-btn{background:var(--glow);color:#111;border:0;border-radius:999px;padding:.3rem .8rem;font:inherit;font-weight:800;font-size:clamp(.8rem,1vw,1rem);cursor:pointer;white-space:nowrap;min-height:36px}
 @media (max-width:767px) and (orientation:portrait),(orientation:portrait) and (max-aspect-ratio:4/5){.topbar{padding-top:.25rem;padding-bottom:.25rem}.all-btn{min-height:32px;padding:.2rem .7rem}}
 .skip-link{position:fixed;left:1rem;top:3.2rem;z-index:40;background:var(--glow);color:#111;padding:.4rem .8rem;border-radius:.5rem;font-weight:800;text-decoration:none}
@@ -274,12 +280,16 @@ body{background:var(--night);color:#fff;font-family:'Nunito',sans-serif;min-heig
   // One invisible hotspot per painted reel; the newest episode hangs on the leftmost reel.
   function renderReels() {
     var L = D.DEFAULT_LAYOUT, lay = D.layoutReels(eps, L), scene = $('scene');
+    // The newest already-released episode gets a NEW badge (coming-soon reels to its left stay dimmed).
+    var newest = null;
+    lay.reels.some(function (p) { if (!D.isComingSoon(byId[p.id], now())) { newest = p.id; return true; } return false; });
     lay.reels.forEach(function (p) {
       var ep = byId[p.id], soon = D.isComingSoon(ep, now());
       var b = el('button', 'reel'); b.type = 'button'; b.dataset.id = ep.id; b.dataset.slot = p.slot; b.dataset.soon = String(soon);
       b.style.setProperty('--x', p.x); b.style.setProperty('--y', p.y); b.style.setProperty('--d', 2 * p.r * L.hitPad);
       if (p.x < 10) b.dataset.edge = 'l'; else if (p.x > 90) b.dataset.edge = 'r';
-      b.setAttribute('aria-label', soon ? ep.title + ', premieres ' + D.formatPremiere(ep.premiereMs) : 'Play ' + ep.title);
+      b.setAttribute('aria-label', soon ? ep.title + ', premieres ' + D.formatPremiere(ep.premiereMs) : 'Play ' + ep.title + (ep.id === newest ? ', latest release' : ''));
+      if (ep.id === newest) { var nb = el('span', 'new', 'NEW'); nb.setAttribute('aria-hidden', 'true'); b.append(nb); }
       var tag = el('span', 'tag'); tag.setAttribute('aria-hidden', 'true');
       tag.append(el('span', 't', ep.title));
       if (soon) tag.append(el('span', 'soon', 'Premieres ' + D.formatPremiere(ep.premiereMs)));
@@ -293,6 +303,17 @@ body{background:var(--night);color:#fff;font-family:'Nunito',sans-serif;min-heig
       });
       scene.append(b);
     });
+    // "Latest" under the leftmost reel; "Older" under the rightmost reel opens the full list.
+    if (lay.reels.length > 1) {
+      var first = lay.reels[0], last = lay.reels[lay.reels.length - 1], dy = first.r * L.aspect + 1;
+      var lm = el('span', 'end-mark latest', '\u2605 Latest'); lm.setAttribute('aria-hidden', 'true');
+      lm.style.setProperty('--x', first.x - first.r); lm.style.setProperty('--y', first.y + dy);
+      var om = el('button', 'end-mark older', 'Older \u25B8'); om.type = 'button';
+      om.setAttribute('aria-label', 'Older episodes: open all episodes');
+      om.style.setProperty('--x', 100 - last.x - last.r); om.style.setProperty('--y', last.y + dy);
+      om.addEventListener('click', openList);
+      scene.append(lm, om);
+    }
   }
 
   function selectFromHash() {
@@ -311,7 +332,7 @@ body{background:var(--night);color:#fff;font-family:'Nunito',sans-serif;min-heig
     refreshTimer = setTimeout(function () {
       var active = document.activeElement;
       var focusedId = (active && active.classList.contains('reel')) ? active.dataset.id : null;
-      document.querySelectorAll('.reel').forEach(function (b) { b.remove(); });
+      document.querySelectorAll('.reel,.end-mark').forEach(function (b) { b.remove(); });
       renderReels();
       renderScreen();
       if (focusedId) { var fb = reelOf(focusedId); if (fb) fb.focus(); }

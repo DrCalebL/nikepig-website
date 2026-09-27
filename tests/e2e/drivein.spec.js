@@ -522,3 +522,20 @@ test('phone: the reel strip shows under the sticky screen, newest on the left, a
   await page.mouse.wheel(0, 300);
   await expect.poll(() => page.locator('.screen-wrap').evaluate(e => e.getBoundingClientRect().top)).toBeLessThanOrEqual(0.5);
 });
+
+test('the UI marks which end is latest: Latest under the first reel, NEW on the newest released, Older opens the list', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await open(page, '2026-09-28T06:00:00Z'); // c10 and c11 are out; c12-c14 are still coming soon
+  const latest = page.locator('.end-mark.latest'), older = page.locator('.end-mark.older');
+  await expect(latest).toBeVisible();
+  await expect(latest).toContainText('Latest');
+  const first = await page.locator('.reel').first().boundingBox(), lb = await latest.boundingBox();
+  expect(Math.abs(lb.x - first.x)).toBeLessThan(first.width); // sits under the leftmost (newest) reel
+  await expect(page.locator('.reel .new')).toHaveCount(1);
+  await expect(page.locator('.reel[data-id="c11"] .new')).toHaveText('NEW');
+  await expect(page.locator('.reel[data-id="c11"]')).toHaveAttribute('aria-label', /latest release/);
+  const last = await page.locator('.reel').last().boundingBox(), ob = await older.boundingBox();
+  expect(Math.abs(ob.x + ob.width - (last.x + last.width))).toBeLessThan(last.width);
+  await older.click();
+  await expect(page.locator('#all-eps')).toHaveJSProperty('open', true);
+});

@@ -1,4 +1,5 @@
 const { test, expect } = require('@playwright/test');
+const GENERIC_E27 = require('../../cartoons/drivein-core.js').propImage({ id: 'e27' });
 
 // Never hit YouTube from tests: thumbnails fall back to prop art, iframes stay blank.
 test.beforeEach(async ({ page }) => {
@@ -98,7 +99,7 @@ test('landscape phone uses the full-width desktop layout with no prop hiding ano
   await page.setViewportSize({ width: 667, height: 375 });
   await open(page);
   const sceneW = (await page.locator('#scene').boundingBox()).width;
-  expect(Math.abs(sceneW - 667)).toBeLessThanOrEqual(2);
+  expect(Math.abs(sceneW - Math.min(667, 375 * 4096 / 2336))).toBeLessThanOrEqual(2); // as wide as the barn art allows
   const wrong = await page.evaluate(() => [...document.querySelectorAll('.prop')].filter(p => {
     const r = p.getBoundingClientRect();
     const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
@@ -265,13 +266,17 @@ test('choosing an archived episode previews it and focuses the screen', async ({
   expect(await page.evaluate(() => location.hash)).toBe('#ep=e5');
 });
 
-test('list item and prop fall back to the reel icon when an episode has no image', async ({ page }) => {
+test('episodes without art borrow a generic seat-saver; a broken image falls back to the reel icon', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
+  await page.route(/props\/generic-\d+\.webp$/, r => r.request().url().endsWith(GENERIC_E27) ? r.fulfill({ status: 404, body: '' }) : r.fallback());
   await openSynth(page);
-  await expect(page.locator('.prop[data-id="e29"] img')).toHaveAttribute('src', 'props/placeholder-reel.svg');
+  const expected = await page.evaluate(() => ['e29', 'e5'].map(id => window.DriveIn.propImage({ id })));
+  await expect(page.locator('.prop[data-id="e29"] img')).toHaveAttribute('src', expected[0]);
+  await expect(page.locator('.prop[data-id="e29"]')).toHaveClass(/generic/);
   await expect(page.locator('.prop[data-id="e28"] img')).toHaveAttribute('src', 'props/placeholder-car.svg');
+  await expect(page.locator('.prop[data-id="e27"] img')).toHaveAttribute('src', 'props/placeholder-reel.svg');
   await page.locator('#all-btn').click();
-  await expect(page.locator('.ep-item[data-id="e5"] img')).toHaveAttribute('src', 'props/placeholder-reel.svg');
+  await expect(page.locator('.ep-item[data-id="e5"] img')).toHaveAttribute('src', expected[1]);
 });
 
 test('Esc closes the list without stopping playback', async ({ page }) => {

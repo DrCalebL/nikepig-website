@@ -1,6 +1,37 @@
 # Nikeverse Cartoons Drive-In: design
 
-Status: approved in chat, 2026-09-26. Build plan to follow (writing-plans).
+Status: approved in chat, 2026-09-26. Build plan to follow (writing-plans). **Revised 2026-09-27 — see "Revision 2" below.**
+
+## Revision 2 (2026-09-27): barn cinema and scaling — supersedes conflicting text below
+
+Both changes were approved by the user in chat on 2026-09-27. Where this section and the original text disagree, this section wins. Internal names (`DriveIn`, `drivein-core.js`, `drivein.spec.js`, this file's name) stay unchanged.
+
+### Scene: Bison Valley Ranch barn movie night (replaces the drive-in)
+
+- **Why:** the user rejected the empty drive-in tarmac ("if we aren't filling it up with cars then the foreground will feel so empty") and chose a ranch movie night with the episodes still as props.
+- **Screen:** the episode is projected onto the big red barn's flat front wall. The screen overlay reads as the projection, so there is **no screen-frame art**; `.screen` gets a soft projector glow instead.
+- **Chosen background:** `C:/Users/loopy/Nikeverse-cartoons/outputs/nikepig-website-cartoons-art-src/barn-cinema-bg-B-0936-4k-gflegs.jpeg` (4096×2336; notes in the README beside it).
+  - Made in Tripo Studio (web app) with GPT Image 2.5, 16:9, 4K. The four cast sheets from the Meme Machine were attached as Figures 1–4 (Nike, GF Princess, Charles, Poppy), in the Meme Machine's own output style.
+  - The four cast members are painted into the scene, one of each: GF Princess at the snack stand (left), Poppy (centre-left), Nike (centre-right), Charles at the projector shed (right). GF Princess's legs were redrawn to her sheet.
+  - The blank barn wall covers roughly x 21–79% and y 0–62% of the frame, which holds both screen footprints.
+  - **Accepted by the user as-is:** Nike and GF Princess hands show 3–4 fingers; Nike wears sunglasses; the signs carry text (SNACKS, a chalkboard, CARTOON NIGHT TONIGHT!).
+- **Prop keys are unchanged and reinterpreted:** `poster` = notice board, `snack` = snack stand, `booth` = projector shed, `car` = a ranch prop sitting on the hay bales. Validation, the unit tests, placeholder filenames and the `onerror` fallback keep working.
+- **Prop concepts** in the catalogue table below are re-conceived as ranch objects (not cars) at art time; the user picks. Special-spot plan: pilot and C2 on the notice boards, C13 "Hugs 4 Chips" at the snack stand, C9 at the projector shed.
+- **Row props must not cover the painted characters.** Task 12 measures the row slots around them.
+- **Copy:** "drive-in" wording on the page and the main-site card becomes barn / ranch movie-night wording, and all 14 `alt` strings are rewritten.
+
+### Scaling to hundreds of episodes (multi-reviewer consensus)
+
+Clicking stays easy because props never shrink. The risks were finding an episode, a sideways lot about 25 screens wide per year, hundreds of tab stops, and one bespoke prop per episode. So:
+
+1. **Newest first.** Row props are laid out newest-first (by `premiere`, then catalogue order), so the latest episodes are on the first screen. `episodes.json` stays in chronological order; the engine sorts. **Special spots do not churn:** they are still filled in catalogue order (oldest first), so pilot and C2 keep the notice boards.
+2. **Capped lot.** At most `LOT_SIZE` = 12 row props (one base scene). **No extension segments and no `lot-extension` art.** Older episodes are archive-only. (This replaces "Overflow … There is no episode cap" in Units 2.)
+3. **Archive.** When any episode is archive-only, a "reel crate" prop sits on the lot. It and an always-visible **"All episodes"** button open a native `<dialog>` holding an `<input type="search">` and a newest-first list of buttons (thumbnail = prop image or the generic reel icon, title, date, "Premieres …" badge if not yet public). Choosing one selects it on the screen (preview, then play, as with a prop). If it has a prop on the lot, the lot scrolls it into view (`scrollIntoView({inline:'center'})`) and focus moves to it; otherwise focus returns to the screen.
+4. **Prop art is optional.** `image` may be omitted; the page shows the generic reel icon (`props/placeholder-reel.svg`). A new episode can ship with only its `episodes.json` entry, with art added later or never.
+5. **Deep links.** `#ep=<id>` selects that episode on load and on `hashchange` (preview state; autoplay isn't attempted without a user gesture). Selecting an episode updates the hash with `history.replaceState`.
+6. **Skip link.** A "Skip to all episodes" link at the start of the prop group opens the list.
+7. **Stacking fix (bug found in review).** Every prop has `z-index:1`, so a back-row prop's hit box can cover the top of the middle-row prop in front of it. Give each row its own z-index, front row highest; hover/focus/current still lift to the top.
+8. **Later:** seasons become filters in the list, not extra scene segments.
 
 ## Goal
 
@@ -14,7 +45,7 @@ nikepig.com gets a dedicated **Nikeverse Cartoons** page. It is an illustrated *
 - Props: a mix of cars, poster boards, snack-bar items and projector-booth items.
 - Layout: automatic row-by-row lot (approach A).
 - Screen: shape-shifting. It is 9:16 for Shorts and widens to 16:9 for the two landscape episodes (Pilot and C2).
-- Art: generated with the user's **Tripo3D Chrome extension (GPT Image 2.5, 4K)** at build time. Nothing is generated before the build.
+- Art: generated with the user's **Tripo Studio web app** (studio.tripo3d.ai, GPT Image 2.5, 4K) at build time, with the user choosing between variations. Nothing is generated before the build.
 - Testing is text-only (the user is on mobile).
 
 ## Architecture
@@ -41,12 +72,12 @@ Main site (`index.html`) changes:
 2. **Layout engine**: a pure function from the catalogue plus viewport size to a position and scale for each prop.
    - **Special spots:** poster board ×2, snack counter ×1 and booth window ×1 are fixed anchor points in the art, each with its own coordinates. They are filled in catalogue order. If a special prop has no free spot, it falls back to a car row.
    - **Car rows:** three perspective rows. The back row is smallest and highest; the front row is largest and lowest. Rows fill left to right, starting with the front row.
-   - **Overflow:** when the rows are full, one repeating `lot-extension.webp` segment is added to the right and filling continues there. The scene then scrolls horizontally. There is no episode cap.
+   - **Overflow** *(superseded by Revision 2: the lot is capped at 12 row props; older episodes go to the archive list)*: when the rows are full, one repeating `lot-extension.webp` segment is added to the right and filling continues there. The scene then scrolls horizontally. There is no episode cap.
    - **Coordinates:** positions are percentages of the **base-scene width and height**. Each `lot-extension` segment is exactly one base-scene width, so segment *n* adds *n* × 100% to x.
    - **Row capacities per base scene:** back row 5, middle row 4, front row 3 (12 cars). Extension segments hold 12 cars each in the same rows.
    - **Anchor measurement:** the special-spot coordinates, row baselines and scales are **measured from the generated background** and stored in one layout constant. *(As built: it lives as `DEFAULT_LAYOUT` in `cartoons/drivein-core.js`, next to the pure `layoutProps` engine, so unit tests can check it; the current values are placeholder geometry that keeps the special spots outside the landscape screen footprint.)*
 3. **Screen**:
-   - It is an overlaid element (frame art plus a content box), not part of the background painting. The painting leaves a blank screen-support area.
+   - It is an overlaid element (a content box; *Revision 2: no frame art, a soft projector glow instead*), not part of the background painting. The painting leaves a blank screen-support area.
    - It animates between 9:16 and 16:9 according to the selected episode's `format`.
    - **Idle:** a "Now showing: Nikeverse" title card.
    - **Preview:** the thumbnail (`https://i.ytimg.com/vi/<id>/hqdefault.jpg`, `object-fit: cover`, which crops the 4:3 image to the vertical content in the 9:16 box), the title and a play button.
@@ -62,7 +93,7 @@ Main site (`index.html`) changes:
 
 - **Desktop:** hover or focus previews on the screen, and a click plays. **While a video is playing, hover and focus only show the title tag and never change the screen.** Switching needs a click on another prop, which stops the current video and plays the new one, or Esc, which stops playback and returns to preview. Leaving all props keeps the last preview.
 - **Touch:** the first tap previews and the second tap on the same prop plays. The mechanism is pointer-type detection (`pointerType` on `pointerdown`, plus `matchMedia('(hover: hover)')`) and a `previewedId` state: a touch activation plays only if that prop is already the one previewed; otherwise it previews. Emulated mouse events from touch are ignored. *(As built: touch is detected from `pointerType === 'touch'` on `pointerdown`/`pointerenter`, and a click or focus within a short window (800 ms) after a touch pointerdown is treated as touch; `matchMedia('(hover: hover)')` only gates the hover styles.)*
-- **Keyboard:** Tab moves through the props in catalogue order, Enter or Space plays, and Esc stops the video.
+- **Keyboard:** Tab moves through the props in display order (*Revision 2: specials, then row props newest-first; the skip link and the "All episodes" list come first*), Enter or Space plays, and Esc stops the video.
 - Only one iframe exists at a time. Switching removes the old iframe, which stops its audio.
 
 **Clarifications (spec review 2):**
@@ -153,7 +184,7 @@ Poster ×2, snack ×1 and booth ×1 exactly fill the four special spots at launc
 
 ## Adding an episode later
 
-1. Generate one prop cutout and save it as `cartoons/props/<id>.webp`.
+1. *(Optional since Revision 2)* Generate one prop cutout and save it as `cartoons/props/<id>.webp`. Without it the episode shows the generic reel icon.
 2. Append one entry to `cartoons/episodes.json`.
 3. Commit, and merge when the user approves.
 

@@ -19,7 +19,8 @@
 - End-to-end tests: `@playwright/test`, pinned to 1.56.1 to match the Chromium 1194 build already installed at `%LOCALAPPDATA%\ms-playwright`.
 - Local server: `python -m http.server`.
 
-**Spec:** `docs/superpowers/specs/2026-09-26-nikeverse-cartoons-drive-in-design.md`
+**Spec:** `docs/superpowers/specs/2026-09-26-nikeverse-cartoons-drive-in-design.md` (read its **Revision 2** section first: barn cinema scene and the scaling changes, approved 2026-09-27).
+**Status (2026-09-27):** Tasks 1–9 done (commits `94496a9`…`11ba6f3`). Task 10 Step 1 done. Tasks 10A and 12A were added for Revision 2.
 **Branch:** `claude/paddle-payments-setup-0h567q`. Commit and push there only. **Never push `main`**, because that publishes the site. Merging needs the user's explicit go.
 
 ---
@@ -52,7 +53,7 @@ All commands run from the repo root `C:\Users\loopy\nikepig-website` in Git Bash
 **Files:**
 - Create: `tests/package.json`, `tests/playwright.config.js`, `tests/.gitignore`
 
-- [ ] **Step 1: Create `tests/package.json`**
+- [x] **Step 1: Create `tests/package.json`**
 
 ```json
 {
@@ -69,7 +70,7 @@ All commands run from the repo root `C:\Users\loopy\nikepig-website` in Git Bash
 }
 ```
 
-- [ ] **Step 2: Create `tests/.gitignore`**
+- [x] **Step 2: Create `tests/.gitignore`**
 
 ```
 node_modules/
@@ -77,7 +78,7 @@ test-results/
 playwright-report/
 ```
 
-- [ ] **Step 3: Create `tests/playwright.config.js`**
+- [x] **Step 3: Create `tests/playwright.config.js`**
 
 ```js
 const { defineConfig } = require('@playwright/test');
@@ -95,12 +96,12 @@ module.exports = defineConfig({
 });
 ```
 
-- [ ] **Step 4: Install and verify the browser binary is found**
+- [x] **Step 4: Install and verify the browser binary is found**
 
 Run: `cd tests && npm install && npx playwright --version`
 Expected: `Version 1.56.1`. If Playwright reports a missing Chromium, run `npx playwright install chromium` (downloads ~150 MB) and note it in the branch log.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add tests/package.json tests/package-lock.json tests/playwright.config.js tests/.gitignore docs/superpowers/plans/2026-09-26-nikeverse-cartoons-drive-in.md
@@ -115,7 +116,7 @@ git commit -m "test: add node:test + Playwright harness for the cartoons page"
 - Create: `cartoons/drivein-core.js`
 - Test: `tests/unit/core.test.js`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 `tests/unit/core.test.js`:
 
@@ -152,12 +153,12 @@ test('isComingSoon flips exactly at the premiere instant', () => {
 });
 ```
 
-- [ ] **Step 2: Run to verify it fails**
+- [x] **Step 2: Run to verify it fails**
 
 Run: `cd tests && npm run unit`
 Expected: FAIL with `Cannot find module '../../cartoons/drivein-core.js'`
 
-- [ ] **Step 3: Write the minimal implementation**
+- [x] **Step 3: Write the minimal implementation**
 
 `cartoons/drivein-core.js`:
 
@@ -198,12 +199,12 @@ Expected: FAIL with `Cannot find module '../../cartoons/drivein-core.js'`
 });
 ```
 
-- [ ] **Step 4: Run to verify it passes**
+- [x] **Step 4: Run to verify it passes**
 
 Run: `cd tests && npm run unit`
 Expected: `# pass 3`, `# fail 0`
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add cartoons/drivein-core.js tests/unit/core.test.js
@@ -220,7 +221,7 @@ git commit -m "feat(cartoons): episode validation and premiere gating"
 
 Coordinates are percentages of the **base-scene** width (x) and height (y). A prop's anchor is its bottom-centre. Prop width at scale 1 is `PROP_W` = 14% of base width. `DEFAULT_LAYOUT` holds placeholder values; Task 12 replaces them with measurements from the real art.
 
-- [ ] **Step 1: Write the failing tests (append to `tests/unit/core.test.js`)**
+- [x] **Step 1: Write the failing tests (append to `tests/unit/core.test.js`)**
 
 ```js
 const L = D.DEFAULT_LAYOUT;
@@ -263,12 +264,12 @@ test('empty catalogue still yields one segment', () => {
 });
 ```
 
-- [ ] **Step 2: Run to verify it fails**
+- [x] **Step 2: Run to verify it fails**
 
 Run: `cd tests && npm run unit`
 Expected: FAIL with `D.layoutProps is not a function` (or `Cannot read properties of undefined` for `DEFAULT_LAYOUT`)
 
-- [ ] **Step 3: Implement (add inside the factory, before `return`, and extend the returned object)**
+- [x] **Step 3: Implement (add inside the factory, before `return`, and extend the returned object)**
 
 ```js
   var PROP_W = 14; // % of base-scene width at scale 1
@@ -322,12 +323,12 @@ Returned object becomes:
            DEFAULT_LAYOUT: DEFAULT_LAYOUT, PROP_W: PROP_W };
 ```
 
-- [ ] **Step 4: Run to verify it passes**
+- [x] **Step 4: Run to verify it passes**
 
 Run: `cd tests && npm run unit`
 Expected: `# pass 8`, `# fail 0`
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add cartoons/drivein-core.js tests/unit/core.test.js
@@ -349,7 +350,7 @@ Rules (spec, "Interaction" and "Clarifications"):
 - A mouse or keyboard `activate` plays.
 - `escape` goes from playing back to preview.
 
-- [ ] **Step 1: Write the failing tests (append)**
+- [x] **Step 1: Write the failing tests (append)**
 
 ```js
 const soon = new Set(['c10']);
@@ -400,12 +401,12 @@ test('URL helpers', () => {
 });
 ```
 
-- [ ] **Step 2: Run to verify it fails**
+- [x] **Step 2: Run to verify it fails**
 
 Run: `cd tests && npm run unit`
 Expected: FAIL with `D.reduce is not a function`
 
-- [ ] **Step 3: Implement (add inside the factory and extend the returned object)**
+- [x] **Step 3: Implement (add inside the factory and extend the returned object)**
 
 ```js
   var INITIAL = Object.freeze({ mode: 'idle', id: null });
@@ -447,12 +448,12 @@ Returned object:
            embedUrl: embedUrl, thumbUrl: thumbUrl, watchUrl: watchUrl, formatPremiere: formatPremiere };
 ```
 
-- [ ] **Step 4: Run to verify it passes**
+- [x] **Step 4: Run to verify it passes**
 
 Run: `cd tests && npm run unit`
 Expected: `# pass 14`, `# fail 0`
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add cartoons/drivein-core.js tests/unit/core.test.js
@@ -467,7 +468,7 @@ git commit -m "feat(cartoons): interaction reducer (hover/touch/escape rules) an
 - Create: `cartoons/episodes.json`, `cartoons/art/bg-placeholder.svg`, `cartoons/art/lot-extension-placeholder.svg`, `cartoons/art/screen-frame-placeholder.svg`, `cartoons/props/placeholder-car.svg`, `cartoons/props/placeholder-poster.svg`, `cartoons/props/placeholder-snack.svg`, `cartoons/props/placeholder-booth.svg`, `tests/tools/sync-fallback.js`
 - Test: `tests/unit/core.test.js`
 
-- [ ] **Step 1: Write the failing test (append)**
+- [x] **Step 1: Write the failing test (append)**
 
 ```js
 const fs = require('node:fs');
@@ -485,12 +486,12 @@ test('launch catalogue is valid, has 14 episodes and fills all four special spot
 });
 ```
 
-- [ ] **Step 2: Run to verify it fails**
+- [x] **Step 2: Run to verify it fails**
 
 Run: `cd tests && npm run unit`
 Expected: FAIL with `ENOENT ... episodes.json`
 
-- [ ] **Step 3: Create `cartoons/episodes.json`**
+- [x] **Step 3: Create `cartoons/episodes.json`**
 
 Use the IDs from the spec's launch catalogue exactly.
 
@@ -513,7 +514,7 @@ Use the IDs from the spec's launch catalogue exactly.
 ]
 ```
 
-- [ ] **Step 4: Create the placeholder SVGs**
+- [x] **Step 4: Create the placeholder SVGs**
 
 `cartoons/art/bg-placeholder.svg` (16:9 night scene. Its row lines and spot boxes follow `DEFAULT_LAYOUT`, so misplaced props are obvious):
 
@@ -570,7 +571,7 @@ Use the IDs from the spec's launch catalogue exactly.
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 120"><rect x="10" y="10" width="140" height="100" fill="#3b3b52" stroke="#111" stroke-width="6"/><rect x="40" y="35" width="80" height="45" fill="#ffd36e"/></svg>
 ```
 
-- [ ] **Step 5: Create `tests/tools/sync-fallback.js`**
+- [x] **Step 5: Create `tests/tools/sync-fallback.js`**
 
 ```js
 // Copies cartoons/episodes.json into the inline <script id="episodes-fallback"> of cartoons/index.html.
@@ -592,12 +593,12 @@ fs.writeFileSync(htmlPath, html.replace(re, (_, a, _b, c) => a + json + c));
 console.log('fallback updated');
 ```
 
-- [ ] **Step 6: Run to verify it passes**
+- [x] **Step 6: Run to verify it passes**
 
 Run: `cd tests && npm run unit`
 Expected: `# pass 15`, `# fail 0`
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add cartoons/episodes.json cartoons/art cartoons/props tests/tools/sync-fallback.js tests/unit/core.test.js
@@ -612,7 +613,7 @@ git commit -m "feat(cartoons): launch catalogue, placeholder art, fallback sync 
 - Create: `cartoons/index.html`
 - Test: `tests/e2e/drivein.spec.js`
 
-- [ ] **Step 1: Write the failing E2E smoke test**
+- [x] **Step 1: Write the failing E2E smoke test**
 
 `tests/e2e/drivein.spec.js`:
 
@@ -643,12 +644,12 @@ for (const [w, h] of [[375, 812], [768, 1024], [1440, 900], [2560, 1440]]) {
 }
 ```
 
-- [ ] **Step 2: Run to verify it fails**
+- [x] **Step 2: Run to verify it fails**
 
 Run: `cd tests && npx playwright test drivein.spec.js`
 Expected: FAIL. The props count is 0 (a 404 for `/cartoons/`).
 
-- [ ] **Step 3: Create `cartoons/index.html`**
+- [x] **Step 3: Create `cartoons/index.html`**
 
 Copy the two font `<link>` lines exactly from `index.html` lines 18–19 into the marked spot: More Sugar loads from `fonts.cdnfonts.com` (line 18) and Nunito from `fonts.googleapis.com` (line 19). Check with `sed -n 18,19p index.html`.
 
@@ -816,17 +817,17 @@ body{background:var(--night);color:#fff;font-family:'Nunito',sans-serif;min-heig
 </html>
 ```
 
-- [ ] **Step 4: Sync the inline fallback**
+- [x] **Step 4: Sync the inline fallback**
 
 Run: `cd tests && npm run sync && node tools/sync-fallback.js --check`
 Expected: `fallback updated`, then `fallback in sync`
 
-- [ ] **Step 5: Run the smoke test to verify it passes**
+- [x] **Step 5: Run the smoke test to verify it passes**
 
 Run: `cd tests && npx playwright test drivein.spec.js`
 Expected: 4 passed
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add cartoons/index.html
@@ -840,7 +841,7 @@ git commit -m "feat(cartoons): drive-in page with screen, props and boot script"
 **Files:**
 - Test: `tests/e2e/drivein.spec.js`
 
-- [ ] **Step 1: Append the behaviour tests**
+- [x] **Step 1: Append the behaviour tests**
 
 ```js
 test('hover previews and the screen changes shape by format', async ({ page }) => {
@@ -943,12 +944,12 @@ test('reduced motion disables the screen transition', async ({ page }) => {
 
 > Note: the premiere label is en-GB formatted. Node and Chromium on this machine print September as `Sept` (verified), so the assertion expects `Premieres 27 Sept`. If another ICU prints `Sep`, update this assertion to the observed value and note it in the branch log.
 
-- [ ] **Step 2: Run**
+- [x] **Step 2: Run**
 
 Run: `cd tests && npx playwright test drivein.spec.js`
 Expected: 13 passed. If any fail, fix `cartoons/index.html`, not the tests, unless the test contradicts the spec.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add tests/e2e/drivein.spec.js cartoons/index.html
@@ -964,7 +965,7 @@ git commit -m "test(cartoons): E2E coverage for preview, playback, coming-soon, 
 - Modify: `index.html:535` (nav), `index.html:647` (the last `.verse-card` in `.nikeverse-grid`)
 - Test: `tests/e2e/mainsite.spec.js`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 `tests/e2e/mainsite.spec.js`:
 
@@ -991,18 +992,18 @@ test('title sticker obeys the verse-title-img cap', async ({ page }) => {
 });
 ```
 
-- [ ] **Step 2: Run to verify it fails**
+- [x] **Step 2: Run to verify it fails**
 
 Run: `cd tests && npx playwright test mainsite.spec.js`
 Expected: FAIL. The locator finds 0 elements.
 
-- [ ] **Step 3: Create `assets/art/title-cartoons.svg`**
+- [x] **Step 3: Create `assets/art/title-cartoons.svg`**
 
 ```svg
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 300"><g font-family="Arial Black,Impact,sans-serif" text-anchor="middle" stroke="#111" stroke-width="14" paint-order="stroke"><text x="380" y="130" font-size="110" fill="#ffd36e">NIKEVERSE</text><text x="380" y="255" font-size="110" fill="#ff8c42">CARTOONS</text></g></svg>
 ```
 
-- [ ] **Step 4: Edit `index.html`**
+- [x] **Step 4: Edit `index.html`**
 
 Nav (line 535): insert `<a href="cartoons/">Cartoons</a>` directly after `<a href="#nikeverse-cards">Nikeverse</a>`.
 
@@ -1012,7 +1013,7 @@ Grid: insert this card as the **last** child of `<div class="nikeverse-grid">`, 
       <div class="verse-card reveal" style="background:linear-gradient(to bottom,rgba(0,0,0,0.75) 0%,rgba(0,0,0,0.6) 50%,rgba(0,0,0,0.45) 100%),url('cartoons/art/bg-placeholder.svg') center center/cover"><img src="assets/art/title-cartoons.svg" alt="Nikeverse Cartoons" class="verse-title-img" loading="lazy" decoding="async" width="760" height="300"><div class="verse-desc" style="color:#fff">Pull into the $NIKEPIG drive-in. Every Nikeverse cartoon parked in one lot: hover a car, catch the episode on the big screen.</div><a href="cartoons/" class="verse-card-btn">Watch Cartoons</a></div>
 ```
 
-- [ ] **Step 5: Run to verify it passes, including mobile nav wrap**
+- [x] **Step 5: Run to verify it passes, including mobile nav wrap**
 
 Run: `cd tests && npx playwright test mainsite.spec.js`
 Expected: 2 passed.
@@ -1020,7 +1021,7 @@ Then check the nav doesn't overflow at 375 px:
 Run: `cd tests && node -e "const {chromium}=require('@playwright/test');(async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:375,height:800}});await p.goto('http://127.0.0.1:8123/index.html').catch(()=>{});console.log(await p.evaluate(()=>document.documentElement.scrollWidth<=375));await b.close()})()"` (with `python -m http.server 8123 --bind 127.0.0.1` running from the repo root)
 Expected: `true`
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add index.html assets/art/title-cartoons.svg tests/e2e/mainsite.spec.js
@@ -1033,13 +1034,13 @@ git commit -m "feat: link the Nikeverse Cartoons drive-in from nav and the Nikev
 
 Per `CLAUDE.md`, the pipeline is: reviewers on distinct lenses, then the orchestrator fixes every finding, including nits.
 
-- [ ] **Step 1: Dispatch three reviewers in parallel** (read-only), each given the spec path, this plan path and `git diff main...HEAD`:
+- [x] **Step 1: Dispatch three reviewers in parallel** (read-only), each given the spec path, this plan path and `git diff main...HEAD`:
   1. **Contract/regression:** the spec vs the implementation, main-page regressions (bg, reveal, sticker sizing), and the no-`main`-push rule.
   2. **Visual/mobile:** 375 / 768 / 1440 / 2560 px, `deviceScaleFactor: 2` screenshots, tap targets, sticky screen and lot scrolling, landscape screen width on mobile.
   3. **Cross-file:** `drivein-core.js` vs `index.html` usage, fallback sync, and catalogue IDs vs `docs/superpowers/specs/...` table.
-- [ ] **Step 2: Fix all findings.** Re-run `cd tests && npm run unit && node tools/sync-fallback.js --check && npx playwright test`.
+- [x] **Step 2: Fix all findings.** Re-run `cd tests && npm run unit && node tools/sync-fallback.js --check && npx playwright test`.
   Expected: all unit and E2E tests pass, and the fallback is in sync.
-- [ ] **Step 3: Commit and push the branch**
+- [x] **Step 3: Commit and push the branch**
 
 ```bash
 git add -A cartoons tests index.html assets/art
@@ -1047,41 +1048,50 @@ git commit -m "fix(cartoons): reviewer-wave findings"
 git push origin claude/paddle-payments-setup-0h567q
 ```
 
-- [ ] **Step 4: Checkpoint with the user.** Share the branch and the placeholder-art state, then ask the user to be at the computer with the Tripo3D extension for Task 10.
+- [x] **Step 4: Checkpoint with the user.** Share the branch and the placeholder-art state, then ask the user to be at the computer with the Tripo3D extension for Task 10.
 
 ---
 
-### Task 10: Art generation in Tripo3D (user present)
+### Task 10: Art generation in Tripo Studio (user present)
 
-**Tool:** the user's Tripo3D Chrome extension, model **GPT Image 2.5**, **4K** output. It's driven through the claude-in-chrome browser tools with the user watching.
-- Nothing is uploaded to blocked hosts.
-- If the extension needs a login or payment, the user does it.
-- Generate **one image at a time** and show each to the user before continuing, since the user reviews each asset.
+**Tool:** the user's **Tripo Studio web app** (`https://studio.tripo3d.ai/workspace/generate-image`, logged in inside the user's Chrome), model **GPT Image 2.5**, 16:9, **Count 4** (the user picks one of the variations), **4K** on. Check the credit cost reads 0 (free quota) before each Generate; any real spend needs the user's go. Saving images is a download, so confirm with the user first. Sources are saved to `C:/Users/loopy/Nikeverse-cartoons/outputs/nikepig-website-cartoons-art-src/` (outside the website repo; the repo is Pages-served).
 
-Shared style block, used as the prefix of every prompt:
-> Nikeverse Meme Machine 2D cartoon style: bold clean black outlines, flat vivid cel colours with soft painted shading, warm glowing night lighting, playful and cosy, high detail, no text, no letters, no logos, no watermark.
+**Working style recipe (from the Meme Machine engine):** attach the Meme Machine cast sheets as references in engine order and end the prompt with the engine's figure lines, e.g. "Figure 1 is the reference for Nik the pig mascot — reproduce exactly. Figure 2 is the reference for GF Princess — reproduce this character's EXACT appearance. …". Sheets: `C:/Users/loopy/nikeverse-assets/meme-machine/refs/character-design-reference-sheet-1.png` (Nike), `…/meme-machine/cast/gf-princess.png`, `…/cast/charles.PNG` (20 MB: upload a JPEG re-encode under 10 MB), `…/cast/poppy.png`. Keep prompts short (about 2,000 characters or less).
+- **Tripo filter gotcha:** the phrase "no clothes" makes Tripo reject the request with "This image does not meet our content guidelines. Please upload a different image." The message blames the image, but it is the prompt.
+- **Tripo upload gotcha:** re-sending the same file name to the upload input can silently attach it several times; check the thumbnail strip and remove duplicates.
+- **Edit gotcha:** Tripo's "Edit" dialog (pencil) with GPT Image returned a before/after collage or a letterboxed low-res image. For a local fix, crop the region from the 4K master, re-render the crop with the character sheet attached, and paste only the fixed area back (as done for GF Princess's legs).
 
-- [ ] **Step 1: Background (16:9, 4K).** Prompt: *[style] A wide panoramic night-time drive-in cinema on a ranch. Starry purple-blue sky, rolling dark hills and a wooden ranch fence far behind. In the upper centre, a tall wooden screen support structure with an EMPTY blank dark rectangle where a tall portrait movie screen will be placed (leave it plain). On the left, a cosy snack-bar hut with a counter and warm light. On the right, a small projector booth with one glowing window. Two empty poster boards on posts, one near each side edge. The foreground is an empty asphalt parking lot with three faint curved parking row lines receding into the distance. Absolutely no cars and no characters.* Save as `C:/Users/loopy/Nikeverse-cartoons/outputs/nikepig-website-cartoons-art-src/bg-4k.png` (outside the website repo; the repo is Pages-served, so 4K sources stay out of it).
-- [ ] **Step 2: Lot extension (16:9, 4K).** Prompt: *[style] The same night drive-in parking lot continuing sideways: starry sky, dark hills, the same three faint parking row lines, empty asphalt, seamless left and right edges for tiling, no buildings, no cars, no characters.* Save as `C:/Users/loopy/Nikeverse-cartoons/outputs/nikepig-website-cartoons-art-src/lot-extension-4k.png`.
-- [ ] **Step 3: Screen frame (portrait, transparent).** Prompt: *[style] A front-on wooden drive-in movie-screen frame with small marquee bulbs around the edge; the inside of the frame is completely empty and transparent; isolated on a plain white background.* Save as `C:/Users/loopy/Nikeverse-cartoons/outputs/nikepig-website-cartoons-art-src/screen-frame-src.png`.
-- [ ] **Step 4: Props (one per episode, isolated on plain white).** Use the prop concept from the spec's catalogue table for each of the 14 episodes. Prompt template: *[style] A single [prop concept], three-quarter front view, isolated on a plain white background, soft shadow underneath.* Character rules:
-  - Nike is a round dark-grey pig with a beige belly and very short thick stump legs, with an innocent, sweet expression.
-  - GF Princess is a cream pig with black spots and a floral wreath.
-  - Poppy is a small reddish-brown baby bison.
-  - Save each as `C:/Users/loopy/Nikeverse-cartoons/outputs/nikepig-website-cartoons-art-src/props/<id>.png`.
-- [ ] **Step 5: Main-site sticker.** Prompt: *[style] Die-cut sticker logo reading "NIKEVERSE CARTOONS" in chunky playful display letters, thick white sticker border, hard offset shadow, isolated on plain white.* This is the one asset that may contain text. Save as `C:/Users/loopy/Nikeverse-cartoons/outputs/nikepig-website-cartoons-art-src/title-cartoons-src.png`.
-- [ ] **Step 6: Commit the source images in the cartoons repo** (not the website repo)
+- [x] **Step 1: Background.** Done 2026-09-27 — see the spec's Revision 2 and `barn-cinema-bg-B-0936-4k-gflegs.jpeg` plus the README and prompt in the art-src folder.
+- [x] **Step 2: Lot extension.** Dropped (Revision 2: the lot is capped; no extension segments).
+- [x] **Step 3: Screen frame.** Dropped (Revision 2: the barn wall is the screen).
+- [ ] **Step 4: Props (one per episode, isolated on plain white).** Only needed for episodes on the lot (the newest 12) plus the 4 special spots; others are optional. Agree each ranch-object concept with the user first (they replace the car concepts in the spec table). Attach the relevant cast sheet(s) as figures when a character appears, and put "Every pig hand has five fingers" in the prompt. Character rules: Nike is a round dark-grey pig with a beige belly oval, very short thick stump legs with no knees, innocent expression; GF Princess is cream with black spots, a flower wreath and a purple dress, closed-lip smile; Poppy is a small reddish-brown baby bison on four legs. Save each as `…/art-src/props/<id>.png`.
+- [ ] **Step 5: Reel crate + generic reel icon.** Generate the archive "reel crate" prop (a wooden crate of old film reels) and a small generic film-reel icon, both isolated on white. Save as `…/art-src/props/crate.png` and `…/art-src/props/reel.png`.
+- [ ] **Step 6: Main-site sticker.** Prompt: *Die-cut sticker logo reading "NIKEVERSE CARTOONS" in chunky playful display letters, thick white sticker border, hard offset shadow, flat vibrant cel fills, isolated on plain white.* This asset may contain text. Save as `…/art-src/title-cartoons-src.png`.
+- [ ] **Step 7: Commit the source images in the cartoons repo** (not the website repo)
 
 ```bash
-cd /c/Users/loopy/Nikeverse-cartoons && git add outputs/nikepig-website-cartoons-art-src && git commit -m "art: Tripo3D GPT Image 2.5 sources for the nikepig.com drive-in" && git push
+cd /c/Users/loopy/Nikeverse-cartoons && git add outputs/nikepig-website-cartoons-art-src && git commit -m "art: Tripo Studio GPT Image 2.5 sources for the nikepig.com cartoons page" && git push
 ```
+
+---
+
+### Task 10A: Pivot copy to the barn cinema
+
+**Files:** `cartoons/index.html`, `cartoons/episodes.json` (+ inline fallback), `index.html`
+
+- [ ] **Step 1:** In `cartoons/index.html`, change the `<title>` ("…Drive-In"), the meta description ("drive-in") and the idle text "Pick a car to preview" to barn / ranch movie-night wording (e.g. "Pick a prop to preview").
+- [ ] **Step 2:** In the main `index.html` card (~line 658), replace "Pull into the $NIKEPIG drive-in… hover a car" with barn movie-night wording.
+- [ ] **Step 3:** Rewrite all 14 `alt` strings in `cartoons/episodes.json` to describe the agreed ranch props, then `cd tests && npm run sync`.
+- [ ] **Step 4:** Run all tests: `cd tests && npm run unit && node tools/sync-fallback.js --check && npx playwright test`. Update any test that asserts the old copy.
+- [ ] **Step 5: Commit** `git commit -m "copy(cartoons): barn movie-night wording"`
 
 ---
 
 ### Task 11: Process art (cut-outs, WebP, sizes)
 
 **Files:**
-- Create: `tests/tools/process-art.py`, `cartoons/art/bg.webp`, `cartoons/art/lot-extension.webp`, `cartoons/art/screen-frame.webp`, `cartoons/props/<id>.webp` ×14, `assets/art/title-cartoons.webp`
+- Create: `tests/tools/process-art.py`, `cartoons/art/bg-{1280,1920,2560,3840}.webp`, `cartoons/props/<id>.webp` (+ `crate.webp`, `placeholder-reel` icon), `assets/art/title-cartoons.webp`
+- *Revision 2:* no `lot-extension.webp` and no `screen-frame.webp`. The background source is `barn-cinema-bg-B-0936-4k-gflegs.jpeg`. Serve it at several widths (`image-set()` / media queries) so every screen size gets a sharp but light file (the user asked for it to be clear on all screen sizes).
 
 - [ ] **Step 1: Write `tests/tools/process-art.py`**
 
@@ -1108,9 +1118,9 @@ def webp(img, out, max_w, q):
     img.save(out, 'WEBP', quality=q, method=6)
     print(out.relative_to(ROOT), img.size, out.stat().st_size // 1024, 'KB')
 
-webp(Image.open(SRC / 'bg-4k.png').convert('RGB'), C / 'art/bg.webp', 2560, 80)
-webp(Image.open(SRC / 'lot-extension-4k.png').convert('RGB'), C / 'art/lot-extension.webp', 2560, 78)
-webp(remove(Image.open(SRC / 'screen-frame-src.png')), C / 'art/screen-frame.webp', 900, 85)
+bg = Image.open(SRC / 'barn-cinema-bg-B-0936-4k-gflegs.jpeg').convert('RGB')
+for w in (1280, 1920, 2560, 3840):
+    webp(bg, C / f'art/bg-{w}.webp', w, 80)
 for src in sorted((SRC / 'props').glob('*.png')):
     cut = remove(Image.open(src))
     cut = cut.crop(cut.getbbox())
@@ -1122,12 +1132,12 @@ webp(title.crop(title.getbbox()), ROOT / 'assets/art/title-cartoons.webp', 760, 
 - [ ] **Step 2: Run it and check sizes**
 
 Run: `python tests/tools/process-art.py`
-Expected: `bg.webp` ≤ 600 KB and each prop ≤ 120 KB. If one is over, lower its `q` by 5 and re-run.
+Expected: `bg-1920.webp` ≤ 600 KB (larger widths may be bigger) and each prop ≤ 120 KB. If one is over, lower its `q` by 5 and re-run.
 
 - [ ] **Step 3: Point everything at the real art**
-  - In `cartoons/index.html`, set the `.scene` background URLs to `art/bg.webp` and `art/lot-extension.webp`, and `.screen-frame` to `art/screen-frame.webp`.
+  - In `cartoons/index.html`, set the `.scene` background to the `art/bg-*.webp` set (pick by viewport width / DPR), remove the `lot-extension` layer, remove `.screen-frame` (CSS ~line 49 and the div ~line 93) and add a soft projector glow to `.screen`.
   - In `cartoons/episodes.json`, set each `"image"` to `"props/<id>.webp"`, then run `cd tests && npm run sync`.
-  - In `index.html`, change the card to `assets/art/title-cartoons.webp` (with the real `width`/`height` from the script output) and its background to `cartoons/art/bg.webp`. Delete `assets/art/title-cartoons.svg`.
+  - In `index.html`, change the card to `assets/art/title-cartoons.webp` (with the real `width`/`height` from the script output) and its background to `cartoons/art/bg-1280.webp`. Delete `assets/art/title-cartoons.svg`.
 - [ ] **Step 4: Run all tests**
 
 Run: `cd tests && npm run unit && node tools/sync-fallback.js --check && npx playwright test`
@@ -1162,8 +1172,14 @@ git commit -m "art(cartoons): cut-outs, WebP encodes, swap in final art"
   }
 ```
 
-- [ ] **Step 2: Measure.** Open `http://127.0.0.1:8123/cartoons/?debug=layout` at 1440×810 and compare the magenta dots with the painted snack-bar counter, booth window, poster boards, the three row lines and the screen support. Adjust `DEFAULT_LAYOUT` (`screen.top` and `screen.height` too, applied via the `.screen` CSS `top`/`--h` factor) until every dot sits on its painted spot. Keep each row's spacing ≥ `PROP_W × scale`; the unit test enforces it.
-   Screen geometry isn't read from `DEFAULT_LAYOUT.screen` by the page. It lives in three CSS spots in `cartoons/index.html`: `.screen{top:6%}`, the `--h` factor `.58`, and the `.watch-link` `top` calc. Edit all three together, and keep `DEFAULT_LAYOUT.screen` in sync as documentation.
+- [ ] **Step 2: Measure.** Open `http://127.0.0.1:8123/cartoons/?debug=layout` at 1440×810 and compare the magenta dots with the painted snack stand, projector shed, notice boards, the hay-bale rows and the barn wall. **Row slots must avoid the painted characters** (Poppy centre-left, Nike centre-right, GF Princess and Charles at the edges). Adjust `DEFAULT_LAYOUT` (`screen.top` and `screen.height` too, applied via the `--st`/`--sh` custom properties) until every dot sits on its painted spot. Keep each row's spacing ≥ `PROP_W × scale`; the unit test enforces it.
+   Screen geometry isn't read from `DEFAULT_LAYOUT.screen` by the page. It lives in the `--st` (top, .08) and `--sh` (height, .58) custom properties near lines 42–44 of `cartoons/index.html`, the stacked mobile overrides near lines 67 and 78, and the `.watch-link` position. Edit them together, fit the screen inside the barn wall (x ≈ 21–79%, y ≈ 0–62%), and keep `DEFAULT_LAYOUT.screen` in sync as documentation.
+   **Deferred geometry items (from the Task 9 review wave):**
+   - Back-row badges and tags sit under the screen at 1440 and 667 px wide. Fix with `--sh` .54 or back row y ≈ 76.
+   - Raise the `.soon` badge font minimum from .55rem to .65rem.
+   - The watch link wraps at 667×375.
+   - Clamp tags on edge props.
+   - At 1440×900 there is a 90 px empty strip under the scene.
    Also check that no clickable prop sits under the screen (in both portrait and landscape width) or under the watch link. If one does, move that spot or row.
 
 - [ ] **Step 3: Run all tests**
@@ -1177,6 +1193,24 @@ Expected: all pass.
 git add cartoons/drivein-core.js cartoons/index.html
 git commit -m "feat(cartoons): layout measured from the final background; ?debug=layout overlay"
 ```
+
+---
+
+### Task 12A: Scaling — newest-first, capped lot, archive list, deep links (spec Revision 2)
+
+**Files:** `cartoons/drivein-core.js`, `cartoons/index.html`, `cartoons/props/placeholder-reel.svg`, `tests/unit/core.test.js`, `tests/e2e/drivein.spec.js`
+
+TDD throughout: write each failing test, watch it fail, implement, watch it pass.
+
+- [ ] **Step 1 (core, unit-tested): ordering and cap.** In `layoutProps`, fill special spots in catalogue order (unchanged), then place the remaining episodes newest-first (premiere desc, catalogue order as tie-break) into at most `LOT_SIZE = 12` row slots in one segment. Return `{ props, archive, segments: 1, crate }` where `archive` lists the ids that got no slot and `crate` is a special spot for the reel crate when `archive` is non-empty. Tests: launch catalogue (no archive, no crate); synthetic 30 (12 row props, 14 archived, crate present, newest on the front row); no overlaps; specials don't move when a newer poster episode is added.
+- [ ] **Step 2 (core): optional art.** `validateEpisodes` accepts a missing `image`; the page falls back to `props/placeholder-reel.svg`. Test both.
+- [ ] **Step 3 (core): hash helpers.** `parseHash('#ep=c10') → 'c10'`, `formatHash('c10') → '#ep=c10'`, unknown ids ignored. Unit tests.
+- [ ] **Step 4 (page): remove extension segments.** Drop `--segments` > 1 handling and the `lot-extension` layer; keep the lot horizontally scrollable on phones.
+- [ ] **Step 5 (page): "All episodes" list.** A visible button plus the crate prop open a native `<dialog>` with `<input type="search">` and a newest-first list of buttons (thumbnail, title, date, "Premieres …" badge). Filtering is by title or id. Choosing one runs the same select/preview path as a prop; if the episode has a prop, `scrollIntoView({inline:'center'})` and focus it; otherwise focus the screen. Esc closes the dialog.
+- [ ] **Step 6 (page): deep links.** On load and `hashchange`, select `#ep=<id>` (preview only). Selecting any episode updates the hash with `history.replaceState`.
+- [ ] **Step 7 (page): skip link and stacking.** Add a "Skip to all episodes" link at the start of the prop group. Give each row its own z-index (front row highest); keep hover/focus/`aria-current` lifting above all rows.
+- [ ] **Step 8 (E2E):** list opens from the button and the crate, search filters, choosing plays/previews and scrolls to the prop; `#ep=c10` preselects C10; a front-row prop is clickable at its top edge (stacking fix); zero `pageerror`; 375/768/1440/2560 widths.
+- [ ] **Step 9:** Run all tests, then commit `git commit -m "feat(cartoons): newest-first capped lot, archive list, deep links, skip link, row stacking"`
 
 ---
 

@@ -11,12 +11,11 @@ async function open(page, when = '2026-10-05T00:00:00Z') {
   page.on('pageerror', e => errors.push(e.message));
   await page.clock.setFixedTime(new Date(when));
   await page.goto('/cartoons/');
-  await expect(page.locator('.prop[data-id]')).toHaveCount(14);
+  await expect(page.locator('.reel[data-id]')).toHaveCount(13);
   return errors;
 }
 
-// Synthetic catalogue: e0/e1 posters, e2 snack, e3 booth, the rest row props; one day apart, oldest first.
-// Odd ids ship without an image (generic reel icon).
+// Synthetic catalogue, one day apart, oldest first. Odd ids ship without an image (generic seat-saver in the list).
 const day = i => new Date(Date.parse('2026-01-01T00:00:00+08:00') + i * 864e5).toISOString().replace('.000Z', 'Z');
 const synthCat = n => Array.from({ length: n }, (_, i) => Object.assign({
   id: 'e' + i, title: 'Episode ' + i, youtube: ('y' + String(i).padStart(10, '0')).slice(0, 11), format: 'portrait',
@@ -29,59 +28,97 @@ async function openSynth(page, n = 30, hash = '') {
   await page.route('**/cartoons/episodes.json', r => r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(synthCat(n)) }));
   await page.clock.setFixedTime(new Date('2026-10-05T00:00:00Z'));
   await page.goto('/cartoons/' + hash);
-  await expect(page.locator('.prop[data-id]')).toHaveCount(Math.min(n, 16));
+  await expect(page.locator('.reel[data-id]')).toHaveCount(Math.min(n, 13));
   return errors;
 }
 
-for (const [w, h] of [[375, 812], [768, 1024], [1440, 900], [2560, 1440]]) {
-  test(`renders 14 props with no page errors at ${w}px`, async ({ page }) => {
+for (const [w, h] of [[375, 812], [768, 1024], [1366, 768], [1440, 900], [1920, 1080], [2560, 1440]]) {
+  test(`renders 13 reels with no page errors at ${w}px`, async ({ page }) => {
     await page.setViewportSize({ width: w, height: h });
     const errors = await open(page);
     expect(errors).toEqual([]);
     await expect(page.locator('#screen')).toHaveAttribute('data-mode', 'idle');
-    await expect(page.locator('#screen-content')).toContainText('Pick a prop to preview');
+    await expect(page.locator('#screen-content')).toContainText('Pick a reel to preview');
     await expect(page).toHaveTitle(/barn/i);
     await expect(page).not.toHaveTitle(/drive-in/i);
     expect(await page.locator('meta[name="description"]').getAttribute('content')).not.toMatch(/drive-in/i);
-    await expect(page.locator('.crate')).toHaveCount(0);
+    await expect(page.locator('.prop, .crate')).toHaveCount(0);
     await expect(page.locator('#all-btn')).toBeVisible();
+    // left to right = newest to oldest; c9 (last of the equal 1 Sept premieres in catalogue order) is list-only
+    expect(await page.locator('.reel').evaluateAll(bs => bs.map(b => b.dataset.id))).toEqual(
+      ['c14', 'c13', 'c12', 'c11', 'c10', 'pilot', 'c2', 'c3', 'c4', 'c5', 'c6', 'c7', 'c8']);
+    expect(await page.evaluate(() => Math.max(document.documentElement.scrollWidth - innerWidth, 0))).toBe(0);
   });
 
-  test(`a 30-episode catalogue caps the lot and the crate opens the list at ${w}px`, async ({ page }) => {
+  test(`a 30-episode catalogue fills the 13 reels and the list holds all 30 at ${w}px`, async ({ page }) => {
     await page.setViewportSize({ width: w, height: h });
     const errors = await openSynth(page);
-    const crate = page.locator('.crate');
-    await expect(crate).toHaveCount(1);
-    await crate.scrollIntoViewIfNeeded();
-    await crate.click();
+    await expect(page.locator('.reel[data-slot="0"]')).toHaveAttribute('data-id', 'e29');
+    await expect(page.locator('.reel[data-slot="12"]')).toHaveAttribute('data-id', 'e17');
+    await page.locator('#all-btn').click();
     await expect(page.locator('#all-eps')).toHaveJSProperty('open', true);
     await expect(page.locator('#all-list .ep-item')).toHaveCount(30);
     expect(await page.evaluate(() => Math.max(document.documentElement.scrollWidth - innerWidth, 0))).toBe(0);
     expect(errors).toEqual([]);
   });
 
-  test(`every prop is clickable just below its top edge at ${w}px`, async ({ page }) => {
+  // Hotspot hit test: the centre of every reel (the painted reel) hits that reel's button, not the topbar or the screen.
+  test(`every reel hotspot is hit at its centre at ${w}px`, async ({ page }) => {
     await page.setViewportSize({ width: w, height: h });
     await open(page);
-    const bad = await page.evaluate(() => [...document.querySelectorAll('.prop[data-id]')].filter(p => {
+    const bad = await page.evaluate(() => [...document.querySelectorAll('.reel[data-id]')].filter(p => {
       p.scrollIntoView({ inline: 'center', block: 'nearest' });
-      const r = p.getBoundingClientRect(), hit = document.elementFromPoint(r.left + r.width / 2, r.top + 3);
-      return !hit || hit.closest('.prop') !== p;
+      const r = p.getBoundingClientRect(), hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+      return !hit || hit.closest('.reel') !== p;
     }).map(p => p.dataset.id));
     expect(bad).toEqual([]);
   });
 }
 
+test('reel hotspots sit on the painted reels, are at least 44 px and clear the screen at 1440', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await open(page);
+  const m = await page.evaluate(() => {
+    const L = window.DriveIn.DEFAULT_LAYOUT, sc = document.getElementById('scene').getBoundingClientRect();
+    const scr = document.getElementById('screen').getBoundingClientRect();
+    return { seamY: sc.top + sc.height * L.seam / 100, scrTop: scr.top, reels: [...document.querySelectorAll('.reel')].map(b => {
+      const r = b.getBoundingClientRect(), s = L.reels[+b.dataset.slot];
+      return { w: r.width, h: r.height, b: r.bottom, dx: r.left + r.width / 2 - (sc.left + sc.width * s.x / 100),
+               dy: r.top + r.height / 2 - (sc.top + sc.height * s.y / 100), x: s.x };
+    }) };
+  });
+  expect(Math.abs(m.scrTop - m.seamY)).toBeLessThanOrEqual(1); // screen top edge on the barn seam
+  for (const r of m.reels) {
+    expect(r.w).toBeGreaterThanOrEqual(44);
+    expect(Math.abs(r.w - r.h)).toBeLessThan(1);
+    expect(Math.abs(r.dx)).toBeLessThan(1);
+    expect(Math.abs(r.dy)).toBeLessThan(1);
+    if (r.x > 21.4 && r.x < 78.5) expect(r.b).toBeLessThanOrEqual(m.seamY);
+  }
+});
+
+test('edge reels keep their title tag inside the viewport', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await open(page);
+  for (const slot of [0, 12]) {
+    const reel = page.locator(`.reel[data-slot="${slot}"]`);
+    await reel.hover();
+    const t = await reel.locator('.tag').boundingBox();
+    expect(t.x).toBeGreaterThanOrEqual(0);
+    expect(t.x + t.width).toBeLessThanOrEqual(1440);
+  }
+});
+
 test('hover previews and the screen changes shape by format', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await open(page);
   const screen = page.locator('#screen');
-  await page.locator('.prop[data-id="c3"]').hover();
+  await page.locator('.reel[data-id="c3"]').hover();
   await expect(screen).toHaveAttribute('data-mode', 'preview');
   await expect(screen).toHaveAttribute('data-format', 'portrait');
   await expect(page.locator('#screen-content strong')).toHaveText('45-Minute Diner Wait');
-  await expect(page.locator('.prop[data-id="c3"]')).toHaveAttribute('aria-label', 'Play 45-Minute Diner Wait');
-  await page.locator('.prop[data-id="pilot"]').hover();
+  await expect(page.locator('.reel[data-id="c3"]')).toHaveAttribute('aria-label', 'Play 45-Minute Diner Wait');
+  await page.locator('.reel[data-id="pilot"]').hover();
   await expect(screen).toHaveAttribute('data-format', 'landscape');
   // width animates (.45s); poll until it settles wider than tall
   await expect.poll(async () => { const b = await screen.boundingBox(); return b.width > b.height; }).toBe(true);
@@ -95,15 +132,19 @@ test('mobile: screen sits above the lot', async ({ page }) => {
   expect(s.y + s.height).toBeLessThanOrEqual(l.y + 1);
 });
 
-test('landscape phone uses the full-width desktop layout with no prop hiding another', async ({ page }) => {
+test('landscape phone uses the desktop layout; the reels clear the topbar and each is hit at its centre', async ({ page }) => {
   await page.setViewportSize({ width: 667, height: 375 });
   await open(page);
-  const sceneW = (await page.locator('#scene').boundingBox()).width;
-  expect(Math.abs(sceneW - Math.min(667, 375 * 4096 / 2336))).toBeLessThanOrEqual(2); // as wide as the barn art allows
-  const wrong = await page.evaluate(() => [...document.querySelectorAll('.prop')].filter(p => {
+  const sc = await page.locator('#scene').boundingBox();
+  expect(sc.width).toBeLessThanOrEqual(667);
+  expect(sc.width).toBeGreaterThan(500);
+  const tb = await page.locator('.all-btn').boundingBox();
+  const firstReelTop = await page.evaluate(() => Math.min(...[...document.querySelectorAll('.reel')].map(b => b.getBoundingClientRect().top)));
+  expect(firstReelTop).toBeGreaterThanOrEqual(tb.y + tb.height);
+  const wrong = await page.evaluate(() => [...document.querySelectorAll('.reel')].filter(p => {
     const r = p.getBoundingClientRect();
     const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
-    return !hit || hit.closest('.prop') !== p;
+    return !hit || hit.closest('.reel') !== p;
   }).map(p => p.dataset.id));
   expect(wrong).toEqual([]);
 });
@@ -131,11 +172,11 @@ async function settled(page) {
 }
 
 for (const [w, h] of [[1440, 900], [390, 844]]) {
-  test(`watch link never overlaps props or the player at ${w}px`, async ({ page }) => {
+  test(`watch link never overlaps reels or the player at ${w}px`, async ({ page }) => {
     await page.setViewportSize({ width: w, height: h });
     await open(page);
     for (const id of ['c3', 'pilot']) {
-      await page.locator(`.prop[data-id="${id}"]`).focus();
+      await page.locator(`.reel[data-id="${id}"]`).focus();
       for (const mode of ['preview', 'playing']) {
         if (mode === 'playing') await page.keyboard.press('Enter');
         await expect(page.locator('#screen')).toHaveAttribute('data-mode', mode);
@@ -144,7 +185,7 @@ for (const [w, h] of [[1440, 900], [390, 844]]) {
         const res = await page.evaluate(({ src, fn }) => {
           const rectOf = eval(src), overlap = eval(fn);
           const link = rectOf(document.getElementById('watch-link'));
-          const hits = [...document.querySelectorAll('.prop')].map(rectOf).filter(p => overlap(p, link) > 0).map(p => p.id);
+          const hits = [...document.querySelectorAll('.reel')].map(rectOf).filter(p => overlap(p, link) > 0).map(p => p.id);
           const f = document.querySelector('#screen-content iframe');
           return { link, hits, frame: f ? overlap(rectOf(f), link) : 0, vw: innerWidth };
         }, { src: rectOf.toString(), fn: overlap.toString() });
@@ -157,10 +198,10 @@ for (const [w, h] of [[1440, 900], [390, 844]]) {
     }
   });
 
-  test(`props do not overlap each other at ${w}px`, async ({ page }) => {
+  test(`reel hotspots do not overlap each other at ${w}px`, async ({ page }) => {
     await page.setViewportSize({ width: w, height: h });
     await open(page);
-    const rects = await page.evaluate(src => [...document.querySelectorAll('.prop')].map(eval(src)), rectOf.toString());
+    const rects = await page.evaluate(src => [...document.querySelectorAll('.reel')].map(eval(src)), rectOf.toString());
     const bad = [];
     for (let i = 0; i < rects.length; i++)
       for (let j = i + 1; j < rects.length; j++) {
@@ -171,18 +212,18 @@ for (const [w, h] of [[1440, 900], [390, 844]]) {
   });
 }
 
-test('landscape preview does not cover any prop centre', async ({ page }) => {
+test('landscape preview does not cover any reel', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await open(page);
-  await page.locator('.prop[data-id="c3"]').hover();
-  await page.locator('.prop[data-id="pilot"]').hover();
+  await page.locator('.reel[data-id="c3"]').hover();
+  await page.locator('.reel[data-id="pilot"]').hover();
   await expect(page.locator('#screen')).toHaveAttribute('data-format', 'landscape');
   await settled(page);
   const covered = await page.evaluate(() => {
     const s = document.getElementById('screen').getBoundingClientRect();
-    return [...document.querySelectorAll('.prop')].filter(p => {
-      const r = p.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height / 2;
-      return x > s.left && x < s.right && y > s.top && y < s.bottom;
+    return [...document.querySelectorAll('.reel')].filter(p => {
+      const r = p.getBoundingClientRect();
+      return r.left < s.right && s.left < r.right && r.top < s.bottom && s.top < r.bottom;
     }).map(p => p.dataset.id);
   });
   expect(covered).toEqual([]);
@@ -201,15 +242,19 @@ test('topbar title never overlaps the screen', async ({ page }) => {
   }
 });
 
-test('hovered prop rises above neighbours', async ({ page }) => {
+test('a hovered reel glows and its title tag paints above the screen', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await open(page);
-  const c6 = page.locator('.prop[data-id="c6"]');
+  const c6 = page.locator('.reel[data-id="c6"]');
+  expect(await c6.evaluate(e => getComputedStyle(e).boxShadow)).toBe('none');
   await c6.hover();
-  expect(await c6.evaluate(e => getComputedStyle(e).zIndex)).toBe('5');
-  expect(await page.locator('.prop[data-id="c8"]').evaluate(e => getComputedStyle(e).zIndex)).toBe('1');
-  // rows stack front over back: newest (c14) is on the front row; c6-c8 (same premiere, later in the catalogue) on the back row
-  expect(await page.locator('.prop[data-id="c14"]').evaluate(e => +getComputedStyle(e).zIndex)).toBeGreaterThan(1);
+  await expect.poll(() => c6.evaluate(e => getComputedStyle(e).boxShadow)).not.toBe('none');
+  await expect.poll(() => c6.locator('.tag').evaluate(e => getComputedStyle(e).opacity)).toBe('1');
+  // the reels share the root stacking context with the screen layer (z 10) and sit above it
+  expect(await page.locator('#lot').evaluate(e => getComputedStyle(e).zIndex)).toBe('auto');
+  expect(+await c6.evaluate(e => getComputedStyle(e).zIndex)).toBeGreaterThan(10);
+  const tag = await c6.locator('.tag').boundingBox(), scr = await page.locator('#screen').boundingBox();
+  expect(tag.y + tag.height).toBeGreaterThan(scr.y); // it does reach down over the screen's top edge
 });
 
 test('All episodes button lists every episode newest first with premiere badges', async ({ page }) => {
@@ -239,7 +284,7 @@ test('search filters the list by title or id', async ({ page }) => {
   await expect(page.locator('#all-empty')).toBeVisible();
 });
 
-test('choosing an episode with a prop previews it, scrolls to it and focuses it; Enter plays', async ({ page }) => {
+test('choosing an episode on a reel previews it, scrolls to it and focuses it; Enter plays', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 });
   await open(page);
   await page.locator('#all-btn').click();
@@ -247,7 +292,7 @@ test('choosing an episode with a prop previews it, scrolls to it and focuses it;
   await expect(page.locator('#all-eps')).toHaveJSProperty('open', false);
   await expect(page.locator('#screen')).toHaveAttribute('data-mode', 'preview');
   await expect(page.locator('#screen-content strong')).toHaveText('The Apple Chip Ledger');
-  const pilot = page.locator('.prop[data-id="pilot"]');
+  const pilot = page.locator('.reel[data-id="pilot"]');
   await expect(pilot).toBeFocused();
   await expect(pilot).toBeInViewport();
   await page.keyboard.press('Enter');
@@ -266,23 +311,34 @@ test('choosing an archived episode previews it and focuses the screen', async ({
   expect(await page.evaluate(() => location.hash)).toBe('#ep=e5');
 });
 
-test('episodes without art borrow a generic seat-saver; a broken image falls back to the reel icon', async ({ page }) => {
+test('the launch catalogue\'s oldest episode (c9) is list-only and still plays from the list', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await open(page);
+  await expect(page.locator('.reel[data-id="c9"]')).toHaveCount(0);
+  await page.locator('#all-btn').click();
+  await page.locator('.ep-item[data-id="c9"]').click();
+  await expect(page.locator('#screen-content strong')).toHaveText('The Void');
+  await expect(page.locator('#screen')).toBeFocused();
+  await page.locator('.play').click();
+  await expect(page.locator('#screen-content iframe')).toHaveAttribute('src', /3mm3QSeXjo8/);
+});
+
+test('list thumbnails: prop art, a generic seat-saver when there is none, the reel icon when an image fails', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.route(/props\/generic-\d+\.webp$/, r => r.request().url().endsWith(GENERIC_E27) ? r.fulfill({ status: 404, body: '' }) : r.fallback());
   await openSynth(page);
-  const expected = await page.evaluate(() => ['e29', 'e5'].map(id => window.DriveIn.propImage({ id })));
-  await expect(page.locator('.prop[data-id="e29"] img')).toHaveAttribute('src', expected[0]);
-  await expect(page.locator('.prop[data-id="e29"]')).toHaveClass(/generic/);
-  await expect(page.locator('.prop[data-id="e28"] img')).toHaveAttribute('src', 'props/placeholder-car.svg');
-  await expect(page.locator('.prop[data-id="e27"] img')).toHaveAttribute('src', 'props/placeholder-reel.svg');
+  const expected = await page.evaluate(() => window.DriveIn.propImage({ id: 'e5' }));
   await page.locator('#all-btn').click();
-  await expect(page.locator('.ep-item[data-id="e5"] img')).toHaveAttribute('src', expected[1]);
+  await expect(page.locator('.ep-item[data-id="e5"] img')).toHaveAttribute('src', expected);
+  await expect(page.locator('.ep-item[data-id="e28"] img')).toHaveAttribute('src', 'props/placeholder-car.svg');
+  await page.locator('.ep-item[data-id="e27"]').scrollIntoViewIfNeeded();
+  await expect(page.locator('.ep-item[data-id="e27"] img')).toHaveAttribute('src', 'props/placeholder-reel.svg');
 });
 
 test('Esc closes the list without stopping playback', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await open(page);
-  await page.locator('.prop[data-id="c3"]').click();
+  await page.locator('.reel[data-id="c3"]').click();
   await expect(page.locator('#screen-content iframe')).toHaveCount(1);
   await page.locator('#all-btn').click();
   await page.keyboard.press('Escape');
@@ -328,9 +384,9 @@ test('selecting an episode updates the hash without adding history', async ({ pa
   await page.setViewportSize({ width: 1440, height: 900 });
   await open(page);
   const before = await page.evaluate(() => history.length);
-  await page.locator('.prop[data-id="c4"]').hover();
+  await page.locator('.reel[data-id="c4"]').hover();
   await expect.poll(() => page.evaluate(() => location.hash)).toBe('#ep=c4');
-  await page.locator('.prop[data-id="c5"]').click();
+  await page.locator('.reel[data-id="c5"]').click();
   await expect.poll(() => page.evaluate(() => location.hash)).toBe('#ep=c5');
   expect(await page.evaluate(() => history.length)).toBe(before);
 });
@@ -338,12 +394,12 @@ test('selecting an episode updates the hash without adding history', async ({ pa
 test('click plays the embed, and hovering elsewhere does not interrupt it', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await open(page);
-  await page.locator('.prop[data-id="c3"]').click();
+  await page.locator('.reel[data-id="c3"]').click();
   const frame = page.locator('#screen-content iframe');
   await expect(frame).toHaveAttribute('src', 'https://www.youtube-nocookie.com/embed/rt7cQLtGyEE?autoplay=1&playsinline=1&rel=0');
   await expect(frame).toHaveAttribute('allow', /autoplay/);
   await expect(page.locator('#announce')).toHaveText('Now playing 45-Minute Diner Wait');
-  await page.locator('.prop[data-id="c4"]').hover();
+  await page.locator('.reel[data-id="c4"]').hover();
   await expect(frame).toHaveAttribute('src', /rt7cQLtGyEE/);
   await expect(page.locator('#watch-link')).toHaveAttribute('href', 'https://youtube.com/shorts/rt7cQLtGyEE');
   await page.keyboard.press('Escape');
@@ -354,7 +410,7 @@ test('click plays the embed, and hovering elsewhere does not interrupt it', asyn
 test('play button keeps focus in the page instead of dropping to body', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await open(page);
-  await page.locator('.prop[data-id="c3"]').hover();
+  await page.locator('.reel[data-id="c3"]').hover();
   await page.locator('.play').focus();
   await page.keyboard.press('Enter');
   await expect(page.locator('#screen-content iframe')).toHaveCount(1);
@@ -366,13 +422,13 @@ test('coming-soon flips at the premiere instant and never plays before it', asyn
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.clock.install({ time: new Date('2026-09-26T16:59:30Z') });
   await page.goto('/cartoons/');
-  await expect(page.locator('.prop[data-id]')).toHaveCount(14);
-  const c10 = page.locator('.prop[data-id="c10"]');
+  await expect(page.locator('.reel[data-id]')).toHaveCount(13);
+  const c10 = page.locator('.reel[data-id="c10"]');
   await expect(c10).toHaveAttribute('data-soon', 'true');
   await expect(c10).toHaveAttribute('aria-label', /^Order in the Yard, premieres 27 Sept?$/);
-  await expect(c10.locator('.soon')).toHaveText(/^27 Sept?$/);
-  const fit = await c10.evaluate(b => { const s = b.querySelector('.soon'); return s.getBoundingClientRect().width <= b.getBoundingClientRect().width + 0.5; });
-  expect(fit).toBe(true);
+  await expect(c10.locator('.soon')).toHaveText(/^Premieres 27 Sept?$/);
+  await c10.hover();
+  await expect(c10.locator('.soon')).toBeVisible();
   await c10.click();
   await expect(page.locator('#screen-content iframe')).toHaveCount(0);
   await expect(page.locator('#screen')).toHaveAttribute('data-mode', 'soon');
@@ -388,7 +444,7 @@ test('touch: first tap previews, second tap plays', async ({ browser }, testInfo
   const page = await ctx.newPage();
   await page.route(/(youtube-nocookie\.com|ytimg\.com|youtube\.com)/, r => r.abort());
   await open(page);
-  const c5 = page.locator('.prop[data-id="c5"]');
+  const c5 = page.locator('.reel[data-id="c5"]');
   await c5.scrollIntoViewIfNeeded();
   await c5.tap();
   await expect(page.locator('#screen')).toHaveAttribute('data-mode', 'preview');
@@ -401,13 +457,11 @@ test('touch: first tap previews, second tap plays', async ({ browser }, testInfo
   });
   expect(hit.w).toBeGreaterThanOrEqual(44);
   expect(hit.h).toBeGreaterThanOrEqual(44);
-  const tb = await c5.boundingBox();
-  const imgBox = await c5.locator('img').boundingBox();
-  expect(imgBox.width).toBeCloseTo(tb.width, 0);
+  await expect(c5.locator('.tag')).toBeVisible(); // touch has no hover: the current reel keeps its tag
   await ctx.close();
 });
 
-test('renders 14 props with no page errors at deviceScaleFactor 2', async ({ browser }, testInfo) => {
+test('renders 13 reels with no page errors at deviceScaleFactor 2', async ({ browser }, testInfo) => {
   const ctx = await browser.newContext({ baseURL: testInfo.project.use.baseURL, viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2 });
   const page = await ctx.newPage();
   await page.route(/(youtube-nocookie\.com|ytimg\.com|youtube\.com)/, r => r.abort());
@@ -416,10 +470,10 @@ test('renders 14 props with no page errors at deviceScaleFactor 2', async ({ bro
   await ctx.close();
 });
 
-test('keyboard: Tab reaches props, Enter plays', async ({ page }) => {
+test('keyboard: Tab reaches reels, Enter plays', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await open(page);
-  await page.locator('.prop[data-id="c6"]').focus();
+  await page.locator('.reel[data-id="c6"]').focus();
   await expect(page.locator('#screen')).toHaveAttribute('data-mode', 'preview');
   await page.keyboard.press('Enter');
   await expect(page.locator('#screen-content iframe')).toHaveAttribute('src', /s4WUUF-3D_Y/);
@@ -444,14 +498,27 @@ test('reduced motion disables the screen transition', async ({ page }) => {
   expect(t).toBe('0s');
 });
 
-test('reduced motion also disables the lift on focus', async ({ page }) => {
+test('reduced motion also disables the reel glow transition', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.setViewportSize({ width: 1440, height: 900 });
   await open(page);
-  const c3 = page.locator('.prop[data-id="c3"]');
+  const c3 = page.locator('.reel[data-id="c3"]');
   await c3.focus();
   await expect(c3).toHaveAttribute('aria-current', 'true');
-  const m = await c3.evaluate(e => { const t = new DOMMatrix(getComputedStyle(e).transform); return { a: t.a, f: t.f, h: e.offsetHeight }; });
-  expect(m.a).toBe(1);
-  expect(m.f).toBeCloseTo(-m.h, 0);
+  expect(await c3.evaluate(e => getComputedStyle(e).transitionDuration)).toBe('0s');
+});
+
+test('phone: the reel strip shows under the sticky screen, newest on the left, and the lot scrolls sideways', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await open(page);
+  const scr = await page.locator('#screen').boundingBox();
+  const first = await page.locator('.reel[data-slot="0"]').boundingBox();
+  expect(first.y).toBeGreaterThanOrEqual(scr.y + scr.height);
+  expect(first.y + first.height).toBeLessThanOrEqual(812);
+  expect(first.x).toBeGreaterThanOrEqual(0);
+  expect(await page.locator('#lot').evaluate(e => e.scrollWidth > e.clientWidth)).toBe(true);
+  expect(await page.locator('#lot').evaluate(e => getComputedStyle(e).zIndex)).toBe('1'); // reels scroll under the screen
+  await page.mouse.move(180, 700);
+  await page.mouse.wheel(0, 300);
+  await expect.poll(() => page.locator('.screen-wrap').evaluate(e => e.getBoundingClientRect().top)).toBeLessThanOrEqual(0.5);
 });

@@ -9,24 +9,26 @@
 <link href="https://fonts.cdnfonts.com/css/more-sugar" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-:root{--night:#0b1026;--wheat:#f5deb3;--glow:#ffd36e;--prop-w:14;--ar:1.7534}
+:root{--night:#0b1026;--wheat:#f5deb3;--glow:#ffd36e;--ar:1.7534}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--night);color:#fff;font-family:'Nunito',sans-serif;min-height:100vh;overflow-x:hidden}
 .topbar{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;gap:1rem;align-items:center;justify-content:space-between;padding:.6rem 1rem;background:linear-gradient(rgba(0,0,0,.65),transparent);pointer-events:none}
-.topbar a,.topbar h1,.topbar button{pointer-events:auto}
+.topbar a,.topbar button{pointer-events:auto}
 .topbar h1{white-space:nowrap}
 @media (max-width:480px){.topbar{gap:.5rem;padding:.25rem .75rem}.topbar .bk{display:none}.topbar a{font-size:1.3rem;min-width:32px;min-height:32px;display:flex;align-items:center}}
 .topbar a{color:var(--wheat);text-decoration:none;font-weight:800}
 .topbar h1{font-family:'More Sugar',cursive;line-height:1.1;font-size:clamp(1.1rem,2.6vw,1.9rem);color:var(--glow);text-shadow:0 2px 10px rgba(0,0,0,.6)}
 /* The barn scene keeps the background's aspect (4096x2336): as wide as fits, bottom-aligned; any spare strip
-   (above on tall-ish screens, at the sides on very wide ones) shows a blurred copy. --sw/--sch scene size, --top scene top. */
-.theatre{position:relative;width:100vw;height:100vh;overflow:hidden;
-  --sw:min(100vw,calc(100vh*var(--ar)));--sch:calc(var(--sw)/var(--ar));--top:calc(100vh - var(--sch))}
+   (above on tall-ish screens, at the sides on very wide ones) shows a blurred copy. --sw/--sch scene size, --top scene top.
+   --tb keeps the reel string (6.1% of the scene below its top) clear of the topbar on short viewports. */
+.theatre{position:relative;width:100vw;height:100vh;overflow:hidden;--tb:max(0px,calc(4.4rem - 6.1vh));
+  --sw:min(100vw,calc((100vh - var(--tb))*var(--ar)));--sch:calc(var(--sw)/var(--ar));--top:calc(100vh - var(--sch))}
 .theatre::before{content:'';position:absolute;inset:-40px;background:var(--bg-1x) center bottom/cover no-repeat;filter:blur(24px) brightness(.55)}
+/* no z-index here or on .scene: the reel hotspots (z 12) must paint above the screen layer (z 10) for their title tags */
 .lot{position:absolute;inset:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin}
 /* responsive background: a sharp but light file per viewport width and DPR */
 .theatre{--bg-1x:url(art/bg-1280.webp)}
-.scene{position:absolute;left:calc((100% - var(--sw))/2);bottom:0;width:var(--sw);height:var(--sch);container-type:size;
+.scene{position:absolute;left:calc((100% - var(--sw))/2);bottom:0;width:var(--sw);height:var(--sch);
   background:var(--bg-1x) left top/100% 100% no-repeat;
   background-image:-webkit-image-set(url(art/bg-1280.webp) 1x,url(art/bg-2560.webp) 2x);
   background-image:image-set(url(art/bg-1280.webp) 1x,url(art/bg-2560.webp) 2x)}
@@ -40,25 +42,30 @@ body{background:var(--night);color:#fff;font-family:'Nunito',sans-serif;min-heig
   .scene{background-image:-webkit-image-set(url(art/bg-2560.webp) 1x,url(art/bg-3840.webp) 2x);
     background-image:image-set(url(art/bg-2560.webp) 1x,url(art/bg-3840.webp) 2x)}
 }
-/* a prop slot is --s x --prop-w % of the scene wide; its art is at most that tall too and stands on (--x,--y) */
-.prop{position:absolute;left:calc(var(--x)*1%);top:calc(var(--y)*1%);width:calc(var(--s)*var(--prop-w)*1cqw);
-  transform:translate(-50%,-100%);background:none;border:0;padding:0;cursor:pointer;display:flex;align-items:flex-end;justify-content:center;
-  transition:transform .2s,filter .2s;scroll-snap-align:center;z-index:var(--z,1)}
-.prop:hover,.prop:focus-visible,.prop[aria-current="true"]{z-index:5}
-.prop::before{content:'';position:absolute;left:50%;top:50%;width:max(100%,44px);height:max(100%,44px);transform:translate(-50%,-50%)}
-.prop img{width:auto;height:auto;max-width:100%;max-height:calc(var(--s)*var(--prop-w)*1cqw);display:block;pointer-events:none;filter:drop-shadow(0 6px 8px rgba(0,0,0,.55))}
-.prop.generic img{max-width:72%;max-height:calc(var(--s)*var(--prop-w)*.72cqw)}
-.prop:focus-visible,.prop[aria-current="true"]{transform:translate(-50%,-104%) scale(1.06);filter:drop-shadow(0 0 14px var(--glow))}
-.prop:focus-visible{outline:3px solid var(--glow);outline-offset:4px}
-.prop .tag{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);white-space:nowrap;background:rgba(0,0,0,.8);color:#fff;font-weight:800;font-size:clamp(.7rem,1vw,.95rem);padding:.2rem .55rem;border-radius:.5rem;opacity:0;pointer-events:none;transition:opacity .15s}
-.prop:focus-visible .tag{opacity:1}
-/* back-row props stand just below the screen: their title tag drops below them; edge props keep the tag on screen */
-.prop[data-tag="below"] .tag{bottom:auto;top:100%;margin-top:.2rem}
-.prop[data-edge="l"] .tag{left:0;transform:none}
-.prop[data-edge="r"] .tag{left:auto;right:0;transform:none}
+/* A reel hotspot: an invisible round button over a painted reel, centred on (--x,--y) % of the scene, --d % of the scene
+   wide (DEFAULT_LAYOUT.reels in drivein-core.js). ::before pads the hit area to 44 px where the reel is drawn smaller. */
+.reel{position:absolute;left:calc(var(--x)*1%);top:calc(var(--y)*1%);width:calc(var(--d)*1%);aspect-ratio:1;z-index:12;
+  transform:translate(-50%,-50%);border:0;border-radius:50%;padding:0;background:transparent;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;scroll-snap-align:center;transition:box-shadow .2s,background-color .2s}
+.reel::before{content:'';position:absolute;left:50%;top:50%;width:max(100%,44px);height:max(100%,44px);transform:translate(-50%,-50%);border-radius:50%}
+.reel:hover,.reel:focus-visible,.reel[aria-current="true"]{z-index:13}
+/* lit: a warm ring hugging the rim plus a soft radial glow */
+.reel:focus-visible,.reel[aria-current="true"]{box-shadow:0 0 0 3px rgba(255,211,110,.95),0 0 16px 6px rgba(255,211,110,.6),0 0 42px 16px rgba(255,186,90,.32);
+  background:radial-gradient(circle,rgba(255,236,180,.28),rgba(255,211,110,.1) 68%,transparent 71%)}
+.reel:focus-visible{outline:2px solid #fff;outline-offset:6px}
+.reel[data-soon="true"]{background:rgba(11,16,38,.42)}
+.reel .tag{position:absolute;top:calc(100% + .5rem);left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.2rem;
+  opacity:0;pointer-events:none;transition:opacity .15s}
+.reel .t{white-space:nowrap;background:rgba(0,0,0,.82);color:#fff;font-weight:800;font-size:clamp(.7rem,1vw,.95rem);padding:.2rem .55rem;border-radius:.5rem}
+.reel .soon{white-space:nowrap;background:var(--glow);color:#111;font-weight:800;font-size:clamp(.65rem,.8vw,.8rem);padding:.1rem .45rem;border-radius:.4rem}
+.reel:focus-visible .tag,.reel[aria-current="true"] .tag{opacity:1}
+/* reels at the scene edges keep their tag on screen */
+.reel[data-edge="l"] .tag{left:0;transform:none;align-items:flex-start}
+.reel[data-edge="r"] .tag{left:auto;right:0;transform:none;align-items:flex-end}
 @media (hover:hover){
-  .prop:hover{transform:translate(-50%,-104%) scale(1.06);filter:drop-shadow(0 0 14px var(--glow))}
-  .prop:hover .tag{opacity:1}
+  .reel:hover{box-shadow:0 0 0 3px rgba(255,211,110,.95),0 0 16px 6px rgba(255,211,110,.6),0 0 42px 16px rgba(255,186,90,.32);
+    background:radial-gradient(circle,rgba(255,236,180,.28),rgba(255,211,110,.1) 68%,transparent 71%)}
+  .reel:hover .tag{opacity:1}
 }
 .all-btn{background:var(--glow);color:#111;border:0;border-radius:999px;padding:.3rem .8rem;font:inherit;font-weight:800;font-size:clamp(.8rem,1vw,1rem);cursor:pointer;white-space:nowrap;min-height:36px}
 @media (max-width:767px) and (orientation:portrait),(orientation:portrait) and (max-aspect-ratio:4/5){.topbar{padding-top:.25rem;padding-bottom:.25rem}.all-btn{min-height:32px;padding:.2rem .7rem}}
@@ -81,13 +88,11 @@ body{background:var(--night);color:#fff;font-family:'Nunito',sans-serif;min-heig
 .ep-item .badge{background:var(--glow);color:#111;font-weight:800;font-size:.75rem;padding:.1rem .4rem;border-radius:.4rem;white-space:nowrap}
 #all-empty{color:var(--wheat);text-align:center;padding:.5rem}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-.prop[data-soon="true"] img{filter:brightness(.55) saturate(.6)}
-.prop .soon{position:absolute;top:0;left:50%;transform:translate(-50%,-30%);max-width:max(100%,4.4rem);overflow:hidden;text-overflow:ellipsis;background:var(--glow);color:#111;font-weight:800;font-size:clamp(.65rem,.8vw,.8rem);padding:.1rem .45rem;border-radius:.4rem;white-space:nowrap}
 /* --sh screen height, --st screen top, --swp/--swl portrait/landscape screen widths; shared by .screen and .watch-link.
-   Projected on the barn wall: top 10%, height 46% of the scene (keep DEFAULT_LAYOUT.screen in drivein-core.js in sync). */
+   Projected on the barn wall: the top edge sits on the barn's board seam (282/2336 = 12.072% of the scene), height 48%
+   (keep DEFAULT_LAYOUT.screen in drivein-core.js in sync; a unit test checks these two numbers). */
 .screen-wrap{position:absolute;inset:0;pointer-events:none;z-index:10;
-  --sh:calc(var(--sch)*.46);--st:calc(var(--top) + var(--sch)*.10);--swp:calc(var(--sh)*9/16);--swl:min(calc(var(--sh)*16/9),96vw)}
-.lot{z-index:1}
+  --sh:calc(var(--sch)*.48);--st:calc(var(--top) + var(--sch)*.12072);--swp:calc(var(--sh)*9/16);--swl:min(calc(var(--sh)*16/9),96vw)}
 .screen:focus{outline:none}
 .screen{position:absolute;left:50%;top:var(--st);height:var(--sh);width:var(--swp);transform:translateX(-50%);
   /* projector light on the barn wall: a warm wash and a soft glow, no frame */
@@ -103,7 +108,7 @@ body{background:var(--night);color:#fff;font-family:'Nunito',sans-serif;min-heig
 .screen-content em{position:relative;font-style:normal;color:var(--wheat);font-size:clamp(.75rem,3.4vh,1rem)}
 .screen-content .play{position:relative;width:clamp(56px,4.5vw,96px);height:clamp(56px,4.5vw,96px);border-radius:50%;border:0;background:rgba(255,211,110,.92);color:#111;font-size:clamp(1.4rem,2vw,2.4rem);cursor:pointer}
 .screen-content .soon-art{max-width:70%;max-height:45%;filter:brightness(.7)}
-/* desktop: small pill beside the screen's top-right corner, outside the player and clear of the lot */
+/* desktop: small pill beside the screen's top-right corner, outside the player and below the reels */
 .watch-link{position:absolute;top:var(--st);left:calc(50% + var(--swp)/2 + .5rem);max-width:calc(50% - var(--swp)/2 - 1rem);
   background:rgba(0,0,0,.7);border-radius:999px;padding:.25rem .7rem;color:var(--wheat);font-weight:800;font-size:clamp(.85rem,.9vw,1.2rem);
   pointer-events:auto;text-shadow:0 1px 4px #000;text-decoration:none;white-space:nowrap;transition:left .45s ease}
@@ -111,20 +116,22 @@ body{background:var(--night);color:#fff;font-family:'Nunito',sans-serif;min-heig
 .status{position:absolute;left:50%;bottom:8%;transform:translateX(-50%);background:rgba(0,0,0,.75);padding:.6rem 1rem;border-radius:.6rem;z-index:20}
 /* stacked layout: portrait phones and portrait tablets (keep in sync with the matchMedia in the boot script) */
 @media (max-width:767px) and (orientation:portrait),(orientation:portrait) and (max-aspect-ratio:4/5){
-  /* --lh lot height; the lot shows the bottom half of the scene (the bales and the cast), the blank wall is cropped */
-  .theatre{height:auto;overflow:visible;--lh:55vh;--scn:calc(var(--lh)/.5)}
+  /* --lh lot height; the lot shows the whole scene at that height (at least 430 px, so reel hit areas never touch) and
+     scrolls sideways, reels along its top, newest on the left */
+  .theatre{height:auto;overflow:visible;--lh:55vh;--scn:max(var(--lh),430px)}
   .theatre::before{display:none}
-  /* the screen is projected on a close-up of the barn wall */
+  /* the screen is projected on a close-up of the blank barn wall (below the seam, between the reels and the bales) */
   .screen-wrap{position:sticky;inset:auto;top:0;height:45vh;height:45svh;z-index:10;
-    background:linear-gradient(rgba(11,16,38,.55),rgba(11,16,38,.25) 30%,rgba(11,16,38,.25)),var(--bg-1x) 50% 6%/300% auto no-repeat;
+    background:linear-gradient(rgba(11,16,38,.55),rgba(11,16,38,.25) 30%,rgba(11,16,38,.25)),var(--bg-1x) 50% 25%/350% auto no-repeat;
     background-color:var(--night);
     --sh:calc(45vh - 4.8rem);--st:2.6rem;--swl:min(92vw,calc(var(--sh)*16/9))}
   .screen[data-format="landscape"]{height:calc(var(--swl)*9/16)}
   .watch-link,.screen[data-format="landscape"]~.watch-link{left:50%;transform:translateX(-50%);max-width:92vw;white-space:nowrap;padding:.1rem .6rem;
     top:calc(var(--st) + var(--sh) + .3rem);transition:none}
   .screen[data-format="landscape"]~.watch-link{top:calc(var(--st) + var(--swl)*9/16 + .3rem)}
-  .lot{position:relative;height:55vh;height:55svh;scroll-snap-type:x proximity}
-  .scene{position:relative;left:auto;bottom:auto;height:var(--scn);width:calc(var(--scn)*var(--ar));margin-top:calc(var(--lh) - var(--scn))}
+  /* here the lot is a stacking context below the sticky screen, so reels scrolled under it stay under it */
+  .lot{position:relative;z-index:1;height:var(--scn);scroll-snap-type:x proximity}
+  .scene{position:relative;left:auto;bottom:auto;height:var(--scn);width:calc(var(--scn)*var(--ar))}
 }
 @supports (height:1svh){
   @media (max-width:767px) and (orientation:portrait),(orientation:portrait) and (max-aspect-ratio:4/5){
@@ -133,8 +140,7 @@ body{background:var(--night);color:#fff;font-family:'Nunito',sans-serif;min-heig
   }
 }
 @media (prefers-reduced-motion:reduce){
-  .screen,.prop,.prop .tag,.watch-link{transition:none}
-  .prop:hover,.prop:focus-visible,.prop[aria-current="true"]{transform:translate(-50%,-100%)}
+  .screen,.reel,.reel .tag,.watch-link{transition:none}
 }
 </style>
 </head>
@@ -166,6 +172,7 @@ body{background:var(--night);color:#fff;font-family:'Nunito',sans-serif;min-heig
   var state = D.INITIAL, byId = {}, lastTouch = 0, eps = [];
   function now() { return Date.now(); }
   function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text) e.textContent = text; return e; }
+  function reelOf(id) { return document.querySelector('.reel[data-id="' + id + '"]'); }
 
   function renderScreen() {
     var scr = $('screen'), c = $('screen-content'), link = $('watch-link');
@@ -173,9 +180,9 @@ body{background:var(--night);color:#fff;font-family:'Nunito',sans-serif;min-heig
     scr.dataset.format = ep ? ep.format : 'portrait';
     scr.dataset.mode = state.mode;
     c.textContent = ''; link.hidden = true;
-    document.querySelectorAll('.prop[data-id]').forEach(function (b) { b.setAttribute('aria-current', String(!!ep && b.dataset.id === ep.id)); });
+    document.querySelectorAll('.reel[data-id]').forEach(function (b) { b.setAttribute('aria-current', String(!!ep && b.dataset.id === ep.id)); });
     if (!ep) {
-      c.append(el('em', '', 'Now showing'), el('strong', '', 'Nikeverse Cartoons'), el('em', '', 'Pick a prop to preview'));
+      c.append(el('em', '', 'Now showing'), el('strong', '', 'Nikeverse Cartoons'), el('em', '', 'Pick a reel to preview'));
       return;
     }
     if (D.isComingSoon(ep, now())) {
@@ -201,7 +208,7 @@ body{background:var(--night);color:#fff;font-family:'Nunito',sans-serif;min-heig
       dispatch({ type: 'activate', id: id, pointer: 'mouse' });
       var frame = $('screen-content').querySelector('iframe');
       if (frame) frame.focus();
-      else { var pb = document.querySelector('.prop[data-id="' + id + '"]'); if (pb) pb.focus(); }
+      else { var rb = reelOf(id); if (rb) rb.focus(); }
     };
     c.append(t, el('strong', '', ep.title), play);
   }
@@ -223,13 +230,14 @@ body{background:var(--night);color:#fff;font-family:'Nunito',sans-serif;min-heig
       history.replaceState(history.state, '', D.formatHash(next.id));
   }
 
+  // list thumbnails: the episode's prop art (or its generic seat-saver), reel icon if that fails
   function propImg(ep) {
-    var img = el('img'); img.src = D.propImage(ep); img.alt = ''; img.decoding = 'async';
+    var img = el('img'); img.src = D.propImage(ep); img.alt = ''; img.decoding = 'async'; img.loading = 'lazy';
     img.onerror = function () { img.onerror = null; img.src = D.REEL_IMAGE; };
     return img;
   }
 
-  // "All episodes" list: newest first, rebuilt on open so premiere badges are current.
+  // "All episodes" list (the archive): newest first, rebuilt on open so premiere badges are current.
   function openList() {
     var ul = $('all-list'), t = now();
     ul.textContent = '';
@@ -258,45 +266,33 @@ body{background:var(--night);color:#fff;font-family:'Nunito',sans-serif;min-heig
   function choose(id) {
     $('all-eps').close();
     dispatch({ type: 'select', id: id });
-    var b = document.querySelector('.prop[data-id="' + id + '"]');
+    var b = reelOf(id);
     if (b) { b.scrollIntoView({ inline: 'center', block: 'nearest' }); b.focus({ preventScroll: true }); }
     else $('screen').focus();
   }
 
-  function place(b, p) {
-    b.style.setProperty('--x', p.x); b.style.setProperty('--y', p.y); b.style.setProperty('--s', p.scale); b.style.setProperty('--z', p.z);
-    if (p.y < 72) b.dataset.tag = 'below';
-    if (p.x < 15) b.dataset.edge = 'l'; else if (p.x > 85) b.dataset.edge = 'r';
-  }
-
-  function renderProps() {
-    var lay = D.layoutProps(eps, D.DEFAULT_LAYOUT), scene = $('scene');
-    lay.props.forEach(function (p) {
+  // One invisible hotspot per painted reel; the newest episode hangs on the leftmost reel.
+  function renderReels() {
+    var L = D.DEFAULT_LAYOUT, lay = D.layoutReels(eps, L), scene = $('scene');
+    lay.reels.forEach(function (p) {
       var ep = byId[p.id], soon = D.isComingSoon(ep, now());
-      var b = el('button', ep.image ? 'prop' : 'prop generic'); b.type = 'button'; b.dataset.id = ep.id; b.dataset.soon = String(soon);
-      place(b, p);
+      var b = el('button', 'reel'); b.type = 'button'; b.dataset.id = ep.id; b.dataset.slot = p.slot; b.dataset.soon = String(soon);
+      b.style.setProperty('--x', p.x); b.style.setProperty('--y', p.y); b.style.setProperty('--d', 2 * p.r * L.hitPad);
+      if (p.x < 10) b.dataset.edge = 'l'; else if (p.x > 90) b.dataset.edge = 'r';
       b.setAttribute('aria-label', soon ? ep.title + ', premieres ' + D.formatPremiere(ep.premiereMs) : 'Play ' + ep.title);
-      var img = propImg(ep); img.loading = 'lazy';
-      b.append(img, el('span', 'tag', ep.title));
-      if (soon) b.append(el('span', 'soon', D.formatPremiere(ep.premiereMs)));
+      var tag = el('span', 'tag'); tag.setAttribute('aria-hidden', 'true');
+      tag.append(el('span', 't', ep.title));
+      if (soon) tag.append(el('span', 'soon', 'Premieres ' + D.formatPremiere(ep.premiereMs)));
+      b.append(tag);
       b.addEventListener('pointerenter', function (e) { if (e.pointerType !== 'touch') dispatch({ type: 'hover', id: ep.id }); });
       b.addEventListener('pointerdown', function (e) { if (e.pointerType === 'touch') lastTouch = now(); });
       b.addEventListener('focus', function () { if (now() - lastTouch > 800) dispatch({ type: 'hover', id: ep.id }); });
       b.addEventListener('click', function (e) {
-        var p = now() - lastTouch < 800 ? 'touch' : (e.detail === 0 ? 'keyboard' : 'mouse');
-        dispatch({ type: 'activate', id: ep.id, pointer: p });
+        var ptr = now() - lastTouch < 800 ? 'touch' : (e.detail === 0 ? 'keyboard' : 'mouse');
+        dispatch({ type: 'activate', id: ep.id, pointer: ptr });
       });
       scene.append(b);
     });
-    if (lay.crate) {
-      var c = el('button', 'prop crate'); c.type = 'button'; place(c, lay.crate);
-      c.setAttribute('aria-label', 'All episodes (' + lay.archive.length + ' older in the reel crate)');
-      var ci = el('img'); ci.src = 'props/crate.webp';
-      ci.onerror = function () { ci.onerror = null; ci.src = 'props/placeholder-crate.svg'; }; ci.alt = ''; ci.decoding = 'async';
-      c.append(ci, el('span', 'tag', 'All episodes'));
-      c.addEventListener('click', openList);
-      scene.append(c);
-    }
   }
 
   function selectFromHash() {
@@ -314,11 +310,11 @@ body{background:var(--night);color:#fff;font-family:'Nunito',sans-serif;min-heig
     if (delay > MAX_TIMEOUT) return;
     refreshTimer = setTimeout(function () {
       var active = document.activeElement;
-      var focusedId = (active && active.classList.contains('prop')) ? active.dataset.id : null;
-      document.querySelectorAll('.prop').forEach(function (b) { b.remove(); });
-      renderProps();
+      var focusedId = (active && active.classList.contains('reel')) ? active.dataset.id : null;
+      document.querySelectorAll('.reel').forEach(function (b) { b.remove(); });
+      renderReels();
       renderScreen();
-      if (focusedId) { var fb = document.querySelector('.prop[data-id="' + focusedId + '"]'); if (fb) fb.focus(); }
+      if (focusedId) { var fb = reelOf(focusedId); if (fb) fb.focus(); }
       scheduleRefresh();
     }, delay);
   }
@@ -335,28 +331,21 @@ body{background:var(--night);color:#fff;font-family:'Nunito',sans-serif;min-heig
   $('all-close').addEventListener('click', function () { $('all-eps').close(); });
   $('all-search').addEventListener('input', filterList);
   $('all-btn').hidden = false; $('skip-link').hidden = false;
-  renderProps(); renderScreen(); scheduleRefresh();
-  if (matchMedia('(max-width:767px) and (orientation:portrait), (orientation:portrait) and (max-aspect-ratio:4/5)').matches) {
-    var lot = $('lot'); lot.scrollLeft = (lot.scrollWidth - lot.clientWidth) / 2;
-  }
+  renderReels(); renderScreen(); scheduleRefresh();
   selectFromHash();
   addEventListener('hashchange', selectFromHash);
 
-  // ?debug=layout: magenta dots on every DEFAULT_LAYOUT spot (the point a prop stands on) plus the screen footprints.
+  // ?debug=layout: magenta rings on every DEFAULT_LAYOUT reel, the barn seam, and the two screen footprints.
   if (/[?&]debug=layout(&|$)/.test(location.search)) {
-    var L = D.DEFAULT_LAYOUT, dots = [], sc = L.screen;
-    Object.keys(L.special).forEach(function (k) { L.special[k].forEach(function (s) { dots.push([s.x, s.y, k]); }); });
-    if (L.crate) dots.push([L.crate.x, L.crate.y, 'crate']);
-    L.rows.forEach(function (r, i) { r.xs.forEach(function (x) { dots.push([x, r.y, 'r' + i]); }); });
-    dots.forEach(function (d) {
-      var m = el('div', 'debug-dot', d[2]);
-      m.style.cssText = 'position:absolute;z-index:6;pointer-events:none;left:' + d[0] + '%;top:' + d[1] + '%;transform:translate(-50%,-50%);background:#f0f;color:#fff;font:10px monospace;padding:1px 3px';
-      $('scene').append(m);
+    var L = D.DEFAULT_LAYOUT, sc = L.screen;
+    var dbg = function (css, text) { var m = el('div', 'debug-dot', text); m.style.cssText = 'position:absolute;z-index:14;pointer-events:none;' + css; $('scene').append(m); };
+    L.reels.forEach(function (s, i) {
+      dbg('left:' + s.x + '%;top:' + s.y + '%;width:' + 2 * L.reelR + '%;aspect-ratio:1;transform:translate(-50%,-50%);border:2px solid #f0f;border-radius:50%;color:#f0f;font:10px monospace', String(i));
     });
+    dbg('left:0;right:0;top:' + L.seam + '%;border-top:1px solid #0f0');
     [9 / 16, 16 / 9].forEach(function (f) {
-      var w = sc.height * f / L.aspect, r = el('div', 'debug-dot');
-      r.style.cssText = 'position:absolute;z-index:6;pointer-events:none;border:2px dashed #0ff;left:' + (sc.x - w / 2) + '%;top:' + sc.top + '%;width:' + w + '%;height:' + sc.height + '%';
-      $('scene').append(r);
+      var w = sc.height * f / L.aspect;
+      dbg('border:2px dashed #0ff;left:' + (sc.x - w / 2) + '%;top:' + sc.top + '%;width:' + w + '%;height:' + sc.height + '%');
     });
   }
 })();

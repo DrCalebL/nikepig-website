@@ -4,7 +4,7 @@
   else root.DriveIn = factory();
 })(typeof self !== 'undefined' ? self : this, function () {
   'use strict';
-  var PROP_TYPES = ['car', 'poster', 'snack', 'booth'];
+  var PROP_TYPES = ['car', 'poster', 'snack', 'booth']; // legacy placement key; kept as catalogue metadata, not used for layout
   var FORMATS = ['portrait', 'landscape'];
   var FIELDS = ['id', 'title', 'youtube', 'format', 'premiere', 'prop', 'alt']; // image is optional
   var REEL_IMAGE = 'props/placeholder-reel.svg'; // last-resort onerror fallback
@@ -45,55 +45,41 @@
   }
   function propImage(ep) { return ep.image || 'props/generic-' + (hashId(ep.id) % GENERIC_COUNT + 1) + '.webp'; }
 
-  var PROP_W = 14; // % of base-scene width at scale 1
-  var LOT_SIZE = 12; // max row props on the lot; older episodes are archive-only
-
-  // Measured from the barn background (barn-cinema-bg-B-0936-4k-gflegs.jpeg, 4096x2336) with ?debug=layout.
-  // All values are % of the scene; y is the prop's bottom edge (props stand on it). Painted cast (keep clear):
-  // GF Princess x 8-20, Poppy x 22-38 / y 68-94, Nike x 61.5-77 / y 62-93, Charles x 77-89. Barn wall x 21-79, y 0-62.
+  // Measured from the barn background (barn-reels-4k.jpeg, 4096x2336) with `python tests/tools/process-art.py reels`.
+  // x and y are % of the scene width / height; REEL_R is % of the scene WIDTH (painted radius incl. the dark outline,
+  // 64 px of 4096; all 13 reels are the same size). The screen's top edge sits on the barn's horizontal board seam
+  // (y 282 px). Blank barn wall: x 878-3214 px (21.4-78.5%), bottom y 1445 px (61.9%).
+  var SEAM = 282 / 2336 * 100;
+  var REEL_R = 1.57;
+  var HIT_PAD = 1.1; // hotspot diameter = 2 * REEL_R * HIT_PAD (the glow ring sits just outside the painted rim)
   var DEFAULT_LAYOUT = {
     aspect: 4096 / 2336,
-    // The page applies this via --st/--sh in cartoons/index.html (kept in sync by hand). Landscape: x 26.7-73.3%.
-    screen: { x: 50, top: 10, height: 46 },
-    special: {
-      poster: [{ x: 5.5, y: 100, scale: 0.7 }, { x: 93.5, y: 100, scale: 0.72 }], // boards at the scene edges, below the faces
-      snack: [{ x: 5.5, y: 64, scale: 0.38 }],  // on the snack-stand counter
-      booth: [{ x: 92, y: 80, scale: 0.5 }]     // against the projector shed's crates
-    },
-    crate: { x: 15, y: 99, scale: 0.5 }, // reel crate on the ground below GF Princess, only when the archive is non-empty
-    rows: [
-      { y: 67, scale: 0.34, xs: [22.5, 28, 33.5, 39, 44.5, 57] }, // back: on the hay bales, above Poppy
-      { y: 80, scale: 0.44, xs: [43, 50, 57] },                   // middle: at the foot of the bales, between Poppy and Nike
-      { y: 97, scale: 0.52, xs: [42, 49.5, 57] }                  // front: on the dirt, between Poppy and Nike
-    ],
-    fillOrder: [2, 1, 0]
+    seam: SEAM,
+    wall: { l: 21.4, r: 78.5, b: 61.9 },
+    // The page applies this via --st/--sh in cartoons/index.html (a unit test keeps them in sync). Landscape: x 25.7-74.3%.
+    screen: { x: 50, top: SEAM, height: 48 },
+    reelR: REEL_R,
+    hitPad: HIT_PAD,
+    reels: [ // left to right along the fairy-light string
+      { x: 6.36, y: 8.55 }, { x: 15.46, y: 8.76 }, { x: 22.97, y: 8.77 }, { x: 32.50, y: 8.76 }, { x: 40.09, y: 8.74 },
+      { x: 46.55, y: 8.75 }, { x: 53.10, y: 8.71 }, { x: 59.92, y: 8.69 }, { x: 67.24, y: 8.72 }, { x: 75.35, y: 8.38 },
+      { x: 81.57, y: 8.62 }, { x: 88.37, y: 10.28 }, { x: 95.61, y: 8.43 }
+    ]
   };
+  var REEL_COUNT = DEFAULT_LAYOUT.reels.length;
 
-  // Specials fill their spots in catalogue order; the rest go newest-first into at most LOT_SIZE row slots.
-  function layoutProps(episodes, L) {
-    var used = {}, out = [], rest = [];
-    var zOf = function (y) { return 1 + L.rows.filter(function (r) { return r.y < y; }).length; }; // front rows on top
-    episodes.forEach(function (e, i) {
-      var spots = L.special[e.prop];
-      used[e.prop] = used[e.prop] || 0;
-      if (spots && used[e.prop] < spots.length) {
-        var s = spots[used[e.prop]++];
-        out.push({ id: e.id, x: s.x, y: s.y, scale: s.scale, z: zOf(s.y), slot: e.prop + '-' + used[e.prop] });
-      } else rest.push({ e: e, i: i });
+  // Newest first (premiere desc, catalogue order as tie-break): the newest REEL_COUNT episodes hang on the reels,
+  // left to right = newest to oldest; the rest are archive-only (the "All episodes" list).
+  function layoutReels(episodes, L) {
+    var order = episodes.map(function (e, i) { return { e: e, i: i }; })
+      .sort(function (a, b) { return (b.e.premiereMs - a.e.premiereMs) || (a.i - b.i); });
+    var reels = [], archive = [];
+    order.forEach(function (o, n) {
+      if (n >= L.reels.length) { archive.push(o.e.id); return; }
+      var s = L.reels[n];
+      reels.push({ id: o.e.id, slot: n, x: s.x, y: s.y, r: L.reelR });
     });
-    rest.sort(function (a, b) { return (b.e.premiereMs - a.e.premiereMs) || (a.i - b.i); });
-    var slots = [];
-    L.fillOrder.forEach(function (ri) { L.rows[ri].xs.forEach(function (x, k) { slots.push({ row: L.rows[ri], ri: ri, x: x, k: k }); }); });
-    if (L.fillOrder.length !== L.rows.length) throw new Error('layout: fillOrder does not cover all rows');
-    var cap = Math.min(LOT_SIZE, slots.length), archive = [];
-    rest.forEach(function (r, n) {
-      if (n >= cap) { archive.push(r.e.id); return; }
-      var s = slots[n];
-      out.push({ id: r.e.id, x: s.x, y: s.row.y, scale: s.row.scale, z: zOf(s.row.y), slot: 'r' + s.ri + '-' + s.k });
-    });
-    var c = archive.length && L.crate ? L.crate : null;
-    return { props: out, archive: archive, segments: 1,
-             crate: c && { x: c.x, y: c.y, scale: c.scale, z: zOf(c.y), slot: 'crate' } };
+    return { reels: reels, archive: archive };
   }
 
   var INITIAL = Object.freeze({ mode: 'idle', id: null });
@@ -134,8 +120,8 @@
     return new Date(ms).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'Asia/Singapore' });
   }
 
-  return { validateEpisodes: validateEpisodes, isComingSoon: isComingSoon, propImage: propImage, layoutProps: layoutProps,
-           DEFAULT_LAYOUT: DEFAULT_LAYOUT, GENERIC_COUNT: GENERIC_COUNT, REEL_IMAGE: REEL_IMAGE, PROP_W: PROP_W, LOT_SIZE: LOT_SIZE, INITIAL: INITIAL, reduce: reduce,
+  return { validateEpisodes: validateEpisodes, isComingSoon: isComingSoon, propImage: propImage, layoutReels: layoutReels,
+           DEFAULT_LAYOUT: DEFAULT_LAYOUT, REEL_COUNT: REEL_COUNT, GENERIC_COUNT: GENERIC_COUNT, REEL_IMAGE: REEL_IMAGE, INITIAL: INITIAL, reduce: reduce,
            embedUrl: embedUrl, thumbUrl: thumbUrl, watchUrl: watchUrl, parseHash: parseHash, formatHash: formatHash,
            formatPremiere: formatPremiere };
 });

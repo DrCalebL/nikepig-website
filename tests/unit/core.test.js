@@ -66,138 +66,79 @@ test('isComingSoon flips exactly at the premiere instant', () => {
 });
 
 const L = D.DEFAULT_LAYOUT;
-const mk = (n, prop = 'car') => D.validateEpisodes(Array.from({ length: n }, (_, i) =>
-  ep({ id: prop + i, youtube: ('x' + String(i).padStart(10, '0')).slice(0, 11), prop })));
-
-test('special props fill their spots in order, then fall back to row slots', () => {
-  const eps = mk(3, 'poster');
-  const { props } = D.layoutProps(eps, L);
-  assert.equal(props[0].slot, 'poster-1');
-  assert.equal(props[1].slot, 'poster-2');
-  assert.equal(props[2].slot, 'r2-0'); // overflow poster becomes the first front-row slot
-});
-
-test('row props fill front row first, then middle, then back; 12 on the lot', () => {
-  const { props, segments, archive, crate } = D.layoutProps(mk(12), L);
-  assert.equal(segments, 1);
-  assert.deepEqual(archive, []);
-  assert.equal(crate, null);
-  assert.deepEqual(props.slice(0, 3).map(p => p.slot), ['r2-0', 'r2-1', 'r2-2']);
-  assert.equal(props[3].slot, 'r1-0');
-  assert.equal(props[3 + L.rows[1].xs.length].slot, 'r0-0');
-});
-
-// Synthetic catalogues: first four are 2 posters, 1 snack, 1 booth; premieres one day apart, oldest first
+// Synthetic catalogue: premieres one day apart, oldest first
 const day = i => new Date(Date.parse('2026-01-01T00:00:00+08:00') + i * 864e5).toISOString().replace('.000Z', 'Z');
-const synth = (n, special = ['poster', 'poster', 'snack', 'booth']) => D.validateEpisodes(Array.from({ length: n }, (_, i) =>
-  ep({ id: 'e' + i, youtube: ('y' + String(i).padStart(10, '0')).slice(0, 11), prop: special[i] || 'car', premiere: day(i) })));
+const synth = n => D.validateEpisodes(Array.from({ length: n }, (_, i) =>
+  ep({ id: 'e' + i, youtube: ('y' + String(i).padStart(10, '0')).slice(0, 11), premiere: day(i) })));
+const mk = n => D.validateEpisodes(Array.from({ length: n }, (_, i) =>
+  ep({ id: 'car' + i, youtube: ('x' + String(i).padStart(10, '0')).slice(0, 11) })));
 
-test('row props are newest first; specials keep catalogue order', () => {
-  const { props } = D.layoutProps(synth(8), L);
-  assert.deepEqual(props.slice(0, 4).map(p => p.id + ':' + p.slot), ['e0:poster-1', 'e1:poster-2', 'e2:snack-1', 'e3:booth-1']);
-  assert.deepEqual(props.slice(4).map(p => p.id + ':' + p.slot), ['e7:r2-0', 'e6:r2-1', 'e5:r2-2', 'e4:r1-0']);
+test('13 reels; the newest 13 episodes hang on them left to right, newest first; the rest are archive-only', () => {
+  assert.equal(D.REEL_COUNT, 13);
+  assert.equal(L.reels.length, 13);
+  const { reels, archive } = D.layoutReels(synth(30), L);
+  assert.equal(reels.length, 13);
+  assert.deepEqual(reels.map(r => r.id), Array.from({ length: 13 }, (_, i) => 'e' + (29 - i)));
+  assert.deepEqual(reels.map(r => r.slot), Array.from({ length: 13 }, (_, i) => i));
+  assert.deepEqual(archive, Array.from({ length: 17 }, (_, i) => 'e' + (16 - i)));
+  for (let i = 1; i < reels.length; i++) assert.ok(reels[i].x > reels[i - 1].x, 'reels run left to right');
 });
 
-test('equal premieres keep catalogue order', () => {
-  const { props } = D.layoutProps(mk(3), L);
-  assert.deepEqual(props.map(p => p.id), ['car0', 'car1', 'car2']);
+test('equal premieres keep catalogue order; a short catalogue leaves the right-hand reels empty', () => {
+  const { reels, archive } = D.layoutReels(mk(3), L);
+  assert.deepEqual(reels.map(r => r.id), ['car0', 'car1', 'car2']);
+  assert.deepEqual(reels.map(r => r.x), L.reels.slice(0, 3).map(s => s.x));
+  assert.deepEqual(archive, []);
+  assert.deepEqual(D.layoutReels([], L), { reels: [], archive: [] });
 });
 
-test('the lot is capped at LOT_SIZE; older episodes go to the archive with a crate', () => {
-  assert.equal(D.LOT_SIZE, 12);
-  const { props, segments, archive, crate } = D.layoutProps(synth(30), L);
-  assert.equal(segments, 1);
-  const rows = props.filter(p => /^r\d/.test(p.slot));
-  assert.equal(rows.length, 12);
-  assert.equal(props.length, 16);
-  assert.equal(archive.length, 14);
-  assert.deepEqual(archive, Array.from({ length: 14 }, (_, i) => 'e' + (17 - i))); // newest-first
-  assert.deepEqual(rows.filter(p => p.slot.startsWith('r2-')).map(p => p.id), ['e29', 'e28', 'e27']);
-  assert.ok(crate && crate.slot === 'crate');
-  assert.ok(props.every(p => p.x <= 100), 'no extension segments');
-});
-
-// Conservative box: width PROP_W*scale (% of width), square in pixels (16:9 scene), anchored bottom-centre.
-const box = p => { const w = D.PROP_W * p.scale, h = w * 16 / 9; return { l: p.x - w / 2, r: p.x + w / 2, t: p.y - h, b: p.y }; };
+// Hotspot geometry in scene %: centre (x, y), half-size hx (% of width) / hy (% of height), at a given scene width in
+// px. The button is 2 * reelR * hitPad wide and square; its ::before pads the hit area to at least 44 px.
+const hot = (s, wPx) => {
+  const d = Math.max(2 * L.reelR * L.hitPad * wPx / 100, 44), hx = d / 2 / wPx * 100;
+  return { x: s.x, y: s.y, l: s.x - hx, r: s.x + hx, t: s.y - hx * L.aspect, b: s.y + hx * L.aspect, d };
+};
+const screenBox = f => { const { x, top, height } = L.screen, hw = height * f / L.aspect / 2; return { l: x - hw, r: x + hw, t: top, b: top + height }; };
 const hits = (a, b) => a.l < b.r && b.l < a.r && a.t < b.b && b.t < a.b;
 
-test('no two props share a slot; the crate clears every spot and the screen', () => {
-  const { props, crate } = D.layoutProps(synth(30), L);
-  assert.equal(new Set(props.map(p => p.slot)).size, props.length);
-  for (const row of L.rows)
-    for (let i = 1; i < row.xs.length; i++)
-      assert.ok(row.xs[i] - row.xs[i - 1] >= D.PROP_W * row.scale, 'row too tight');
-  const others = [].concat(...Object.values(L.special), ...L.rows.map(r => r.xs.map(x => ({ x, y: r.y, scale: r.scale }))));
-  for (const o of others) assert.ok(!hits(box(crate), box(o)), 'crate overlaps ' + JSON.stringify(o));
-  const scr = { l: 21, r: 79, t: L.screen.top, b: L.screen.top + L.screen.height };
-  assert.ok(!hits(box(crate), scr), 'crate under the screen');
-});
-
-// Painted cast in the barn background (% of scene), measured from barn-cinema-bg-B-0936-4k-gflegs.jpeg.
-const CAST = { gf: { l: 8, r: 20, t: 49, b: 85 }, poppy: { l: 22, r: 38, t: 68, b: 94 },
-               nike: { l: 61.5, r: 77, t: 62, b: 93 }, charles: { l: 77, r: 89, t: 53, b: 89 } };
-const FACES = { gf: { l: 12, r: 19, t: 50, b: 60 }, charles: { l: 80, r: 86, t: 52, b: 61 } };
-const rowSpots = () => [].concat(...L.rows.map((r, ri) => r.xs.map((x, k) => ({ x, y: r.y, scale: r.scale, n: 'r' + ri + '-' + k }))));
-const specialSpots = () => [].concat(...Object.entries(L.special).map(([k, v]) => v.map((s, i) => Object.assign({ n: k + '-' + (i + 1) }, s))),
-  [Object.assign({ n: 'crate' }, L.crate)]);
-
-test('the screen fits the barn wall in both formats', () => {
-  const { x, top, height } = L.screen;
+test('the screen top sits on the barn seam and both formats fit the blank wall', () => {
   assert.ok(Math.abs(L.aspect - 4096 / 2336) < 1e-9);
-  const halfW = f => height * f / L.aspect / 2; // % of scene width
-  for (const f of [9 / 16, 16 / 9]) { assert.ok(x - halfW(f) >= 21 && x + halfW(f) <= 79, 'screen wider than the wall'); }
-  assert.ok(top >= 8 && top + height <= 62, 'screen outside the wall');
-});
-
-test('row slots avoid the painted cast and the landscape screen; no two spots overlap', () => {
-  const { x, top, height } = L.screen, hw = height * 16 / 9 / L.aspect / 2;
-  const scr = { l: x - hw, r: x + hw, t: top, b: top + height };
-  for (const s of rowSpots()) {
-    assert.ok(!hits(box(s), scr), s.n + ' under the screen');
-    for (const [c, b] of Object.entries(CAST)) assert.ok(!hits(box(s), b), s.n + ' covers ' + c);
+  assert.ok(Math.abs(L.seam - 282 / 2336 * 100) < 1e-9);
+  assert.equal(L.screen.top, L.seam);
+  for (const f of [9 / 16, 16 / 9]) {
+    const b = screenBox(f);
+    assert.ok(b.l >= L.wall.l && b.r <= L.wall.r, 'screen wider than the wall');
+    assert.ok(b.b <= L.wall.b, 'screen below the wall');
   }
-  for (const s of specialSpots()) {
-    assert.ok(!hits(box(s), scr), s.n + ' under the screen');
-    for (const [c, b] of Object.entries(FACES)) assert.ok(!hits(box(s), b), s.n + ' covers ' + c + "'s face");
+});
+
+test('reel hotspots: at least 44 px at 1440, no overlaps, all above the seam, clear of both screen formats', () => {
+  const W = 1440, hs = L.reels.map(s => hot(s, W));
+  for (const h of hs) {
+    assert.ok(h.d >= 44, 'hit area under 44 px');
+    assert.ok(2 * L.reelR * L.hitPad * W / 100 >= 44, 'the button itself is 44 px at 1440 (no padding needed)');
+    assert.ok(h.t >= 0 && h.l >= 0 && h.r <= 100, 'hotspot outside the scene');
   }
-  const all = rowSpots().concat(specialSpots());
-  for (let i = 0; i < all.length; i++)
-    for (let j = i + 1; j < all.length; j++) assert.ok(!hits(box(all[i]), box(all[j])), all[i].n + ' overlaps ' + all[j].n);
+  for (const [i, s] of L.reels.entries()) {
+    const h = hs[i];
+    // only reels over the barn wall must clear the seam; every reel must clear the screen
+    if (s.x > L.wall.l && s.x < L.wall.r) assert.ok(h.b < L.seam, 'reel ' + i + ' hangs below the seam');
+    for (const f of [9 / 16, 16 / 9]) assert.ok(!hits(h, screenBox(f)), 'reel ' + i + ' under the screen');
+  }
+  for (let i = 0; i < hs.length; i++)
+    for (let j = i + 1; j < hs.length; j++) assert.ok(!hits(hs[i], hs[j]), 'reels ' + i + '/' + j + ' overlap');
 });
 
-test('specials do not move when a newer poster episode is added', () => {
-  const a = D.layoutProps(synth(6), L).props;
-  const b = D.layoutProps(synth(7, ['poster', 'poster', 'snack', 'booth', 'car', 'car', 'poster']), L).props;
-  const slot = (ps, id) => ps.find(p => p.id === id).slot;
-  for (const id of ['e0', 'e1', 'e2', 'e3']) assert.equal(slot(b, id), slot(a, id));
-  assert.equal(slot(b, 'e6'), 'r2-0');
+test('reel hit areas stay apart on a phone-sized scene (430 px tall)', () => {
+  const W = 430 * L.aspect, hs = L.reels.map(s => hot(s, W));
+  for (let i = 1; i < hs.length; i++) assert.ok(!hits(hs[i - 1], hs[i]), 'reels ' + (i - 1) + '/' + i + ' overlap');
 });
 
-test('rows stack front over back; everything stays under the hover lift', () => {
-  const { props, crate } = D.layoutProps(synth(30), L);
-  const z = s => props.find(p => p.slot === s).z;
-  assert.ok(z('r2-0') > z('r1-0') && z('r1-0') > z('r0-0'));
-  assert.ok(z('r0-0') >= 1 && crate.z >= 1);
-  assert.ok(Math.max(crate.z, ...props.map(p => p.z)) < 5, 'hover/focus lift (z 5) stays on top');
-});
-
-test('empty catalogue still yields one segment and no crate', () => {
-  const r = D.layoutProps([], L);
-  assert.equal(r.segments, 1);
-  assert.equal(r.crate, null);
-});
-
-test('layoutProps throws when fillOrder does not cover all rows', () => {
-  const L2 = {
-    special: {},
-    rows: [
-      { y: 10, scale: 1, xs: [1, 2] },
-      { y: 20, scale: 1, xs: [1, 2] },
-      { y: 30, scale: 1, xs: [1, 2, 3] },
-    ],
-    fillOrder: [2], // rows 0 and 1 are never reachable
-  };
-  assert.throws(() => D.layoutProps(mk(4), L2), /layout: fillOrder does not cover all rows/);
+test('the page CSS matches DEFAULT_LAYOUT (screen top/height, reel size)', () => {
+  const html = require('node:fs').readFileSync(require('node:path').join(__dirname, '../../cartoons/index.html'), 'utf8');
+  const num = re => { const m = re.exec(html); assert.ok(m, 'missing ' + re); return parseFloat(m[1]); };
+  assert.ok(Math.abs(num(/--st:calc\(var\(--top\) \+ var\(--sch\)\*([\d.]+)\)/) * 100 - L.screen.top) < 0.01, '--st');
+  assert.ok(Math.abs(num(/--sh:calc\(var\(--sch\)\*([\d.]+)\)/) * 100 - L.screen.height) < 0.01, '--sh');
 });
 
 const soon = new Set(['c10']);
@@ -279,18 +220,14 @@ const fs = require('node:fs');
 const path = require('node:path');
 const CAT = path.join(__dirname, '../../cartoons/episodes.json');
 
-test('launch catalogue is valid, has 14 episodes, fills all four special spots and needs no archive', () => {
+test('launch catalogue is valid, has 14 episodes: 13 on the reels, the oldest in the archive', () => {
   const eps = D.validateEpisodes(JSON.parse(fs.readFileSync(CAT, 'utf8')));
   assert.equal(eps.length, 14);
-  const { props, segments, archive, crate } = D.layoutProps(eps, D.DEFAULT_LAYOUT);
-  assert.equal(segments, 1);
-  assert.deepEqual(archive, []);
-  assert.equal(crate, null);
-  assert.equal(props.filter(p => /^r\d/.test(p.slot)).length, 10);
-  for (const s of ['poster-1', 'poster-2', 'snack-1', 'booth-1'])
-    assert.ok(props.some(p => p.slot === s), s + ' unused');
+  const { reels, archive } = D.layoutReels(eps, D.DEFAULT_LAYOUT);
+  assert.equal(reels.length, 13);
+  assert.equal(reels[0].id, 'c14');
+  assert.deepEqual(archive, ['c9']); // pilot..c9 share a premiere; catalogue order breaks the tie, so c9 is "oldest"
   for (const e of eps) assert.ok(fs.existsSync(path.join(__dirname, '../../cartoons', D.propImage(e))), D.propImage(e) + ' missing');
   for (const e of eps) assert.doesNotMatch(e.alt, /\bcar\b|drive-in|poster board|projector-booth|pickup|sedan/i, e.id + ' alt still describes the drive-in');
-  for (const f of ['props/placeholder-reel.svg', 'props/placeholder-crate.svg'])
-    assert.ok(fs.existsSync(path.join(__dirname, '../../cartoons', f)), f + ' missing');
+  assert.ok(fs.existsSync(path.join(__dirname, '../../cartoons', D.REEL_IMAGE)), D.REEL_IMAGE + ' missing');
 });

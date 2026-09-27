@@ -8,6 +8,8 @@ test('main site links to the cartoons page from nav and the Nikeverse grid', asy
   const card = page.locator('.nikeverse-grid .verse-card', { has: page.locator('img[alt="Nikeverse Cartoons"]') });
   await expect(card).toHaveCount(1);
   await expect(card.locator('a.verse-card-btn')).toHaveAttribute('href', 'cartoons/');
+  await expect(card.locator('.verse-desc')).toContainText(/barn/i);
+  await expect(card.locator('.verse-desc')).not.toContainText(/drive-in|a car\b/i);
   expect(errors).toEqual([]);
 });
 

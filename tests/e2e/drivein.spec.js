@@ -38,6 +38,10 @@ for (const [w, h] of [[375, 812], [768, 1024], [1440, 900], [2560, 1440]]) {
     const errors = await open(page);
     expect(errors).toEqual([]);
     await expect(page.locator('#screen')).toHaveAttribute('data-mode', 'idle');
+    await expect(page.locator('#screen-content')).toContainText('Pick a prop to preview');
+    await expect(page).toHaveTitle(/barn/i);
+    await expect(page).not.toHaveTitle(/drive-in/i);
+    expect(await page.locator('meta[name="description"]').getAttribute('content')).not.toMatch(/drive-in/i);
     await expect(page.locator('.crate')).toHaveCount(0);
     await expect(page.locator('#all-btn')).toBeVisible();
   });

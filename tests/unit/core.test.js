@@ -244,6 +244,7 @@ test('launch catalogue is valid, has 14 episodes, fills all four special spots a
   for (const s of ['poster-1', 'poster-2', 'snack-1', 'booth-1'])
     assert.ok(props.some(p => p.slot === s), s + ' unused');
   for (const e of eps) assert.ok(fs.existsSync(path.join(__dirname, '../../cartoons', D.propImage(e))), D.propImage(e) + ' missing');
+  for (const e of eps) assert.doesNotMatch(e.alt, /\bcar\b|drive-in|poster board|projector-booth|pickup|sedan/i, e.id + ' alt still describes the drive-in');
   for (const f of ['props/placeholder-reel.svg', 'props/placeholder-crate.svg'])
     assert.ok(fs.existsSync(path.join(__dirname, '../../cartoons', f)), f + ' missing');
 });

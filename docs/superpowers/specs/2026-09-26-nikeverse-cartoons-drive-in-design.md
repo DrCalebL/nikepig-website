@@ -9,17 +9,24 @@ User decision in chat, 2026-09-27 evening. It wins over Revision 2 and the origi
 - **Background:** `…/nikepig-website-cartoons-art-src/barn-reels-4k.jpeg` (4096×2336, user-picked; README beside it). The same barn scene plus a scalloped fairy-light string across the top with **13 painted film reels** hanging from it. `process-art.py bg` encodes `cartoons/art/bg-{1280,1920,2560,3840}.webp` at the old filenames, so the main-site card background (`cartoons/art/bg-1280.webp`) picks it up unchanged.
 - **Episodes are the reels.** Each reel gets an invisible round `<button class="reel">` hotspot, positioned from measurements. On hover, focus or while it is the current episode, it lights up with a warm ring and a soft radial glow, and shows the title tag below it, plus a "Premieres …" badge when the episode is coming soon. Coming-soon reels are dimmed slightly. The scene has no separate prop images any more.
 - **Mapping:** newest first (premiere desc; on equal premieres a later catalogue entry counts as newer, because the catalogue is in release order — user decision 2026-09-27). The newest 13 episodes hang on the reels **left to right = newest to oldest** (c14 … c2), and older episodes are list-only. At launch that is 14 episodes, so the **pilot** is list-only.
-- **Archive:** the "All episodes" button and the skip link stay, and the list is the archive. The reel crate is gone, along with `crate.webp` and `placeholder-crate.svg`. List thumbnails still use `propImage` (the episode's prop art or its generic seat-saver), with `placeholder-reel.svg` as the `onerror` fallback, so those props stay in the repo.
+- **Pilot tie-break:** pilot … c9 share the 1 Sept premiere; the later catalogue entry wins the tie, so the pilot (first in the catalogue) is the oldest and the only list-only episode at launch.
+- **Direction markers (user decision 2026-09-27):** a **★ Latest** pill under the leftmost reel; a red **NEW** badge on the newest *released* reel (coming-soon reels to its left stay dimmed at `rgba(11,16,38,.5)`); an **Older ▸** button under the rightmost reel that opens the list. Min font sizes: NEW .62rem, Latest/Older .75rem. While the last reel is current, its title tag hangs where Older sits, so Older drops 2.7rem below the tag.
+- **Archive:** the "All episodes" button and the skip link stay, and the list is the archive. The reel crate is gone, along with `crate.webp` and `placeholder-crate.svg`. List thumbnails, the coming-soon card and the thumbnail fallback use `propImage` (the episode's `image`, or its generic seat-saver `props/generic-<n>.webp`), then `placeholder-reel.svg` (`REEL_IMAGE`) as the last `onerror` fallback. The per-type placeholders (`placeholder-{booth,poster,snack}.svg`) and `reel.webp` were unused and are deleted; `placeholder-car.svg` stays as a test fixture. Episode props are 256 px max (48 px list thumbnails, the coming-soon card).
+- **Skip link:** first element of `<body>` (outside `.lot`, which is a stacking context on phones), so it paints above the sticky screen when focused. On a phone the list dialog puts the date / premiere badge under the title (one `minmax(0,1fr)` column, nothing clipped at 375 px).
 - **Measured layout** (`python tests/tools/process-art.py reels`, stored in `DEFAULT_LAYOUT` in `drivein-core.js`):
-  - Barn board seam at y = 282 px (the dark line spans 280–284) = **12.072%**. **The screen's top edge sits exactly on it** in both formats. Screen height is 48% of the scene, so the bottom is at 60.07%.
-  - Blank wall: x 878–3214 px (21.4–78.5%), bottom y ≈ 1445 px (61.9%). The 9:16 screen and the 16:9 screen (x 25.7–74.3%) both fit inside it.
-  - Reel centres (% of scene): (6.36, 8.55) (15.46, 8.76) (22.97, 8.77) (32.50, 8.76) (40.09, 8.74) (46.55, 8.75) (53.10, 8.71) (59.92, 8.69) (67.24, 8.72) (75.35, 8.38) (81.57, 8.62) (88.37, 10.28) (95.61, 8.43). The painted radius is 64 px, or 1.57% of the scene width, and the same for all 13. The hotspot is 1.1× that, about 50 px at 1440 wide. A `::before` pads the hit area to at least 44 px wherever the scene is drawn smaller.
+  - Barn board seam at y = 282 px (the dark line spans 280–284) = **12.072%**. **The screen's top edge sits exactly on it** in both formats, and its bottom on the wall bottom: **height (1442 − 282) / 2336 = 49.658%** of the scene (`--sh` / `--st` in the CSS; a unit test keeps them equal to `DEFAULT_LAYOUT.screen`).
+  - Blank wall: x 878–3214 px (21.4–78.5%), bottom y = 1442 px (**61.73%**). The 9:16 screen and the 16:9 screen (**x 24.8–75.2%**) both fit inside it.
+  - Reel centres (% of scene): (6.36, 8.55) (15.46, 8.76) (22.97, 8.77) (32.50, 8.76) (40.09, 8.74) (46.55, 8.75) (53.10, 8.71) (59.92, 8.69) (67.24, 8.72) (75.35, 8.38) (81.57, 8.62) (88.37, 10.28) (95.61, 8.43). The painted radius is 64 px, or 1.57% of the scene width, and the same for all 13. The hotspot is 1.1× that, about 50 px at 1440 wide. A `::before` pads the hit area to at least 44 px wherever the scene is drawn smaller (36 px on short landscape viewports, ≤ 500 px tall, where 44 px neighbours would overlap).
   - Every reel over the barn wall clears the seam. Reel 12 (x 88.4%) hangs over the sky, lower than the others: its bottom is at 13.0%, below the seam's height, but it is outside the wall and clear of the screen.
 - **Stacking:** on desktop the lot and scene have no z-index, so the hotspots (z 12) paint above the screen layer (z 10), and a title tag can overlap the screen's top edge. On the stacked phone layout the lot is `z-index:1`, so reels scrolled under the sticky screen stay beneath it.
-- **Short viewports:** the scene reserves `--tb = max(0, 4.4rem − 6.1vh)` under the topbar, so the reel string never sits under the back link or the "All episodes" button (for example on a landscape phone). The topbar title ignores pointer events.
-- **Phones (stacked layout):** the sticky screen sits on a close-up of the blank wall below the seam. The lot below shows the **whole scene** at `max(55svh, 430px)` tall and scrolls sideways, with the reel strip along its top and the newest reel at the left (initial scroll 0). At 430 px the padded 44 px hit areas never touch. There is no horizontal page scroll.
-- **Tests:** unit tests pin 13 hotspots that don't overlap (at 1440 and on a 430-px phone scene), all over-wall reels above the seam, none intersecting either screen footprint, hit areas ≥ 44 px at 1440, and the `--st`/`--sh` CSS matching `DEFAULT_LAYOUT`. The e2e z-order tests are replaced by a hotspot hit test at 6 widths. Premiere gating, coming soon, deep links, list search and the skip link keep their tests.
-- `prop` stays a required catalogue field (validated as before) but no longer affects layout.
+- **Short viewports:** the scene reserves `--tb = max(0, 4.4rem − 6.1vh)` under the topbar, so the reel string never sits under the back link or the "All episodes" button. On short landscape (≤ 500 px tall, e.g. a phone on its side) the topbar is slimmer and `--tb = max(0, 2.6rem − 6.1vh)`, for a taller scene. The topbar title ignores pointer events. The back link and "All episodes" keep a compact look but a 44 px tap target (`::before`).
+- **Watch on YouTube:** at least 32 px tall. Portrait episode on desktop: a pill beside the screen's top-right corner. Landscape episode (and every episode on short landscape): centred under the screen, clear of the last reel's tag and Older. Stacked phones: under the screen.
+- **1024×768-ish screens:** the blurred fill above the scene fades to `--night`, so the spare band reads as sky.
+- **Phones (stacked layout):** the sticky screen sits on a close-up of the real barn wall (seam above, hay bales below) with the projector's warm spill, a soft vignette and a shadow onto the reel strip. When a landscape episode is selected the sticky area shrinks to the screen plus its link. The lot below shows the **whole scene** at `max(55svh, 410px)` tall and scrolls sideways, with the reel strip along its top and the newest reel at the left (initial scroll 0). At 410 px the padded 44 px hit areas never touch. The screen title uses `text-wrap: balance`. There is no horizontal page scroll.
+- **Tests:** unit tests pin 13 hotspots that don't overlap (at 1440 and on a 410-px phone scene), all over-wall reels above the seam, none intersecting either screen footprint, hit areas ≥ 44 px at 1440, the `--st`/`--sh` CSS matching `DEFAULT_LAYOUT`, and the inline fallback matching `episodes.json`. The e2e z-order tests are replaced by a hotspot hit test at 6 widths; 667×375 checks non-overlapping 36 px hit areas. Premiere gating, coming soon, deep links, list search and the skip link keep their tests.
+- **Catalogue fields:** required `id`, `title`, `youtube`, `format`, `premiere` (ISO datetime **with offset**, e.g. `+08:00`), `alt`. **`prop` is optional** metadata (defaults to `car`; if present it must be `car`/`poster`/`snack`/`booth`) with no layout effect, so a new entry without it never breaks the page. **`image` is optional**; if present it must match `^props/[a-z0-9-]+\.(webp|svg|png)$`.
+- **Premiere gating is client-side only.** The coming-soon state compares `premiere` with the visitor's clock, so it hides the player, not the video: anyone with the YouTube id (it is in `episodes.json`) can watch early. Schedule the premiere on YouTube too (or keep the video private/unlisted until then). A timer at the next premiere rebuilds the reels (the NEW badge moves) and re-renders the screen only when the current episode's coming-soon status changed, so a playing video is never restarted.
+- **Keyboard:** after the Play button, focus stays on `#screen` (not inside the cross-origin iframe), so Esc still stops playback.
 
 ## Revision 2 (2026-09-27): barn cinema and scaling — supersedes conflicting text below
 
@@ -181,10 +188,10 @@ Poster ×2, snack ×1 and booth ×1 exactly fill the four special spots at launc
 ## Error handling
 
 - **Catalogue fails to load:** the lot shows "Episodes are warming up, try again" and the screen stays on the idle card.
-- **Thumbnail fails:** fall back to the prop image on the screen.
-- **Missing prop image:** show a generic car silhouette labelled with the title. *(As built: the image falls back to the per-type placeholder silhouette, `props/placeholder-<prop>.svg`; the title is on the button's tag and `aria-label`.)*
+- **Thumbnail fails:** fall back to the prop image on the screen, then the reel icon.
+- **Missing prop image:** *(As built, Revision 3)* no `image` → the generic seat-saver `props/generic-<n>.webp` (stable hash of the id); if an image fails to load → `props/placeholder-reel.svg`. The title is on the reel's tag and `aria-label`.
 - **Embed blocked** (for example by a privacy extension): this can't be detected reliably, so the always-visible "Watch on YouTube" link covers it (`https://youtube.com/shorts/<id>`, or `watch?v=` for landscape episodes).
-- `prefers-reduced-motion` turns off the prop lift and screen-resize animations; the screen snaps instead.
+- `prefers-reduced-motion` turns off the reel glow, tag and screen-resize transitions; the screen snaps instead.
 
 ## Testing
 
@@ -203,9 +210,11 @@ Poster ×2, snack ×1 and booth ×1 exactly fill the four special spots at launc
 
 ## Adding an episode later
 
-1. *(Optional since Revision 2)* Generate one prop cutout and save it as `cartoons/props/<id>.webp`. Without it the episode shows the generic reel icon.
-2. Append one entry to `cartoons/episodes.json`.
-3. Commit, and merge when the user approves.
+1. Append one entry to `cartoons/episodes.json`: `id`, `title`, `youtube`, `format`, `premiere` as ISO with its offset (e.g. `"2026-10-02T01:00:00+08:00"`), `alt`. `prop` and `image` are optional.
+2. *(Optional)* Add prop art as `cartoons/props/<id>.webp` (256 px max; `python tests/tools/process-art.py props`) and set `"image": "props/<id>.webp"`. Without it the episode borrows a generic seat-saver.
+3. `cd tests && npm run sync` (copies the catalogue into the inline fallback), then `npm run unit && npx playwright test`.
+4. Schedule the premiere on YouTube too (gating on the page is client-side only).
+5. Commit, and merge when the user approves. The newest 13 episodes hang on the reels; the oldest drops to the list.
 
 ## Out of scope
 

@@ -19,8 +19,8 @@
 - End-to-end tests: `@playwright/test`, pinned to 1.56.1 to match the Chromium 1194 build already installed at `%LOCALAPPDATA%\ms-playwright`.
 - Local server: `python -m http.server`.
 
-**Spec:** `docs/superpowers/specs/2026-09-26-nikeverse-cartoons-drive-in-design.md` (read its **Revision 2** section first: barn cinema scene and the scaling changes, approved 2026-09-27).
-**Status (2026-09-27):** Tasks 1–9 done (commits `94496a9`…`11ba6f3`). Task 10 Step 1 done. Tasks 10A and 12A were added for Revision 2; 12A Steps 1–8 and 10A Steps 1–4 done 2026-09-27. Tasks 11, 12 and 12B done 2026-09-27 (commits `2d08fde`, `c7ff5c1`, `75eb779`).
+**Spec:** `docs/superpowers/specs/2026-09-26-nikeverse-cartoons-drive-in-design.md` (read its **Revision 3** section first: the 13 painted reels on the fairy lights, markers, final screen geometry and the add-an-episode steps; it supersedes Revision 2 and the original text wherever they disagree).
+**Status (2026-09-27):** Tasks 1–9 done (commits `94496a9`…`11ba6f3`). Task 10 Step 1 done. Tasks 10A and 12A were added for Revision 2; 12A Steps 1–8 and 10A Steps 1–4 done 2026-09-27. Tasks 11, 12 and 12B done 2026-09-27 (commits `2d08fde`, `c7ff5c1`, `75eb779`). Task 12C (Revision 3: reels on fairy lights, full-wall screen, pilot tie-break, Latest/NEW/Older markers) done 2026-09-27 (`c5b84d3`…`bb3dbf6`). Task 13 Steps 1–2 (orchestrator QC fixes and docs) done 2026-09-27; Steps 3–4 (push, hand-off) wait for the orchestrator.
 **Branch:** `claude/paddle-payments-setup-0h567q`. Commit and push there only. **Never push `main`**, because that publishes the site. Merging needs the user's explicit go.
 
 ---
@@ -1064,7 +1064,7 @@ git push origin claude/paddle-payments-setup-0h567q
 - [x] **Step 1: Background.** Done 2026-09-27 — see the spec's Revision 2 and `barn-cinema-bg-B-0936-4k-gflegs.jpeg` plus the README and prompt in the art-src folder.
 - [x] **Step 2: Lot extension.** Dropped (Revision 2: the lot is capped; no extension segments).
 - [x] **Step 3: Screen frame.** Dropped (Revision 2: the barn wall is the screen).
-- [x] **Step 4: Props (one per episode, isolated on plain white).** *(Done; since Revision 3 they are only list thumbnails and coming-soon card art.)* Only needed for episodes on the lot (the newest 12) plus the 4 special spots; others are optional. Agree each ranch-object concept with the user first (they replace the car concepts in the spec table). Attach the relevant cast sheet(s) as figures when a character appears, and put "Every pig hand has five fingers" in the prompt. Character rules: Nike is a round dark-grey pig with a beige belly oval, very short thick stump legs with no knees, innocent expression; GF Princess is cream with black spots, a flower wreath and a purple dress, closed-lip smile; Poppy is a small reddish-brown baby bison on four legs. Save each as `…/art-src/props/<id>.png`.
+- [x] **Step 4: Props (one per episode, isolated on plain white).** *(Done; since Revision 3 they are only list thumbnails and coming-soon card art.)* Only needed for episodes on the lot (the newest 12) plus the 4 special spots; others are optional. Agree each ranch-object concept with the user first (they replace the car concepts in the spec table). Attach the relevant cast sheet(s) as figures when a character appears, and put the current hand rule in the prompt: "Pig hands have a thumb and 3 fingers (four digits)". Character rules: Nike is a round dark-grey pig with a beige belly oval, very short thick stump legs with no knees, innocent expression; GF Princess is cream with black spots, a flower wreath and a purple dress, closed-lip smile; Poppy is a small reddish-brown baby bison on four legs. Save each as `…/art-src/props/<id>.png`.
 - [x] **Step 5: Reel crate + generic reel icon.** *(Crate superseded by spec Revision 3: the archive is the list; `reel.png` became Figure 2 for the reels background.)* Generate the archive "reel crate" prop (a wooden crate of old film reels) and a small generic film-reel icon, both isolated on white. Save as `…/art-src/props/crate.png` and `…/art-src/props/reel.png`.
 - [ ] **Step 6: Main-site sticker.** Prompt: *Die-cut sticker logo reading "NIKEVERSE CARTOONS" in chunky playful display letters, thick white sticker border, hard offset shadow, flat vibrant cel fills, isolated on plain white.* This asset may contain text. Save as `…/art-src/title-cartoons-src.png`.
 - [ ] **Step 7: Commit the source images in the cartoons repo** (not the website repo)
@@ -1228,21 +1228,21 @@ TDD throughout: write each failing test, watch it fail, implement, watch it pass
 Supersedes the prop rows, special spots, crate and row z-order of Tasks 12, 12A (Steps 1, 5, 7) and 12B (the seat-savers stay only as list thumbnails).
 
 - [x] **Step 1 (art):** `process-art.py` takes step names. `bg` re-encodes `cartoons/art/bg-*.webp` from `barn-reels-4k.jpeg` at the same filenames, so the main-site card follows. `reels` prints the seam and the 13 reel centres and radius (low-saturation disc mask → fill holes → distance-transform peak).
-- [x] **Step 2 (core, TDD):** `DEFAULT_LAYOUT` = seam 12.072%, wall 21.4–78.5% / 61.9%, screen `{x:50, top:seam, height:48}`, 13 reels, `reelR` 1.57, `hitPad` 1.1. `layoutReels(eps, L)` → `{ reels, archive }`, newest on the leftmost reel. Unit tests: 13 hotspots; no overlaps at 1440 or on a 430-px phone scene; over-wall reels above the seam; none under either screen footprint; ≥ 44 px at 1440; CSS `--st`/`--sh` in sync; launch catalogue = 13 reels + `c9` archived.
-- [x] **Step 3 (page):** round invisible `.reel` buttons with a ring and glow, a title tag and a premiere badge. The crate is removed. `--tb` keeps the reel string below the topbar. On phones the lot is the whole scene (≥ 430 px) and scrolls sideways. `?debug=layout` draws the reel rings, the seam and both screen footprints.
-- [x] **Step 4 (E2E):** the prop, crate and z-order tests are replaced by a reel hit test (375/768/1366/1440/1920/2560), a geometry test (the screen top on the seam, hotspots on the painted reels, ≥ 44 px), and edge-tag, glow-above-screen, phone-strip and c9-list-only tests. Everything else is kept.
+- [x] **Step 2 (core, TDD):** `DEFAULT_LAYOUT` = seam 12.072%, wall 21.4–78.5% / 61.73% (y 1442), screen `{x:50, top:seam, height:49.658}` (seam to wall bottom; landscape x 24.8–75.2%), 13 reels, `reelR` 1.57, `hitPad` 1.1. `layoutReels(eps, L)` → `{ reels, archive }`, newest on the leftmost reel, later catalogue entry wins premiere ties. Unit tests: 13 hotspots; no overlaps at 1440 or on a 410-px phone scene; over-wall reels above the seam; none under either screen footprint; ≥ 44 px at 1440; CSS `--st`/`--sh` in sync; launch catalogue = 13 reels + `pilot` archived.
+- [x] **Step 3 (page):** round invisible `.reel` buttons with a ring and glow, a title tag and a premiere badge. The crate is removed. `--tb` keeps the reel string below the topbar. On phones the lot is the whole scene (≥ 410 px) and scrolls sideways. `?debug=layout` draws the reel rings, the seam and both screen footprints.
+- [x] **Step 4 (E2E):** the prop, crate and z-order tests are replaced by a reel hit test (375/768/1366/1440/1920/2560), a geometry test (the screen top on the seam, hotspots on the painted reels, ≥ 44 px), and edge-tag, glow-above-screen, phone-strip and pilot-list-only tests. Everything else is kept.
 - [x] **Step 5:** `cd tests && npm run unit && node tools/sync-fallback.js --check && npx playwright test` is all green with 0 `pageerror`; commit.
 
 ### Task 13: Final QC, docs and ship to the branch
 
-- [ ] **Step 1: Re-run the reviewer wave (Task 9, Step 1) on the final art state.** Fix everything, then re-run all tests.
-- [ ] **Step 2: Docs.**
+- [x] **Step 1: Re-run the reviewer wave (Task 9, Step 1) on the final art state.** Fix everything, then re-run all tests. *(Done 2026-09-27: the orchestrator-QC list — premiere refresh keeps a playing video, Esc after Play, skip link above the sticky screen, image fallbacks and validation, optional `prop`, phone dialog, landscape watch link / Older, short-landscape layout, tap targets, phone backdrop, asset cleanup.)*
+- [x] **Step 2: Docs.**
   - Append a dated narrative to `docs/branch-log.md`: what shipped, the corrected-reupload IDs, the Sept/Sep ICU note if it arose, and the art sources.
   - In `CLAUDE.md`:
     - Add `cartoons/` to "Layout" as a separate page.
     - Fix the stale line that calls the `#nft` grid JS-rendered (it's static markup).
     - Add "Tests: `cd tests && npm install && npm run unit && npx playwright test`".
-    - Add "Add an episode: drop `cartoons/props/<id>.webp`, append to `cartoons/episodes.json`, `npm run sync`".
+    - Add "Add an episode: append to `cartoons/episodes.json` (prop art optional), `npm run sync`".
 - [ ] **Step 3: Commit and push the branch**
 
 ```bash

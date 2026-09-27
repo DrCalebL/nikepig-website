@@ -4,9 +4,11 @@
   else root.DriveIn = factory();
 })(typeof self !== 'undefined' ? self : this, function () {
   'use strict';
-  var PROP_TYPES = ['car', 'poster', 'snack', 'booth']; // legacy placement key; kept as catalogue metadata, not used for layout
+  // prop: optional legacy metadata (defaults to 'car'); it has no effect on the reels or the layout.
+  var PROP_TYPES = ['car', 'poster', 'snack', 'booth'], DEFAULT_PROP = 'car';
   var FORMATS = ['portrait', 'landscape'];
-  var FIELDS = ['id', 'title', 'youtube', 'format', 'premiere', 'prop', 'alt']; // image is optional
+  var FIELDS = ['id', 'title', 'youtube', 'format', 'premiere', 'alt']; // prop and image are optional
+  var IMAGE_FORMAT = /^props\/[a-z0-9-]+\.(webp|svg|png)$/; // a file in cartoons/props/, nothing else
   var REEL_IMAGE = 'props/placeholder-reel.svg'; // last-resort onerror fallback
   var YT_ID = /^[A-Za-z0-9_-]{11}$/;
   var ID_FORMAT = /^[a-z0-9-]+$/;
@@ -21,20 +23,22 @@
       FIELDS.forEach(function (k) {
         if (typeof e[k] !== 'string' || !e[k]) throw new Error(where + ': missing ' + k);
       });
-      if ('image' in e && (typeof e.image !== 'string' || !e.image)) throw new Error(where + ': bad image');
+      if ('image' in e && (typeof e.image !== 'string' || !IMAGE_FORMAT.test(e.image))) throw new Error(where + ': bad image');
       if (!ID_FORMAT.test(e.id)) throw new Error(where + ': bad id');
       if (Object.prototype.hasOwnProperty.call(seen, e.id)) throw new Error(where + ': duplicate id ' + e.id);
       seen[e.id] = true;
       if (!YT_ID.test(e.youtube)) throw new Error(where + ': bad youtube id');
       if (FORMATS.indexOf(e.format) < 0) throw new Error(where + ': bad format');
-      if (PROP_TYPES.indexOf(e.prop) < 0) throw new Error(where + ': bad prop');
+      if ('prop' in e && PROP_TYPES.indexOf(e.prop) < 0) throw new Error(where + ': bad prop');
       if (!PREMIERE_FORMAT.test(e.premiere)) throw new Error(where + ': premiere needs ISO datetime with offset');
       var t = Date.parse(e.premiere);
       if (isNaN(t)) throw new Error(where + ': bad premiere');
-      return Object.assign({}, e, { premiereMs: t });
+      return Object.assign({}, e, { prop: e.prop || DEFAULT_PROP, premiereMs: t });
     });
   }
 
+  // Premiere gating is client-side only (the visitor's clock): it hides the player, not the video. Schedule the
+  // premiere on YouTube too (or keep the video private/unlisted) so nobody can watch early via the YouTube id.
   function isComingSoon(ep, nowMs) { return nowMs < ep.premiereMs; }
   // Episodes without their own art borrow a generic seat-saver, picked by a stable hash of the id (FNV-1a).
   var GENERIC_COUNT = 12;

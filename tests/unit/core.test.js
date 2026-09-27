@@ -31,6 +31,28 @@ test('image is optional; propImage falls back to a generic seat-saver', () => {
   assert.throws(() => D.validateEpisodes([ep({ image: 5 })]), /bad image/);
 });
 
+test('image must be a props/ file name (webp, svg or png)', () => {
+  for (const ok of ['props/c15.webp', 'props/placeholder-car.svg', 'props/a-b-9.png'])
+    assert.doesNotThrow(() => D.validateEpisodes([ep({ image: ok })]), ok);
+  for (const bad of ['https://evil.example/x.webp', '../props/c15.webp', 'props/../c15.webp', 'props/C15.webp',
+    'props/c15.gif', 'props/c15.webp?x', 'art/bg-1280.webp', 'props/sub/c15.webp', 'javascript:alert(1)'])
+    assert.throws(() => D.validateEpisodes([ep({ image: bad })]), /bad image/, bad);
+});
+
+test('prop is optional metadata: it defaults to "car" and never affects the reels', () => {
+  const e = ep(); delete e.prop;
+  const [v] = D.validateEpisodes([e]);
+  assert.equal(v.prop, 'car');
+  const withProp = D.validateEpisodes([ep({ prop: 'booth' })]);
+  assert.deepEqual(D.layoutReels([v], L), D.layoutReels(withProp, L));
+  assert.throws(() => D.validateEpisodes([ep({ prop: 'boat' })]), /bad prop/);
+});
+
+test('the inline fallback catalogue in cartoons/index.html matches episodes.json', () => {
+  const r = require('node:child_process').spawnSync(process.execPath, [require('node:path').join(__dirname, '../tools/sync-fallback.js'), '--check'], { encoding: 'utf8' });
+  assert.equal(r.status, 0, (r.stderr || r.stdout).trim() + ' (run: cd tests && npm run sync)');
+});
+
 test('generic seat-saver is stable per id, spread over all 12, and an explicit image wins', () => {
   assert.equal(D.GENERIC_COUNT, 12);
   assert.equal(D.REEL_IMAGE, 'props/placeholder-reel.svg');

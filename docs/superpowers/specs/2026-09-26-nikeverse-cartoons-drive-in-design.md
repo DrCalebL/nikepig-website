@@ -1,6 +1,25 @@
 # Nikeverse Cartoons Drive-In: design
 
-Status: approved in chat, 2026-09-26. Build plan to follow (writing-plans). **Revised 2026-09-27 — see "Revision 2" below.**
+Status: approved in chat, 2026-09-26. Build plan to follow (writing-plans). **Revised 2026-09-27 — see "Revision 3" (reels) and "Revision 2" below.**
+
+## Revision 3 (2026-09-27 evening): reels on fairy lights — supersedes the prop-lot text
+
+User decision in chat, 2026-09-27 evening. It wins over Revision 2 and the original text wherever they place episodes as props on the lot (rows, special spots, reel crate, seat-savers on the bales).
+
+- **Background:** `…/nikepig-website-cartoons-art-src/barn-reels-4k.jpeg` (4096×2336, user-picked; README beside it). The same barn scene plus a scalloped fairy-light string across the top with **13 painted film reels** hanging from it. `process-art.py bg` encodes `cartoons/art/bg-{1280,1920,2560,3840}.webp` at the old filenames, so the main-site card background (`cartoons/art/bg-1280.webp`) picks it up unchanged.
+- **Episodes are the reels.** Each reel gets an invisible round `<button class="reel">` hotspot, positioned from measurements. On hover, focus or while it is the current episode, it lights up with a warm ring and a soft radial glow, and shows the title tag below it, plus a "Premieres …" badge when the episode is coming soon. Coming-soon reels are dimmed slightly. The scene has no separate prop images any more.
+- **Mapping:** newest first (premiere desc, catalogue order as tie-break, as before). The newest 13 episodes hang on the reels **left to right = newest to oldest**, and older episodes are list-only. At launch that is 14 episodes, so one is list-only: **c9**, because pilot–c9 share the 1 Sept premiere and the catalogue-order tie-break puts c9 last.
+- **Archive:** the "All episodes" button and the skip link stay, and the list is the archive. The reel crate is gone, along with `crate.webp` and `placeholder-crate.svg`. List thumbnails still use `propImage` (the episode's prop art or its generic seat-saver), with `placeholder-reel.svg` as the `onerror` fallback, so those props stay in the repo.
+- **Measured layout** (`python tests/tools/process-art.py reels`, stored in `DEFAULT_LAYOUT` in `drivein-core.js`):
+  - Barn board seam at y = 282 px (the dark line spans 280–284) = **12.072%**. **The screen's top edge sits exactly on it** in both formats. Screen height is 48% of the scene, so the bottom is at 60.07%.
+  - Blank wall: x 878–3214 px (21.4–78.5%), bottom y ≈ 1445 px (61.9%). The 9:16 screen and the 16:9 screen (x 25.7–74.3%) both fit inside it.
+  - Reel centres (% of scene): (6.36, 8.55) (15.46, 8.76) (22.97, 8.77) (32.50, 8.76) (40.09, 8.74) (46.55, 8.75) (53.10, 8.71) (59.92, 8.69) (67.24, 8.72) (75.35, 8.38) (81.57, 8.62) (88.37, 10.28) (95.61, 8.43). The painted radius is 64 px, or 1.57% of the scene width, and the same for all 13. The hotspot is 1.1× that, about 50 px at 1440 wide. A `::before` pads the hit area to at least 44 px wherever the scene is drawn smaller.
+  - Every reel over the barn wall clears the seam. Reel 12 (x 88.4%) hangs over the sky, lower than the others: its bottom is at 13.0%, below the seam's height, but it is outside the wall and clear of the screen.
+- **Stacking:** on desktop the lot and scene have no z-index, so the hotspots (z 12) paint above the screen layer (z 10), and a title tag can overlap the screen's top edge. On the stacked phone layout the lot is `z-index:1`, so reels scrolled under the sticky screen stay beneath it.
+- **Short viewports:** the scene reserves `--tb = max(0, 4.4rem − 6.1vh)` under the topbar, so the reel string never sits under the back link or the "All episodes" button (for example on a landscape phone). The topbar title ignores pointer events.
+- **Phones (stacked layout):** the sticky screen sits on a close-up of the blank wall below the seam. The lot below shows the **whole scene** at `max(55svh, 430px)` tall and scrolls sideways, with the reel strip along its top and the newest reel at the left (initial scroll 0). At 430 px the padded 44 px hit areas never touch. There is no horizontal page scroll.
+- **Tests:** unit tests pin 13 hotspots that don't overlap (at 1440 and on a 430-px phone scene), all over-wall reels above the seam, none intersecting either screen footprint, hit areas ≥ 44 px at 1440, and the `--st`/`--sh` CSS matching `DEFAULT_LAYOUT`. The e2e z-order tests are replaced by a hotspot hit test at 6 widths. Premiere gating, coming soon, deep links, list search and the skip link keep their tests.
+- `prop` stays a required catalogue field (validated as before) but no longer affects layout.
 
 ## Revision 2 (2026-09-27): barn cinema and scaling — supersedes conflicting text below
 

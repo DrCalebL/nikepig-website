@@ -20,7 +20,7 @@
 - Local server: `python -m http.server`.
 
 **Spec:** `docs/superpowers/specs/2026-09-26-nikeverse-cartoons-drive-in-design.md` (read its **Revision 2** section first: barn cinema scene and the scaling changes, approved 2026-09-27).
-**Status (2026-09-27):** Tasks 1–9 done (commits `94496a9`…`11ba6f3`). Task 10 Step 1 done. Tasks 10A and 12A were added for Revision 2; 12A Steps 1–8 and 10A Steps 1–4 done 2026-09-27.
+**Status (2026-09-27):** Tasks 1–9 done (commits `94496a9`…`11ba6f3`). Task 10 Step 1 done. Tasks 10A and 12A were added for Revision 2; 12A Steps 1–8 and 10A Steps 1–4 done 2026-09-27. Tasks 11, 12 and 12B done 2026-09-27 (commits `2d08fde`, `c7ff5c1`, `75eb779`).
 **Branch:** `claude/paddle-payments-setup-0h567q`. Commit and push there only. **Never push `main`**, because that publishes the site. Merging needs the user's explicit go.
 
 ---
@@ -1093,7 +1093,7 @@ cd /c/Users/loopy/Nikeverse-cartoons && git add outputs/nikepig-website-cartoons
 - Create: `tests/tools/process-art.py`, `cartoons/art/bg-{1280,1920,2560,3840}.webp`, `cartoons/props/<id>.webp` (+ `crate.webp`, `placeholder-reel` icon), `assets/art/title-cartoons.webp`
 - *Revision 2:* no `lot-extension.webp` and no `screen-frame.webp`. The background source is `barn-cinema-bg-B-0936-4k-gflegs.jpeg`. Serve it at several widths (`image-set()` / media queries) so every screen size gets a sharp but light file (the user asked for it to be clear on all screen sizes).
 
-- [ ] **Step 1: Write `tests/tools/process-art.py`**
+- [x] **Step 1: Write `tests/tools/process-art.py`**
 
 It uses `rembg` (already installed; `~/.rembg` models exist) and Pillow.
 
@@ -1129,21 +1129,21 @@ title = remove(Image.open(SRC / 'title-cartoons-src.png'))
 webp(title.crop(title.getbbox()), ROOT / 'assets/art/title-cartoons.webp', 760, 88)
 ```
 
-- [ ] **Step 2: Run it and check sizes**
+- [x] **Step 2: Run it and check sizes**
 
 Run: `python tests/tools/process-art.py`
 Expected: `bg-1920.webp` ≤ 600 KB (larger widths may be bigger) and each prop ≤ 120 KB. If one is over, lower its `q` by 5 and re-run.
 
-- [ ] **Step 3: Point everything at the real art**
+- [x] **Step 3: Point everything at the real art** *(Done 2026-09-27, except the main-site sticker: `assets/art/title-cartoons.svg` stays until Task 10 Step 6 produces the source; the card background is `cartoons/art/bg-1280.webp`. The reel `onerror` fallback stays `placeholder-reel.svg`; `reel.webp` is encoded for later use. `process-art.py` keeps rembg's mask but the source colours, and fills enclosed holes for `pilot` and `c5`, whose near-white paint rembg reads as see-through.)*
   - In `cartoons/index.html`, set the `.scene` background to the `art/bg-*.webp` set (pick by viewport width / DPR), remove the `lot-extension` layer, remove `.screen-frame` (CSS ~line 49 and the div ~line 93) and add a soft projector glow to `.screen`.
   - In `cartoons/episodes.json`, set each `"image"` to `"props/<id>.webp"`, then run `cd tests && npm run sync`.
   - In `index.html`, change the card to `assets/art/title-cartoons.webp` (with the real `width`/`height` from the script output) and its background to `cartoons/art/bg-1280.webp`. Delete `assets/art/title-cartoons.svg`.
-- [ ] **Step 4: Run all tests**
+- [x] **Step 4: Run all tests**
 
 Run: `cd tests && npm run unit && node tools/sync-fallback.js --check && npx playwright test`
 Expected: all pass. The catalogue test checks every prop image exists.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A tests/tools/process-art.py cartoons assets/art index.html   # -A also stages the deleted title-cartoons.svg
@@ -1157,7 +1157,7 @@ git commit -m "art(cartoons): cut-outs, WebP encodes, swap in final art"
 **Files:**
 - Modify: `cartoons/drivein-core.js` (`DEFAULT_LAYOUT`), `cartoons/index.html` (debug overlay)
 
-- [ ] **Step 1: Add a debug overlay** at the end of the boot script in `cartoons/index.html`:
+- [x] **Step 1: Add a debug overlay** at the end of the boot script in `cartoons/index.html`:
 
 ```js
   if (/[?&]debug=layout\b/.test(location.search)) {
@@ -1172,7 +1172,7 @@ git commit -m "art(cartoons): cut-outs, WebP encodes, swap in final art"
   }
 ```
 
-- [ ] **Step 2: Measure.** Open `http://127.0.0.1:8123/cartoons/?debug=layout` at 1440×810 and compare the magenta dots with the painted snack stand, projector shed, notice boards, the hay-bale rows and the barn wall. **Row slots must avoid the painted characters** (Poppy centre-left, Nike centre-right, GF Princess and Charles at the edges). Adjust `DEFAULT_LAYOUT` (`screen.top` and `screen.height` too, applied via the `--st`/`--sh` custom properties) until every dot sits on its painted spot. Keep each row's spacing ≥ `PROP_W × scale`; the unit test enforces it.
+- [x] **Step 2: Measure.** *(Done 2026-09-27: values and rationale in the `DEFAULT_LAYOUT` comment; unit tests pin the screen inside the wall and the row slots clear of the cast and the landscape screen. Rows are 6/3/3 (back/middle/front). The scene now keeps the art's aspect with a blurred fill, which removes the 1440×900 strip; on phones the lot shows the bottom half of the scene.)* Open `http://127.0.0.1:8123/cartoons/?debug=layout` at 1440×810 and compare the magenta dots with the painted snack stand, projector shed, notice boards, the hay-bale rows and the barn wall. **Row slots must avoid the painted characters** (Poppy centre-left, Nike centre-right, GF Princess and Charles at the edges). Adjust `DEFAULT_LAYOUT` (`screen.top` and `screen.height` too, applied via the `--st`/`--sh` custom properties) until every dot sits on its painted spot. Keep each row's spacing ≥ `PROP_W × scale`; the unit test enforces it.
    Screen geometry isn't read from `DEFAULT_LAYOUT.screen` by the page. It lives in the `--st` (top, .08) and `--sh` (height, .58) custom properties near lines 42–44 of `cartoons/index.html`, the stacked mobile overrides near lines 67 and 78, and the `.watch-link` position. Edit them together, fit the screen inside the barn wall (x ≈ 21–79%, y ≈ 0–62%), and keep `DEFAULT_LAYOUT.screen` in sync as documentation.
    **Deferred geometry items (from the Task 9 review wave):**
    - Back-row badges and tags sit under the screen at 1440 and 667 px wide. Fix with `--sh` .54 or back row y ≈ 76.
@@ -1182,12 +1182,12 @@ git commit -m "art(cartoons): cut-outs, WebP encodes, swap in final art"
    - At 1440×900 there is a 90 px empty strip under the scene.
    Also check that no clickable prop sits under the screen (in both portrait and landscape width) or under the watch link. If one does, move that spot or row.
 
-- [ ] **Step 3: Run all tests**
+- [x] **Step 3: Run all tests**
 
 Run: `cd tests && npm run unit && npx playwright test`
 Expected: all pass.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add cartoons/drivein-core.js cartoons/index.html
@@ -1216,10 +1216,10 @@ TDD throughout: write each failing test, watch it fail, implement, watch it pass
 
 ### Task 12B: Generic seat-saver props (option C)
 
-- [ ] **Step 1 (core, TDD):** `propImage(ep)` returns `ep.image` when set, otherwise `props/generic-<k>.webp` where `k = hash(ep.id) % GENERIC_COUNT + 1` (stable per id). Unit tests: same id → same prop; ids spread across all 12; explicit `image` wins.
-- [ ] **Step 2 (page):** the `onerror` fallback stays `props/placeholder-reel.svg`. The archive list uses the same `propImage`.
-- [ ] **Step 3 (art):** cut the 12 seat-savers out of the Tripo sheet (rembg + connected components) into `cartoons/props/generic-1..12.webp` via `process-art.py`.
-- [ ] **Step 4:** run all tests and commit.
+- [x] **Step 1 (core, TDD):** `propImage(ep)` returns `ep.image` when set, otherwise `props/generic-<k>.webp` where `k = hash(ep.id) % GENERIC_COUNT + 1` (stable per id). Unit tests: same id → same prop; ids spread across all 12; explicit `image` wins.
+- [x] **Step 2 (page):** the `onerror` fallback stays `props/placeholder-reel.svg`. The archive list uses the same `propImage`.
+- [x] **Step 3 (art):** cut the 12 seat-savers out of the Tripo sheet (rembg + connected components) into `cartoons/props/generic-1..12.webp` via `process-art.py`.
+- [x] **Step 4:** run all tests and commit.
 
 ---
 

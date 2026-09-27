@@ -25,8 +25,8 @@ plan: `docs/superpowers/plans/2026-09-26-nikeverse-cartoons-drive-in.md`.
 - **Screen:** projected on the barn wall, top edge on the board seam (y 282) and bottom on the wall bottom (y 1442):
   height 49.658% of the scene; 9:16 for Shorts, 16:9 (x 24.8–75.2%) for the pilot and C2. YouTube-nocookie embed;
   "Watch on YouTube" beside the portrait screen, centred under a landscape one.
-- **Archive:** "All episodes" dialog (search, newest first, premiere badges, prop-art thumbnails → generic seat-saver →
-  reel icon). Skip link first in `<body>`. Deep links `#ep=<id>` (replaceState, no history spam).
+- **Archive:** "All episodes" dialog (search, newest first, premiere badges, YouTube thumbnails once released, the
+  reel icon while coming soon or on error). Skip link first in `<body>`. Deep links `#ep=<id>` (replaceState, no history spam).
 - **Premiere gating is client-side** (`premiere` vs the visitor clock) — schedule on YouTube too. A timer at each
   premiere rebuilds the reels without restarting a playing video.
 - **Phones:** stacked layout — sticky screen on a close-up of the real barn wall (projector spill, vignette), the whole
@@ -37,11 +37,12 @@ plan: `docs/superpowers/plans/2026-09-26-nikeverse-cartoons-drive-in.md`.
   drawer now takes over at ≤ 1280 px (12 links no longer fit), the grid centres its trailing cards, and the drawer
   toggle is a real `<button aria-label="Menu" aria-expanded>`.
 - **Catalogue:** 14 episodes (pilot … c14), the corrected re-uploads (C3–C9 public; C10–C12 unlisted until premiere).
-  `prop` and `image` are optional; `image` must be `props/<name>.(webp|svg|png)`. Episode props re-encoded at 256 px.
+  `prop` is optional. **Props dropped (user, 2026-09-27 late):** `cartoons/props/` deleted (~422 KB), `image`/`alt`
+  removed from the catalogue (ignored if present); the reel icon is now `cartoons/art/reel.svg`.
 - **Tests** (`tests/`, Playwright 1.56.1 pinned): `cd tests && npm run unit && node tools/sync-fallback.js --check &&
-  npx playwright test` — 28 unit (incl. an inline-fallback drift check) + 84 e2e (71 cartoons, 13 main site), 0 `pageerror`.
+  npx playwright test` — 28 unit (incl. an inline-fallback drift check) + 87 e2e (74 cartoons, 13 main site), 0 `pageerror`.
 - **Add an episode:** append to `cartoons/episodes.json` (`id`, `title`, `youtube`, `format`, `premiere` ISO with
-  `+08:00`, `alt`), then `cd tests && npm run sync`.
+  `+08:00`), then `cd tests && npm run sync`. No art needed.
 
 ---
 

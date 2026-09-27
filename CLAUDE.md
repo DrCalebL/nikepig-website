@@ -97,15 +97,16 @@ no longer fit on one row below ~1180px).
 Barn movie night: episodes are the **13 film reels** painted on the fairy lights of the background.
 - Files: `cartoons/index.html` (markup, CSS, boot script + an inline `episodes-fallback` JSON copy),
   `cartoons/drivein-core.js` (pure UMD logic: validation, `layoutReels`, reducer, `DEFAULT_LAYOUT`),
-  `cartoons/episodes.json` (catalogue), `cartoons/art/bg-*.webp`, `cartoons/props/` (list thumbnails,
-  `generic-1..12` seat-savers, `placeholder-reel.svg` last fallback). Spec (Revision 3 is current):
+  `cartoons/episodes.json` (catalogue), `cartoons/art/bg-*.webp`, `cartoons/art/reel.svg` (reel icon). No
+  per-episode art: the list/screen show the YouTube thumbnail once released, the reel icon while coming soon (no
+  YouTube request before the premiere) and on any image error. Spec (Revision 3 is current):
   `docs/superpowers/specs/2026-09-26-nikeverse-cartoons-drive-in-design.md`.
 - Reels = the **newest 13** (premiere desc; on ties the later catalogue entry is newer), **newest on the
   LEFT**; older episodes live only in the "All episodes" dialog.
 - **`DEFAULT_LAYOUT.screen` ↔ CSS `--st`/`--sh` must stay in sync** (a unit test checks them).
 - **Add an episode:** append to `cartoons/episodes.json` with `id`, `title`, `youtube`, `format`
-  (`portrait`|`landscape`), `premiere` (ISO **with offset**, e.g. `2026-10-02T01:00:00+08:00`), `alt`;
-  `prop`/`image` optional (`image` = `props/<name>.webp`). Then `cd tests && npm run sync`.
+  (`portrait`|`landscape`), `premiere` (ISO **with offset**, e.g. `2026-10-02T01:00:00+08:00`); `prop` optional.
+  No art, no `image`/`alt` (ignored if present). Then `cd tests && npm run sync`.
 - **Premiere gating is client-side only** (visitor clock) — also schedule/unlist the video on YouTube.
 - Tests: `cd tests && npm install && npm run unit && node tools/sync-fallback.js --check && npx playwright test`
   (Playwright serves the repo on 127.0.0.1:8123; covers the main site too).

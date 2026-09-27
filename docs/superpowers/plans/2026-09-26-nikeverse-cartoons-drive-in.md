@@ -21,6 +21,7 @@
 
 **Spec:** `docs/superpowers/specs/2026-09-26-nikeverse-cartoons-drive-in-design.md` (read its **Revision 3** section first: the 13 painted reels on the fairy lights, markers, final screen geometry and the add-an-episode steps; it supersedes Revision 2 and the original text wherever they disagree).
 **Status (2026-09-27):** Tasks 1–9 done (commits `94496a9`…`11ba6f3`). Task 10 Step 1 done. Tasks 10A and 12A were added for Revision 2; 12A Steps 1–8 and 10A Steps 1–4 done 2026-09-27. Tasks 11, 12 and 12B done 2026-09-27 (commits `2d08fde`, `c7ff5c1`, `75eb779`). Task 12C (Revision 3: reels on fairy lights, full-wall screen, pilot tie-break, Latest/NEW/Older markers) done 2026-09-27 (`c5b84d3`…`bb3dbf6`). Task 13 Steps 1–2 (orchestrator QC fixes and docs) done 2026-09-27; Steps 3–4 (push, hand-off) wait for the orchestrator.
+**Note (2026-09-27, late): per-episode props dropped (user decision).** `cartoons/props/` is deleted; the list and screen use YouTube thumbnails for released episodes and `art/reel.svg` for coming-soon ones and on any `onerror`. `propImage`/`GENERIC_COUNT`/`image` validation are gone (legacy `image`/`alt` are ignored). The prop-art and seat-saver steps below are historical. See spec Revision 3.
 **Branch:** `claude/paddle-payments-setup-0h567q`. Commit and push there only. **Never push `main`**, because that publishes the site. Merging needs the user's explicit go.
 
 ---

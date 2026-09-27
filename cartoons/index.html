@@ -151,6 +151,8 @@ body{background:var(--night);color:#fff;font-family:'Nunito',sans-serif;min-heig
 </style>
 </head>
 <body>
+<!-- outside .lot (a stacking context on phones) so it paints above the sticky screen when focused -->
+<a class="skip-link" id="skip-link" href="#all-eps" hidden>Skip to all episodes</a>
 <header class="topbar"><a href="../" aria-label="Back to nikepig.com">←<span class="bk"> nikepig.com</span></a><h1>Nikeverse Cartoons</h1><button type="button" class="all-btn" id="all-btn" hidden>All episodes</button></header>
 <main class="theatre" id="theatre">
   <div class="screen-wrap">
@@ -159,7 +161,7 @@ body{background:var(--night);color:#fff;font-family:'Nunito',sans-serif;min-heig
     </div>
     <a class="watch-link" id="watch-link" target="_blank" rel="noopener" hidden>Watch on YouTube ↗</a>
   </div>
-  <div class="lot" id="lot"><a class="skip-link" id="skip-link" href="#all-eps" hidden>Skip to all episodes</a><div class="scene" id="scene"></div></div>
+  <div class="lot" id="lot"><div class="scene" id="scene"></div></div>
   <p class="status" id="status" role="status" hidden></p>
   <p id="announce" class="sr-only" aria-live="polite"></p>
 </main>
@@ -180,19 +182,30 @@ body{background:var(--night);color:#fff;font-family:'Nunito',sans-serif;min-heig
   function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text) e.textContent = text; return e; }
   function reelOf(id) { return document.querySelector('.reel[data-id="' + id + '"]'); }
 
+  // an image that falls back to the reel icon if it fails
+  function fallbackImg(img) { img.onerror = function () { img.onerror = null; img.src = D.REEL_IMAGE; }; return img; }
+
+  // Light the current reel; the Older marker steps aside while the last reel's title tag is showing.
+  function markCurrent() {
+    var id = state.id, reels = document.querySelectorAll('.reel[data-id]');
+    reels.forEach(function (b) { b.setAttribute('aria-current', String(b.dataset.id === id)); });
+    var last = reels[reels.length - 1];
+    $('scene').dataset.lastCurrent = String(!!last && last.dataset.id === id);
+  }
+
   function renderScreen() {
     var scr = $('screen'), c = $('screen-content'), link = $('watch-link');
     var ep = state.id ? byId[state.id] : null;
-    scr.dataset.format = ep ? ep.format : 'portrait';
+    scr.dataset.format = scr.parentNode.dataset.format = ep ? ep.format : 'portrait';
     scr.dataset.mode = state.mode;
     c.textContent = ''; link.hidden = true;
-    document.querySelectorAll('.reel[data-id]').forEach(function (b) { b.setAttribute('aria-current', String(!!ep && b.dataset.id === ep.id)); });
+    markCurrent();
     if (!ep) {
       c.append(el('em', '', 'Now showing'), el('strong', '', 'Nikeverse Cartoons'), el('em', '', 'Pick a reel to preview'));
       return;
     }
     if (D.isComingSoon(ep, now())) {
-      var art = el('img', 'soon-art'); art.src = D.propImage(ep); art.alt = ep.alt;
+      var art = fallbackImg(el('img', 'soon-art')); art.src = D.propImage(ep); art.alt = ep.alt;
       c.append(art, el('strong', '', ep.title), el('em', 'soon-label', 'Premieres ' + D.formatPremiere(ep.premiereMs)));
       scr.dataset.mode = 'soon';
       return;
@@ -207,13 +220,13 @@ body{background:var(--night);color:#fff;font-family:'Nunito',sans-serif;min-heig
       return;
     }
     var t = el('img', 'thumb'); t.alt = ''; t.src = D.thumbUrl(ep.youtube);
-    t.onerror = function () { t.onerror = null; t.src = D.propImage(ep); };
+    t.onerror = function () { fallbackImg(t); t.src = D.propImage(ep); }; // YouTube thumbnail, then prop art, then reel icon
     var play = el('button', 'play', '▶'); play.type = 'button'; play.setAttribute('aria-label', 'Play ' + ep.title);
     play.onclick = function () {
       var id = ep.id;
       dispatch({ type: 'activate', id: id, pointer: 'mouse' });
-      var frame = $('screen-content').querySelector('iframe');
-      if (frame) frame.focus();
+      // keep focus on the page (not inside the cross-origin player) so Esc still stops playback
+      if ($('screen-content').querySelector('iframe')) $('screen').focus();
       else { var rb = reelOf(id); if (rb) rb.focus(); }
     };
     c.append(t, el('strong', '', ep.title), play);
@@ -238,8 +251,7 @@ body{background:var(--night);color:#fff;font-family:'Nunito',sans-serif;min-heig
 
   // list thumbnails: the episode's prop art (or its generic seat-saver), reel icon if that fails
   function propImg(ep) {
-    var img = el('img'); img.src = D.propImage(ep); img.alt = ''; img.decoding = 'async'; img.loading = 'lazy';
-    img.onerror = function () { img.onerror = null; img.src = D.REEL_IMAGE; };
+    var img = fallbackImg(el('img')); img.src = D.propImage(ep); img.alt = ''; img.decoding = 'async'; img.loading = 'lazy';
     return img;
   }
 
@@ -321,6 +333,8 @@ body{background:var(--night);color:#fff;font-family:'Nunito',sans-serif;min-heig
     if (id) dispatch({ type: 'select', id: id });
   }
 
+  // At each premiere: rebuild the reels (soon dimming, NEW badge). The screen is re-rendered only if the current
+  // episode's coming-soon status changed, so a playing video (always released) is never restarted.
   var MAX_TIMEOUT = 2147483647, refreshTimer = null;
   function scheduleRefresh() {
     if (refreshTimer) { clearTimeout(refreshTimer); refreshTimer = null; }
@@ -332,10 +346,13 @@ body{background:var(--night);color:#fff;font-family:'Nunito',sans-serif;min-heig
     refreshTimer = setTimeout(function () {
       var active = document.activeElement;
       var focusedId = (active && active.classList.contains('reel')) ? active.dataset.id : null;
+      var olderFocused = !!(active && active.classList.contains('older'));
+      var ep = state.id ? byId[state.id] : null, wasSoon = $('screen').dataset.mode === 'soon';
       document.querySelectorAll('.reel,.end-mark').forEach(function (b) { b.remove(); });
       renderReels();
-      renderScreen();
+      if (ep && D.isComingSoon(ep, now()) !== wasSoon) renderScreen(); else markCurrent();
       if (focusedId) { var fb = reelOf(focusedId); if (fb) fb.focus(); }
+      else if (olderFocused) { var om = document.querySelector('.end-mark.older'); if (om) om.focus(); }
       scheduleRefresh();
     }, delay);
   }

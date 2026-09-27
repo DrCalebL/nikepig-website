@@ -539,3 +539,69 @@ test('the UI marks which end is latest: Latest under the first reel, NEW on the 
   await older.click();
   await expect(page.locator('#all-eps')).toHaveJSProperty('open', true);
 });
+
+test('the premiere refresh does not restart a playing video, but still moves the NEW badge', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  const errors = [];
+  page.on('pageerror', e => errors.push(e.message));
+  await page.clock.install({ time: new Date('2026-09-27T16:59:30Z') }); // c11 premieres at 17:00Z
+  await page.goto('/cartoons/');
+  await expect(page.locator('.reel[data-id="c10"] .new')).toHaveCount(1);
+  await page.locator('.reel[data-id="c3"]').click();
+  await expect(page.locator('#screen-content iframe')).toHaveCount(1);
+  await page.locator('#screen-content iframe').evaluate(f => { f.dataset.marker = 'same'; });
+  await page.clock.runFor('01:00');
+  await expect(page.locator('.reel[data-id="c11"]')).toHaveAttribute('data-soon', 'false');
+  await expect(page.locator('.reel[data-id="c11"] .new')).toHaveCount(1);
+  await expect(page.locator('.reel[data-id="c10"] .new')).toHaveCount(0);
+  await expect(page.locator('#screen-content iframe[data-marker="same"]')).toHaveCount(1);
+  await expect(page.locator('.reel[data-id="c3"]')).toHaveAttribute('aria-current', 'true');
+  expect(errors).toEqual([]);
+});
+
+test('the premiere refresh turns a previewed coming-soon card into a playable preview', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.clock.install({ time: new Date('2026-09-27T16:59:30Z') });
+  await page.goto('/cartoons/#ep=c11');
+  await expect(page.locator('#screen')).toHaveAttribute('data-mode', 'soon');
+  await page.clock.runFor('01:00');
+  await expect(page.locator('#screen')).toHaveAttribute('data-mode', 'preview');
+  await expect(page.locator('#screen-content .play')).toHaveCount(1);
+});
+
+test('keyboard: after the play button, focus stays on the page so Esc stops playback', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await open(page);
+  await page.locator('.reel[data-id="c3"]').hover();
+  await page.locator('.play').focus();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#screen-content iframe')).toHaveCount(1);
+  await expect(page.locator('#screen')).toBeFocused();
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#screen-content iframe')).toHaveCount(0);
+  await expect(page.locator('#screen')).toHaveAttribute('data-mode', 'preview');
+});
+
+test('phone: the focused skip link paints above the sticky screen', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await open(page);
+  const skip = page.locator('.skip-link');
+  await skip.focus();
+  const hit = await skip.evaluate(el => {
+    document.querySelector('.screen-wrap').style.pointerEvents = 'auto'; // so the hit test sees the whole sticky layer
+    const r = el.getBoundingClientRect();
+    return document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2) === el;
+  });
+  expect(hit).toBe(true);
+});
+
+test('coming-soon art and a failed thumbnail fall back to the reel icon when the prop image fails', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.route(/props\/c1[01]\.webp$/, r => r.fulfill({ status: 404, body: '' }));
+  await open(page, '2026-09-27T12:00:00Z'); // c10 is out, c11 is coming soon
+  await page.locator('.reel[data-id="c11"]').hover();
+  await expect(page.locator('#screen')).toHaveAttribute('data-mode', 'soon');
+  await expect(page.locator('#screen-content .soon-art')).toHaveAttribute('src', 'props/placeholder-reel.svg');
+  await page.locator('.reel[data-id="c10"]').hover(); // YouTube thumbnail aborted, then the prop art 404s
+  await expect(page.locator('#screen-content .thumb')).toHaveAttribute('src', 'props/placeholder-reel.svg');
+});

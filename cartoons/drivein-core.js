@@ -68,11 +68,11 @@
   };
   var REEL_COUNT = DEFAULT_LAYOUT.reels.length;
 
-  // Newest first (premiere desc, catalogue order as tie-break): the newest REEL_COUNT episodes hang on the reels,
+  // Newest first (premiere desc; ties: later in the catalogue = newer, since the catalogue is in release order): the newest REEL_COUNT episodes hang on the reels,
   // left to right = newest to oldest; the rest are archive-only (the "All episodes" list).
   function layoutReels(episodes, L) {
     var order = episodes.map(function (e, i) { return { e: e, i: i }; })
-      .sort(function (a, b) { return (b.e.premiereMs - a.e.premiereMs) || (a.i - b.i); });
+      .sort(function (a, b) { return (b.e.premiereMs - a.e.premiereMs) || (b.i - a.i); });
     var reels = [], archive = [];
     order.forEach(function (o, n) {
       if (n >= L.reels.length) { archive.push(o.e.id); return; }

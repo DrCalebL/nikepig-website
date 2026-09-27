@@ -242,7 +242,7 @@ body{background:var(--night);color:#fff;font-family:'Nunito',sans-serif;min-heig
     var ul = $('all-list'), t = now();
     ul.textContent = '';
     eps.map(function (e, i) { return { e: e, i: i }; })
-      .sort(function (a, b) { return (b.e.premiereMs - a.e.premiereMs) || (a.i - b.i); })
+      .sort(function (a, b) { return (b.e.premiereMs - a.e.premiereMs) || (b.i - a.i); })
       .forEach(function (x) {
         var ep = x.e, li = el('li'), b = el('button', 'ep-item'), soon = D.isComingSoon(ep, t);
         b.type = 'button'; b.dataset.id = ep.id;

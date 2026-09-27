@@ -44,9 +44,9 @@ for (const [w, h] of [[375, 812], [768, 1024], [1366, 768], [1440, 900], [1920, 
     expect(await page.locator('meta[name="description"]').getAttribute('content')).not.toMatch(/drive-in/i);
     await expect(page.locator('.prop, .crate')).toHaveCount(0);
     await expect(page.locator('#all-btn')).toBeVisible();
-    // left to right = newest to oldest; c9 (last of the equal 1 Sept premieres in catalogue order) is list-only
+    // left to right = newest to oldest; the pilot (first of the equal 1 Sept premieres in the catalogue, so the oldest) is list-only
     expect(await page.locator('.reel').evaluateAll(bs => bs.map(b => b.dataset.id))).toEqual(
-      ['c14', 'c13', 'c12', 'c11', 'c10', 'pilot', 'c2', 'c3', 'c4', 'c5', 'c6', 'c7', 'c8']);
+      ['c14', 'c13', 'c12', 'c11', 'c10', 'c9', 'c8', 'c7', 'c6', 'c5', 'c4', 'c3', 'c2']);
     expect(await page.evaluate(() => Math.max(document.documentElement.scrollWidth - innerWidth, 0))).toBe(0);
   });
 
@@ -118,7 +118,7 @@ test('hover previews and the screen changes shape by format', async ({ page }) =
   await expect(screen).toHaveAttribute('data-format', 'portrait');
   await expect(page.locator('#screen-content strong')).toHaveText('45-Minute Diner Wait');
   await expect(page.locator('.reel[data-id="c3"]')).toHaveAttribute('aria-label', 'Play 45-Minute Diner Wait');
-  await page.locator('.reel[data-id="pilot"]').hover();
+  await page.locator('.reel[data-id="c2"]').hover();
   await expect(screen).toHaveAttribute('data-format', 'landscape');
   // width animates (.45s); poll until it settles wider than tall
   await expect.poll(async () => { const b = await screen.boundingBox(); return b.width > b.height; }).toBe(true);
@@ -175,7 +175,7 @@ for (const [w, h] of [[1440, 900], [390, 844]]) {
   test(`watch link never overlaps reels or the player at ${w}px`, async ({ page }) => {
     await page.setViewportSize({ width: w, height: h });
     await open(page);
-    for (const id of ['c3', 'pilot']) {
+    for (const id of ['c3', 'c2']) {
       await page.locator(`.reel[data-id="${id}"]`).focus();
       for (const mode of ['preview', 'playing']) {
         if (mode === 'playing') await page.keyboard.press('Enter');
@@ -216,7 +216,7 @@ test('landscape preview does not cover any reel', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await open(page);
   await page.locator('.reel[data-id="c3"]').hover();
-  await page.locator('.reel[data-id="pilot"]').hover();
+  await page.locator('.reel[data-id="c2"]').hover();
   await expect(page.locator('#screen')).toHaveAttribute('data-format', 'landscape');
   await settled(page);
   const covered = await page.evaluate(() => {
@@ -288,15 +288,15 @@ test('choosing an episode on a reel previews it, scrolls to it and focuses it; E
   await page.setViewportSize({ width: 375, height: 812 });
   await open(page);
   await page.locator('#all-btn').click();
-  await page.locator('.ep-item[data-id="pilot"]').click();
+  await page.locator('.ep-item[data-id="c2"]').click();
   await expect(page.locator('#all-eps')).toHaveJSProperty('open', false);
   await expect(page.locator('#screen')).toHaveAttribute('data-mode', 'preview');
-  await expect(page.locator('#screen-content strong')).toHaveText('The Apple Chip Ledger');
-  const pilot = page.locator('.reel[data-id="pilot"]');
-  await expect(pilot).toBeFocused();
-  await expect(pilot).toBeInViewport();
+  await expect(page.locator('#screen-content strong')).toHaveText('Do Your Cutest Thing');
+  const c2 = page.locator('.reel[data-id="c2"]');
+  await expect(c2).toBeFocused();
+  await expect(c2).toBeInViewport();
   await page.keyboard.press('Enter');
-  await expect(page.locator('#screen-content iframe')).toHaveAttribute('src', /KCV8nHowlpo/);
+  await expect(page.locator('#screen-content iframe')).toHaveAttribute('src', /NR6ogdyPKVI/);
 });
 
 test('choosing an archived episode previews it and focuses the screen', async ({ page }) => {
@@ -311,16 +311,16 @@ test('choosing an archived episode previews it and focuses the screen', async ({
   expect(await page.evaluate(() => location.hash)).toBe('#ep=e5');
 });
 
-test('the launch catalogue\'s oldest episode (c9) is list-only and still plays from the list', async ({ page }) => {
+test('the launch catalogue\'s oldest episode (pilot) is list-only and still plays from the list', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await open(page);
-  await expect(page.locator('.reel[data-id="c9"]')).toHaveCount(0);
+  await expect(page.locator('.reel[data-id="pilot"]')).toHaveCount(0);
   await page.locator('#all-btn').click();
-  await page.locator('.ep-item[data-id="c9"]').click();
-  await expect(page.locator('#screen-content strong')).toHaveText('The Void');
+  await page.locator('.ep-item[data-id="pilot"]').click();
+  await expect(page.locator('#screen-content strong')).toHaveText('The Apple Chip Ledger');
   await expect(page.locator('#screen')).toBeFocused();
   await page.locator('.play').click();
-  await expect(page.locator('#screen-content iframe')).toHaveAttribute('src', /3mm3QSeXjo8/);
+  await expect(page.locator('#screen-content iframe')).toHaveAttribute('src', /KCV8nHowlpo/);
 });
 
 test('list thumbnails: prop art, a generic seat-saver when there is none, the reel icon when an image fails', async ({ page }) => {

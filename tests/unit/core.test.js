@@ -84,9 +84,9 @@ test('13 reels; the newest 13 episodes hang on them left to right, newest first;
   for (let i = 1; i < reels.length; i++) assert.ok(reels[i].x > reels[i - 1].x, 'reels run left to right');
 });
 
-test('equal premieres keep catalogue order; a short catalogue leaves the right-hand reels empty', () => {
+test('equal premieres: later in the catalogue counts as newer; a short catalogue leaves the right-hand reels empty', () => {
   const { reels, archive } = D.layoutReels(mk(3), L);
-  assert.deepEqual(reels.map(r => r.id), ['car0', 'car1', 'car2']);
+  assert.deepEqual(reels.map(r => r.id), ['car2', 'car1', 'car0']);
   assert.deepEqual(reels.map(r => r.x), L.reels.slice(0, 3).map(s => s.x));
   assert.deepEqual(archive, []);
   assert.deepEqual(D.layoutReels([], L), { reels: [], archive: [] });
@@ -226,7 +226,7 @@ test('launch catalogue is valid, has 14 episodes: 13 on the reels, the oldest in
   const { reels, archive } = D.layoutReels(eps, D.DEFAULT_LAYOUT);
   assert.equal(reels.length, 13);
   assert.equal(reels[0].id, 'c14');
-  assert.deepEqual(archive, ['c9']); // pilot..c9 share a premiere; catalogue order breaks the tie, so c9 is "oldest"
+  assert.deepEqual(archive, ['pilot']); // pilot..c9 share a premiere; later in the catalogue = newer, so the pilot is oldest
   for (const e of eps) assert.ok(fs.existsSync(path.join(__dirname, '../../cartoons', D.propImage(e))), D.propImage(e) + ' missing');
   for (const e of eps) assert.doesNotMatch(e.alt, /\bcar\b|drive-in|poster board|projector-booth|pickup|sedan/i, e.id + ' alt still describes the drive-in');
   assert.ok(fs.existsSync(path.join(__dirname, '../../cartoons', D.REEL_IMAGE)), D.REEL_IMAGE + ' missing');

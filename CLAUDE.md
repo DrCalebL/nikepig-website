@@ -29,8 +29,9 @@ one-line typo fix can skip it):
 
 ## What this is
 The official marketing site for **$NIKEPIG — the OG Pig of Cardano** (a crypto/memecoin token
-project). A **self-contained static single page** — no framework, no build step, no deps. The
-**entire site is one `index.html`** (~770 lines: inline `<style>` + inline `<script>`). Deployed
+project). **Static** — no framework, no build step, no deps. The **main site is one `index.html`**
+(~780 lines: inline `<style>` + inline `<script>`), plus a **separate static page `cartoons/`** (see
+"Cartoons page" below). Deployed
 on **GitHub Pages** → `nikepig.com` (apex; committed `CNAME` = `www.nikepig.com`, A-records to
 GitHub Pages IPs). **Pushing `main` publishes** — there is no CI/build.
 
@@ -43,8 +44,11 @@ GitHub Pages IPs). **Pushing `main` publishes** — there is no CI/build.
 ## Layout (`index.html` sections, in order)
 `#navbar` → `#hero` (Nike-the-pig art + contract address + COPY button) → `#about` →
 `#shards-comic` (the "Shards of Nike" art gallery / comic covers) → `#nft` (the **Nikeverse**
-product-card grid, JS-rendered into `#nikeverse-cards`) → `#memes` → `#gifs` (GIF vault) →
-`#buy` (how-to-buy) → `#charts` (exchanges) → `#staking` → `#community` → `#footer`.
+product-card grid — **static markup** in `.nikeverse-grid`; `#nikeverse-cards` is only a scroll anchor;
+includes the Nikeverse Cartoons card) → `#memes` → `#gifs` (GIF vault) → `#buy` (how-to-buy) →
+`#charts` (exchanges) → `#staking` → `#community` → `#footer`.
+The nav collapses into the drawer (`<button class="nav-toggle" aria-expanded>`) at **≤ 1280px** (12 links
+no longer fit on one row below ~1180px).
 
 ## Assets (`assets/`)
 - `assets/art/` — hero/comic/stat/title art (PNG/JPG/WebP). Stat sticker tiles
@@ -88,6 +92,23 @@ product-card grid, JS-rendered into `#nikeverse-cards`) → `#memes` → `#gifs`
   Bison-Valley-Ranch CSS vars (`--wheat/--sunset/--purple/--navy`…); fonts 'More Sugar' (display) +
   'Nunito' (body) via Google Fonts `<link>`. Section bg classes (`sunset-section`/`wheat-section`/
   `navy-section`) are translucent over the fixed ranch bg.
+
+## Cartoons page (`cartoons/`)
+Barn movie night: episodes are the **13 film reels** painted on the fairy lights of the background.
+- Files: `cartoons/index.html` (markup, CSS, boot script + an inline `episodes-fallback` JSON copy),
+  `cartoons/drivein-core.js` (pure UMD logic: validation, `layoutReels`, reducer, `DEFAULT_LAYOUT`),
+  `cartoons/episodes.json` (catalogue), `cartoons/art/bg-*.webp`, `cartoons/props/` (list thumbnails,
+  `generic-1..12` seat-savers, `placeholder-reel.svg` last fallback). Spec (Revision 3 is current):
+  `docs/superpowers/specs/2026-09-26-nikeverse-cartoons-drive-in-design.md`.
+- Reels = the **newest 13** (premiere desc; on ties the later catalogue entry is newer), **newest on the
+  LEFT**; older episodes live only in the "All episodes" dialog.
+- **`DEFAULT_LAYOUT.screen` ↔ CSS `--st`/`--sh` must stay in sync** (a unit test checks them).
+- **Add an episode:** append to `cartoons/episodes.json` with `id`, `title`, `youtube`, `format`
+  (`portrait`|`landscape`), `premiere` (ISO **with offset**, e.g. `2026-10-02T01:00:00+08:00`), `alt`;
+  `prop`/`image` optional (`image` = `props/<name>.webp`). Then `cd tests && npm run sync`.
+- **Premiere gating is client-side only** (visitor clock) — also schedule/unlist the video on YouTube.
+- Tests: `cd tests && npm install && npm run unit && node tools/sync-fallback.js --check && npx playwright test`
+  (Playwright serves the repo on 127.0.0.1:8123; covers the main site too).
 
 ## Sticker-art pipeline
 Title/stat logos are **AI image-model** generations with the background removed for cutouts →

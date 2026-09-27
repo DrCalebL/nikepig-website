@@ -6,6 +6,45 @@
 
 ---
 
+## 2026-09-27 — Nikeverse Cartoons page (`cartoons/`): barn movie night on 13 painted reels
+
+**What shipped:** a separate static page, `nikepig.com/cartoons/` (`cartoons/index.html` + pure logic in
+`cartoons/drivein-core.js` + `cartoons/episodes.json`). Spec:
+`docs/superpowers/specs/2026-09-26-nikeverse-cartoons-drive-in-design.md` (**Revision 3** at the top is current);
+plan: `docs/superpowers/plans/2026-09-26-nikeverse-cartoons-drive-in.md`.
+
+- **Scene:** movie night at the $NIKEPIG barn on Bison Valley Ranch (the original drive-in lot was dropped: too
+  empty without cars). One painted background (`barn-reels-4k.jpeg`, Tripo Studio / GPT Image 2.5, 4096×2336) served
+  as `cartoons/art/bg-{1280,1920,2560,3840}.webp` via `image-set()`. The cast is painted in; no prop cut-outs on the lot.
+- **Episodes are the 13 film reels** hanging from the fairy lights: invisible round `<button class="reel">` hotspots
+  measured from the art (`python tests/tools/process-art.py reels` → `DEFAULT_LAYOUT`). The **newest 13** (premiere
+  desc; on equal premieres the later catalogue entry is newer) hang **left to right = newest to oldest**; older episodes
+  are list-only (at launch: the pilot). Hover/focus previews, click plays; touch = tap to preview, tap again to play.
+- **Markers:** ★ Latest under the leftmost reel, a red NEW badge on the newest released reel, Older ▸ under the
+  rightmost reel (opens the list; it drops below the last reel's title tag while that reel is current).
+- **Screen:** projected on the barn wall, top edge on the board seam (y 282) and bottom on the wall bottom (y 1442):
+  height 49.658% of the scene; 9:16 for Shorts, 16:9 (x 24.8–75.2%) for the pilot and C2. YouTube-nocookie embed;
+  "Watch on YouTube" beside the portrait screen, centred under a landscape one.
+- **Archive:** "All episodes" dialog (search, newest first, premiere badges, prop-art thumbnails → generic seat-saver →
+  reel icon). Skip link first in `<body>`. Deep links `#ep=<id>` (replaceState, no history spam).
+- **Premiere gating is client-side** (`premiere` vs the visitor clock) — schedule on YouTube too. A timer at each
+  premiere rebuilds the reels without restarting a playing video.
+- **Phones:** stacked layout — sticky screen on a close-up of the real barn wall (projector spill, vignette), the whole
+  scene below at ≥ 410 px scrolling sideways (newest left); the sticky area shrinks for landscape episodes. Short
+  landscape (≤ 500 px tall) gets a taller scene and 36 px non-overlapping reel hit areas. 44 px topbar tap targets.
+- **Main site:** "Cartoons" nav link; a Nikeverse Cartoons card in the static `#nft` grid (barn background + the
+  NIKEVERSE CARTOONS die-cut sticker, `assets/art/title-cartoons.webp`, obeying the `.verse-title-img` cap); the nav
+  drawer now takes over at ≤ 1280 px (12 links no longer fit), the grid centres its trailing cards, and the drawer
+  toggle is a real `<button aria-label="Menu" aria-expanded>`.
+- **Catalogue:** 14 episodes (pilot … c14), the corrected re-uploads (C3–C9 public; C10–C12 unlisted until premiere).
+  `prop` and `image` are optional; `image` must be `props/<name>.(webp|svg|png)`. Episode props re-encoded at 256 px.
+- **Tests** (`tests/`, Playwright 1.56.1 pinned): `cd tests && npm run unit && node tools/sync-fallback.js --check &&
+  npx playwright test` — 28 unit (incl. an inline-fallback drift check) + 84 e2e (71 cartoons, 13 main site), 0 `pageerror`.
+- **Add an episode:** append to `cartoons/episodes.json` (`id`, `title`, `youtube`, `format`, `premiere` ISO with
+  `+08:00`, `alt`), then `cd tests && npm run sync`.
+
+---
+
 ## 2026-06 — Nikeverse card sticker-title logos (the "varied sticker fonts" pass)
 
 **Ask:** every Nikeverse product card (except the Shards-of-Nike comic card, which has its own

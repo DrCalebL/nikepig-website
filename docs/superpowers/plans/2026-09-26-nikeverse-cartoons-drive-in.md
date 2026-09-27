@@ -20,7 +20,7 @@
 - Local server: `python -m http.server`.
 
 **Spec:** `docs/superpowers/specs/2026-09-26-nikeverse-cartoons-drive-in-design.md` (read its **Revision 2** section first: barn cinema scene and the scaling changes, approved 2026-09-27).
-**Status (2026-09-27):** Tasks 1–9 done (commits `94496a9`…`11ba6f3`). Task 10 Step 1 done. Tasks 10A and 12A were added for Revision 2.
+**Status (2026-09-27):** Tasks 1–9 done (commits `94496a9`…`11ba6f3`). Task 10 Step 1 done. Tasks 10A and 12A were added for Revision 2; 12A Steps 1–8 and 10A Steps 1–4 done 2026-09-27.
 **Branch:** `claude/paddle-payments-setup-0h567q`. Commit and push there only. **Never push `main`**, because that publishes the site. Merging needs the user's explicit go.
 
 ---
@@ -1079,10 +1079,10 @@ cd /c/Users/loopy/Nikeverse-cartoons && git add outputs/nikepig-website-cartoons
 
 **Files:** `cartoons/index.html`, `cartoons/episodes.json` (+ inline fallback), `index.html`
 
-- [ ] **Step 1:** In `cartoons/index.html`, change the `<title>` ("…Drive-In"), the meta description ("drive-in") and the idle text "Pick a car to preview" to barn / ranch movie-night wording (e.g. "Pick a prop to preview").
-- [ ] **Step 2:** In the main `index.html` card (~line 658), replace "Pull into the $NIKEPIG drive-in… hover a car" with barn movie-night wording.
-- [ ] **Step 3:** Rewrite all 14 `alt` strings in `cartoons/episodes.json` to describe the agreed ranch props, then `cd tests && npm run sync`.
-- [ ] **Step 4:** Run all tests: `cd tests && npm run unit && node tools/sync-fallback.js --check && npx playwright test`. Update any test that asserts the old copy.
+- [x] **Step 1:** In `cartoons/index.html`, change the `<title>` ("…Drive-In"), the meta description ("drive-in") and the idle text "Pick a car to preview" to barn / ranch movie-night wording (e.g. "Pick a prop to preview").
+- [x] **Step 2:** In the main `index.html` card (~line 658), replace "Pull into the $NIKEPIG drive-in… hover a car" with barn movie-night wording.
+- [x] **Step 3:** Rewrite all 14 `alt` strings in `cartoons/episodes.json` to describe the agreed ranch props, then `cd tests && npm run sync`.
+- [x] **Step 4:** Run all tests: `cd tests && npm run unit && node tools/sync-fallback.js --check && npx playwright test`. Update any test that asserts the old copy.
 - [ ] **Step 5: Commit** `git commit -m "copy(cartoons): barn movie-night wording"`
 
 ---
@@ -1202,14 +1202,14 @@ git commit -m "feat(cartoons): layout measured from the final background; ?debug
 
 TDD throughout: write each failing test, watch it fail, implement, watch it pass.
 
-- [ ] **Step 1 (core, unit-tested): ordering and cap.** In `layoutProps`, fill special spots in catalogue order (unchanged), then place the remaining episodes newest-first (premiere desc, catalogue order as tie-break) into at most `LOT_SIZE = 12` row slots in one segment. Return `{ props, archive, segments: 1, crate }` where `archive` lists the ids that got no slot and `crate` is a special spot for the reel crate when `archive` is non-empty. Tests: launch catalogue (no archive, no crate); synthetic 30 (12 row props, 14 archived, crate present, newest on the front row); no overlaps; specials don't move when a newer poster episode is added.
-- [ ] **Step 2 (core): optional art.** `validateEpisodes` accepts a missing `image`; the page falls back to `props/placeholder-reel.svg`. Test both.
-- [ ] **Step 3 (core): hash helpers.** `parseHash('#ep=c10') → 'c10'`, `formatHash('c10') → '#ep=c10'`, unknown ids ignored. Unit tests.
-- [ ] **Step 4 (page): remove extension segments.** Drop `--segments` > 1 handling and the `lot-extension` layer; keep the lot horizontally scrollable on phones.
-- [ ] **Step 5 (page): "All episodes" list.** A visible button plus the crate prop open a native `<dialog>` with `<input type="search">` and a newest-first list of buttons (thumbnail, title, date, "Premieres …" badge). Filtering is by title or id. Choosing one runs the same select/preview path as a prop; if the episode has a prop, `scrollIntoView({inline:'center'})` and focus it; otherwise focus the screen. Esc closes the dialog.
-- [ ] **Step 6 (page): deep links.** On load and `hashchange`, select `#ep=<id>` (preview only). Selecting any episode updates the hash with `history.replaceState`.
-- [ ] **Step 7 (page): skip link and stacking.** Add a "Skip to all episodes" link at the start of the prop group. Give each row its own z-index (front row highest); keep hover/focus/`aria-current` lifting above all rows.
-- [ ] **Step 8 (E2E):** list opens from the button and the crate, search filters, choosing plays/previews and scrolls to the prop; `#ep=c10` preselects C10; a front-row prop is clickable at its top edge (stacking fix); zero `pageerror`; 375/768/1440/2560 widths.
+- [x] **Step 1 (core, unit-tested): ordering and cap.** In `layoutProps`, fill special spots in catalogue order (unchanged), then place the remaining episodes newest-first (premiere desc, catalogue order as tie-break) into at most `LOT_SIZE = 12` row slots in one segment. Return `{ props, archive, segments: 1, crate }` where `archive` lists the ids that got no slot and `crate` is a special spot for the reel crate when `archive` is non-empty. Tests: launch catalogue (no archive, no crate); synthetic 30 (12 row props, 14 archived, crate present, newest on the front row); no overlaps; specials don't move when a newer poster episode is added.
+- [x] **Step 2 (core): optional art.** `validateEpisodes` accepts a missing `image`; the page falls back to `props/placeholder-reel.svg`. Test both.
+- [x] **Step 3 (core): hash helpers.** `parseHash('#ep=c10') → 'c10'`, `formatHash('c10') → '#ep=c10'`, unknown ids ignored. Unit tests.
+- [x] **Step 4 (page): remove extension segments.** Drop `--segments` > 1 handling and the `lot-extension` layer; keep the lot horizontally scrollable on phones.
+- [x] **Step 5 (page): "All episodes" list.** A visible button plus the crate prop open a native `<dialog>` with `<input type="search">` and a newest-first list of buttons (thumbnail, title, date, "Premieres …" badge). Filtering is by title or id. Choosing one runs the same select/preview path as a prop; if the episode has a prop, `scrollIntoView({inline:'center'})` and focus it; otherwise focus the screen. Esc closes the dialog.
+- [x] **Step 6 (page): deep links.** On load and `hashchange`, select `#ep=<id>` (preview only). Selecting any episode updates the hash with `history.replaceState`.
+- [x] **Step 7 (page): skip link and stacking.** Add a "Skip to all episodes" link at the start of the prop group. Give each row its own z-index (front row highest); keep hover/focus/`aria-current` lifting above all rows.
+- [x] **Step 8 (E2E):** list opens from the button and the crate, search filters, choosing plays/previews and scrolls to the prop; `#ep=c10` preselects C10; a front-row prop is clickable at its top edge (stacking fix); zero `pageerror`; 375/768/1440/2560 widths.
 - [ ] **Step 9:** Run all tests, then commit `git commit -m "feat(cartoons): newest-first capped lot, archive list, deep links, skip link, row stacking"`
 
 ---

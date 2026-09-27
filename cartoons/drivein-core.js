@@ -7,7 +7,7 @@
   var PROP_TYPES = ['car', 'poster', 'snack', 'booth'];
   var FORMATS = ['portrait', 'landscape'];
   var FIELDS = ['id', 'title', 'youtube', 'format', 'premiere', 'prop', 'alt']; // image is optional
-  var REEL_IMAGE = 'props/placeholder-reel.svg';
+  var REEL_IMAGE = 'props/placeholder-reel.svg'; // last-resort onerror fallback
   var YT_ID = /^[A-Za-z0-9_-]{11}$/;
   var ID_FORMAT = /^[a-z0-9-]+$/;
   var PREMIERE_FORMAT = /^\d{4}-\d\d-\d\dT\d\d:\d\d(:\d\d)?(Z|[+-]\d\d:\d\d)$/;
@@ -36,25 +36,35 @@
   }
 
   function isComingSoon(ep, nowMs) { return nowMs < ep.premiereMs; }
-  function propImage(ep) { return ep.image || REEL_IMAGE; }
+  // Episodes without their own art borrow a generic seat-saver, picked by a stable hash of the id (FNV-1a).
+  var GENERIC_COUNT = 12;
+  function hashId(id) {
+    var h = 2166136261;
+    for (var i = 0; i < id.length; i++) { h ^= id.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
+    return h;
+  }
+  function propImage(ep) { return ep.image || 'props/generic-' + (hashId(ep.id) % GENERIC_COUNT + 1) + '.webp'; }
 
   var PROP_W = 14; // % of base-scene width at scale 1
   var LOT_SIZE = 12; // max row props on the lot; older episodes are archive-only
 
-  // Placeholder geometry; Task 12 replaces these with values measured from the final background.
+  // Measured from the barn background (barn-cinema-bg-B-0936-4k-gflegs.jpeg, 4096x2336) with ?debug=layout.
+  // All values are % of the scene; y is the prop's bottom edge (props stand on it). Painted cast (keep clear):
+  // GF Princess x 8-20, Poppy x 22-38 / y 68-94, Nike x 61.5-77 / y 62-93, Charles x 77-89. Barn wall x 21-79, y 0-62.
   var DEFAULT_LAYOUT = {
-    // Special spots sit outside the landscape screen footprint (x 21-79%, y 8-66%) and clear of each other.
-    screen: { x: 50, top: 8, height: 58 },
+    aspect: 4096 / 2336,
+    // The page applies this via --st/--sh in cartoons/index.html (kept in sync by hand). Landscape: x 26.7-73.3%.
+    screen: { x: 50, top: 10, height: 46 },
     special: {
-      poster: [{ x: 9, y: 74, scale: 1 }, { x: 91, y: 74, scale: 1 }],
-      snack: [{ x: 16, y: 90, scale: 0.9 }],
-      booth: [{ x: 84, y: 90, scale: 0.8 }]
+      poster: [{ x: 5.5, y: 100, scale: 0.7 }, { x: 93.5, y: 100, scale: 0.72 }], // boards at the scene edges, below the faces
+      snack: [{ x: 5.5, y: 64, scale: 0.38 }],  // on the snack-stand counter
+      booth: [{ x: 92, y: 80, scale: 0.5 }]     // against the projector shed's crates
     },
-    crate: { x: 95, y: 98, scale: 0.6 }, // reel crate, only when the archive is non-empty
+    crate: { x: 15, y: 99, scale: 0.5 }, // reel crate on the ground below GF Princess, only when the archive is non-empty
     rows: [
-      { y: 73.5, scale: 0.55, xs: [31, 40.5, 50, 59.5, 69] }, // back
-      { y: 84, scale: 0.75, xs: [30, 43.3, 56.6, 70] },       // middle
-      { y: 98, scale: 1, xs: [30, 50, 70] }                   // front
+      { y: 67, scale: 0.34, xs: [22.5, 28, 33.5, 39, 44.5, 57] }, // back: on the hay bales, above Poppy
+      { y: 80, scale: 0.44, xs: [43, 50, 57] },                   // middle: at the foot of the bales, between Poppy and Nike
+      { y: 97, scale: 0.52, xs: [42, 49.5, 57] }                  // front: on the dirt, between Poppy and Nike
     ],
     fillOrder: [2, 1, 0]
   };
@@ -125,7 +135,7 @@
   }
 
   return { validateEpisodes: validateEpisodes, isComingSoon: isComingSoon, propImage: propImage, layoutProps: layoutProps,
-           DEFAULT_LAYOUT: DEFAULT_LAYOUT, PROP_W: PROP_W, LOT_SIZE: LOT_SIZE, INITIAL: INITIAL, reduce: reduce,
+           DEFAULT_LAYOUT: DEFAULT_LAYOUT, GENERIC_COUNT: GENERIC_COUNT, REEL_IMAGE: REEL_IMAGE, PROP_W: PROP_W, LOT_SIZE: LOT_SIZE, INITIAL: INITIAL, reduce: reduce,
            embedUrl: embedUrl, thumbUrl: thumbUrl, watchUrl: watchUrl, parseHash: parseHash, formatHash: formatHash,
            formatPremiere: formatPremiere };
 });

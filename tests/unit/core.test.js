@@ -22,13 +22,27 @@ test('validateEpisodes rejects bad input', () => {
   assert.throws(() => D.validateEpisodes([ep(), ep()]), /duplicate id/);
 });
 
-test('image is optional; propImage falls back to the reel icon', () => {
+test('image is optional; propImage falls back to a generic seat-saver', () => {
   const e = ep(); delete e.image;
   const [v] = D.validateEpisodes([e]);
-  assert.equal(D.propImage(v), 'props/placeholder-reel.svg');
+  assert.match(D.propImage(v), /^props\/generic-(\d|1[0-2])\.webp$/);
   assert.equal(D.propImage(D.validateEpisodes([ep()])[0]), 'props/placeholder-car.svg');
   assert.throws(() => D.validateEpisodes([ep({ image: '' })]), /bad image/);
   assert.throws(() => D.validateEpisodes([ep({ image: 5 })]), /bad image/);
+});
+
+test('generic seat-saver is stable per id, spread over all 12, and an explicit image wins', () => {
+  assert.equal(D.GENERIC_COUNT, 12);
+  assert.equal(D.REEL_IMAGE, 'props/placeholder-reel.svg');
+  const g = id => D.propImage({ id });
+  assert.equal(g('c15'), g('c15'));
+  assert.equal(g('c15'), D.propImage({ id: 'c15', image: undefined }));
+  const seen = new Set(Array.from({ length: 200 }, (_, i) => g('c' + i)));
+  assert.equal(seen.size, 12);
+  for (const f of seen) assert.match(f, /^props\/generic-(\d|1[0-2])\.webp$/);
+  assert.equal(D.propImage({ id: 'c15', image: 'props/c15.webp' }), 'props/c15.webp');
+  for (let k = 1; k <= 12; k++)
+    assert.ok(require('node:fs').existsSync(require('node:path').join(__dirname, '../../cartoons/props/generic-' + k + '.webp')), 'generic-' + k + ' missing');
 });
 
 test('validateEpisodes rejects a premiere without an explicit UTC offset', () => {
@@ -70,7 +84,7 @@ test('row props fill front row first, then middle, then back; 12 on the lot', ()
   assert.equal(crate, null);
   assert.deepEqual(props.slice(0, 3).map(p => p.slot), ['r2-0', 'r2-1', 'r2-2']);
   assert.equal(props[3].slot, 'r1-0');
-  assert.equal(props[7].slot, 'r0-0');
+  assert.equal(props[3 + L.rows[1].xs.length].slot, 'r0-0');
 });
 
 // Synthetic catalogues: first four are 2 posters, 1 snack, 1 booth; premieres one day apart, oldest first
@@ -117,6 +131,38 @@ test('no two props share a slot; the crate clears every spot and the screen', ()
   for (const o of others) assert.ok(!hits(box(crate), box(o)), 'crate overlaps ' + JSON.stringify(o));
   const scr = { l: 21, r: 79, t: L.screen.top, b: L.screen.top + L.screen.height };
   assert.ok(!hits(box(crate), scr), 'crate under the screen');
+});
+
+// Painted cast in the barn background (% of scene), measured from barn-cinema-bg-B-0936-4k-gflegs.jpeg.
+const CAST = { gf: { l: 8, r: 20, t: 49, b: 85 }, poppy: { l: 22, r: 38, t: 68, b: 94 },
+               nike: { l: 61.5, r: 77, t: 62, b: 93 }, charles: { l: 77, r: 89, t: 53, b: 89 } };
+const FACES = { gf: { l: 12, r: 19, t: 50, b: 60 }, charles: { l: 80, r: 86, t: 52, b: 61 } };
+const rowSpots = () => [].concat(...L.rows.map((r, ri) => r.xs.map((x, k) => ({ x, y: r.y, scale: r.scale, n: 'r' + ri + '-' + k }))));
+const specialSpots = () => [].concat(...Object.entries(L.special).map(([k, v]) => v.map((s, i) => Object.assign({ n: k + '-' + (i + 1) }, s))),
+  [Object.assign({ n: 'crate' }, L.crate)]);
+
+test('the screen fits the barn wall in both formats', () => {
+  const { x, top, height } = L.screen;
+  assert.ok(Math.abs(L.aspect - 4096 / 2336) < 1e-9);
+  const halfW = f => height * f / L.aspect / 2; // % of scene width
+  for (const f of [9 / 16, 16 / 9]) { assert.ok(x - halfW(f) >= 21 && x + halfW(f) <= 79, 'screen wider than the wall'); }
+  assert.ok(top >= 8 && top + height <= 62, 'screen outside the wall');
+});
+
+test('row slots avoid the painted cast and the landscape screen; no two spots overlap', () => {
+  const { x, top, height } = L.screen, hw = height * 16 / 9 / L.aspect / 2;
+  const scr = { l: x - hw, r: x + hw, t: top, b: top + height };
+  for (const s of rowSpots()) {
+    assert.ok(!hits(box(s), scr), s.n + ' under the screen');
+    for (const [c, b] of Object.entries(CAST)) assert.ok(!hits(box(s), b), s.n + ' covers ' + c);
+  }
+  for (const s of specialSpots()) {
+    assert.ok(!hits(box(s), scr), s.n + ' under the screen');
+    for (const [c, b] of Object.entries(FACES)) assert.ok(!hits(box(s), b), s.n + ' covers ' + c + "'s face");
+  }
+  const all = rowSpots().concat(specialSpots());
+  for (let i = 0; i < all.length; i++)
+    for (let j = i + 1; j < all.length; j++) assert.ok(!hits(box(all[i]), box(all[j])), all[i].n + ' overlaps ' + all[j].n);
 });
 
 test('specials do not move when a newer poster episode is added', () => {

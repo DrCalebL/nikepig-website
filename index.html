@@ -93,7 +93,7 @@ nav.scrolled{padding:0.6rem 2.5rem;background:rgba(30,40,56,0.95)}
 .nav-cta{background:linear-gradient(135deg,var(--wheat-deep),var(--wheat))!important;padding:0.6rem 1.6rem;border-radius:50px;font-weight:800!important;color:var(--navy)!important;-webkit-text-fill-color:var(--navy)!important;box-shadow:0 4px 20px rgba(212,184,106,0.25);transition:all 0.3s ease;white-space:nowrap;width:fit-content}
 .nav-cta:hover{transform:scale(1.05);box-shadow:0 6px 30px rgba(212,184,106,0.4)}
 .nav-cta::after{display:none!important}
-.nav-toggle{display:none;flex-direction:column;gap:5px;cursor:pointer;z-index:1001}
+.nav-toggle{display:none;flex-direction:column;gap:5px;cursor:pointer;z-index:1001;background:none;border:0;padding:8px;margin:-8px;-webkit-tap-highlight-color:transparent}
 .nav-toggle span{width:28px;height:3px;background:var(--wheat);border-radius:3px;transition:all 0.3s ease}
 
 /* =========== HERO (ranch bg) =========== */
@@ -548,7 +548,7 @@ section{position:relative;z-index:1}
     <a href="#community">Community</a><a href="https://nikepig.gitbook.io/nikepig/whitepaper" target="_blank">Whitepaper</a>
     <a href="#buy" class="nav-cta" style="padding:0.7rem 1.8rem">Buy $NIKEPIG</a>
   </div>
-  <div class="nav-toggle" id="navToggle" onclick="toggleNav()"><span></span><span></span><span></span></div>
+  <button type="button" class="nav-toggle" id="navToggle" aria-label="Menu" aria-expanded="false" aria-controls="navLinks" onclick="toggleNav()"><span></span><span></span><span></span></button>
 </nav>
 
 <!-- HERO with ranch background -->
@@ -763,8 +763,8 @@ const isMobile=window.matchMedia('(max-width:1024px)').matches;
 const navbar=document.getElementById('navbar');
 let scrollTick=false;
 window.addEventListener('scroll',()=>{if(!scrollTick){requestAnimationFrame(()=>{navbar.classList.toggle('scrolled',window.scrollY>50);scrollTick=false});scrollTick=true}});
-function toggleNav(){const nl=document.getElementById('navLinks');nl.classList.toggle('open');document.body.style.overflow=nl.classList.contains('open')?'hidden':''}
-document.querySelectorAll('.nav-links a').forEach(a=>a.addEventListener('click',()=>{document.getElementById('navLinks').classList.remove('open');document.body.style.overflow=''}));
+function toggleNav(){const nl=document.getElementById('navLinks'),open=nl.classList.toggle('open');document.getElementById('navToggle').setAttribute('aria-expanded',String(open));document.body.style.overflow=open?'hidden':''}
+document.querySelectorAll('.nav-links a').forEach(a=>a.addEventListener('click',()=>{document.getElementById('navLinks').classList.remove('open');document.getElementById('navToggle').setAttribute('aria-expanded','false');document.body.style.overflow=''}));
 function copyContract(){const addr=document.getElementById('contractAddr').textContent;const btn=document.getElementById('copyBtn');if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(addr).then(()=>{btn.textContent='COPIED!';btn.style.background='#4A6838';setTimeout(()=>{btn.textContent='COPY';btn.style.background=''},2000)})}else{const ta=document.createElement('textarea');ta.value=addr;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);btn.textContent='COPIED!';btn.style.background='#4A6838';setTimeout(()=>{btn.textContent='COPY';btn.style.background=''},2000)}}
 const revealObs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('active');revealObs.unobserve(e.target)}})},{threshold:0.08,rootMargin:'0px 0px -30px 0px'});
 const revealEls=document.querySelectorAll('.reveal');

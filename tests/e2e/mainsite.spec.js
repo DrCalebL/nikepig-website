@@ -86,3 +86,24 @@ test('fixed background and reveal still work with the Cartoons card', async ({ p
   await expect(card).toHaveClass(/\bactive\b/);
   await expect.poll(() => card.evaluate(e => getComputedStyle(e).opacity)).toBe('1');
 });
+
+test('nav toggle is a labelled button that reports its expanded state', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', e => errors.push(e.message));
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/index.html');
+  const toggle = page.getByRole('button', { name: 'Menu' });
+  await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+  const box = await toggle.boundingBox();
+  expect(box.width).toBeGreaterThanOrEqual(24);
+  await toggle.click();
+  await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+  await expect(page.locator('#navLinks')).toHaveClass(/\bopen\b/);
+  await toggle.press('Enter');
+  await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+  await expect(page.locator('#navLinks')).not.toHaveClass(/\bopen\b/);
+  await toggle.click();
+  await page.locator('#navLinks a[href="#about"]').click();
+  await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+  expect(errors).toEqual([]);
+});

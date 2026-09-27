@@ -605,3 +605,139 @@ test('coming-soon art and a failed thumbnail fall back to the reel icon when the
   await page.locator('.reel[data-id="c10"]').hover(); // YouTube thumbnail aborted, then the prop art 404s
   await expect(page.locator('#screen-content .thumb')).toHaveAttribute('src', 'props/placeholder-reel.svg');
 });
+
+for (const [w, h] of [[375, 812], [390, 844]]) {
+  test(`phone dialog: no list row is clipped at ${w}px`, async ({ page }) => {
+    await page.setViewportSize({ width: w, height: h });
+    await open(page, '2026-09-27T12:00:00Z'); // four premiere badges
+    await page.locator('#all-btn').click();
+    await expect(page.locator('#all-list .ep-item')).toHaveCount(14);
+    const bad = await page.evaluate(() => {
+      const ul = document.getElementById('all-list'), u = ul.getBoundingClientRect();
+      const out = [];
+      if (ul.scrollWidth > ul.clientWidth) out.push('list scrolls sideways');
+      document.querySelectorAll('#all-list .ep-item').forEach(b => {
+        const r = b.getBoundingClientRect();
+        if (b.scrollWidth > b.clientWidth) out.push(b.dataset.id + ' overflows');
+        if (r.right > u.right + 0.5) out.push(b.dataset.id + ' wider than the list');
+        b.querySelectorAll('.t,.d,.badge').forEach(s => { if (s.getBoundingClientRect().right > r.right + 0.5) out.push(b.dataset.id + ' ' + s.className + ' clipped'); });
+      });
+      return out;
+    });
+    expect(bad).toEqual([]);
+    await expect(page.locator('.ep-item[data-id="c14"] .badge')).toHaveText('Premieres 1 Oct');
+  });
+}
+
+const boxHit = (a, b) => a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
+
+for (const [w, h] of [[1366, 768], [1440, 900], [667, 375]]) {
+  test(`landscape episode on the last reel: watch link, title tag and Older never overlap at ${w}x${h}`, async ({ page }) => {
+    await page.setViewportSize({ width: w, height: h });
+    await open(page);
+    const c2 = page.locator('.reel[data-id="c2"]');
+    await c2.focus();
+    await expect(page.locator('#screen')).toHaveAttribute('data-format', 'landscape');
+    await settled(page);
+    const tag = await c2.locator('.tag').boundingBox(), link = await page.locator('#watch-link').boundingBox();
+    const older = await page.locator('.end-mark.older').boundingBox(), scr = await page.locator('#screen').boundingBox();
+    expect(boxHit(tag, link), 'tag / watch link').toBe(false);
+    expect(boxHit(tag, older), 'tag / Older').toBe(false);
+    expect(boxHit(link, older), 'watch link / Older').toBe(false);
+    expect(boxHit(link, scr), 'watch link / screen').toBe(false);
+    expect(link.y + link.height).toBeLessThanOrEqual(h);
+    expect(Math.abs(link.x + link.width / 2 - (scr.x + scr.width / 2))).toBeLessThan(2); // centred under the screen
+    expect(older.x + older.width).toBeLessThanOrEqual(w);
+  });
+}
+
+test('landscape phone 667x375: reel hit areas are at least 36 px and never overlap; portrait watch link sits under the screen', async ({ page }) => {
+  await page.setViewportSize({ width: 667, height: 375 });
+  await open(page);
+  const hs = await page.evaluate(() => [...document.querySelectorAll('.reel')].map(b => {
+    const r = b.getBoundingClientRect(), s = getComputedStyle(b, '::before');
+    const d = Math.max(r.width, parseFloat(s.width));
+    return { id: b.dataset.id, x: r.left + r.width / 2, y: r.top + r.height / 2, d };
+  }));
+  const bad = [];
+  for (const a of hs) {
+    if (a.d < 36) bad.push(a.id + ' ' + a.d.toFixed(1) + ' px');
+    for (const b of hs) if (a !== b && Math.abs(a.x - b.x) < (a.d + b.d) / 2 && Math.abs(a.y - b.y) < (a.d + b.d) / 2) bad.push(a.id + '/' + b.id);
+  }
+  expect(bad).toEqual([]);
+  const scene = await page.locator('#scene').boundingBox();
+  expect(scene.height).toBeGreaterThanOrEqual(345);
+  await page.locator('.reel[data-id="c3"]').focus();
+  await settled(page);
+  const link = await page.locator('#watch-link').boundingBox(), scr = await page.locator('#screen').boundingBox();
+  expect(link.y).toBeGreaterThanOrEqual(scr.y + scr.height);
+  expect(link.y + link.height).toBeLessThanOrEqual(375);
+});
+
+for (const [w, h] of [[390, 844], [768, 1024]]) {
+  test(`watch link is at least 32 px tall at ${w}px`, async ({ page }) => {
+    await page.setViewportSize({ width: w, height: h });
+    await open(page);
+    for (const id of ['c3', 'c2']) {
+      await page.locator(`.reel[data-id="${id}"]`).focus();
+      await expect(page.locator('#watch-link')).toBeVisible();
+      expect((await page.locator('#watch-link').boundingBox()).height, id).toBeGreaterThanOrEqual(32);
+    }
+  });
+}
+
+test('stacked phone: a landscape episode shrinks the sticky screen area to the screen and its link', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await open(page);
+  const wrap = page.locator('.screen-wrap');
+  const idle = (await wrap.boundingBox()).height;
+  await page.locator('.reel[data-id="c2"]').focus();
+  await expect(page.locator('#screen')).toHaveAttribute('data-format', 'landscape');
+  const w = await wrap.boundingBox(), link = await page.locator('#watch-link').boundingBox();
+  expect(w.height).toBeLessThan(idle - 40);
+  expect(w.y + w.height - (link.y + link.height)).toBeLessThanOrEqual(20);
+  expect(w.y + w.height).toBeGreaterThanOrEqual(link.y + link.height);
+  const first = await page.locator('.reel[data-slot="0"]').boundingBox();
+  expect(first.y).toBeGreaterThanOrEqual(w.y + w.height);
+});
+
+test('phone: back link and All episodes have 44 px tap targets; small labels stay readable', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await open(page, '2026-09-28T06:00:00Z');
+  for (const sel of ['.topbar a', '#all-btn']) {
+    const ok = await page.locator(sel).evaluate(el => {
+      const r = el.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+      return [[cx, cy - 21], [cx, cy + 21], [cx - 21, cy], [cx + 21, cy]].every(([x, y]) => {
+        const hit = document.elementFromPoint(x, Math.max(y, 0));
+        return !!hit && (hit === el || el.contains(hit));
+      });
+    });
+    expect(ok, sel).toBe(true);
+  }
+  const px = sel => page.locator(sel).first().evaluate(e => parseFloat(getComputedStyle(e).fontSize));
+  expect(await px('.reel .new')).toBeGreaterThanOrEqual(0.62 * 16 - 0.01);
+  expect(await px('.end-mark.latest')).toBeGreaterThanOrEqual(0.75 * 16 - 0.01);
+  expect(await px('.end-mark.older')).toBeGreaterThanOrEqual(0.75 * 16 - 0.01);
+  expect(await page.locator('.reel[data-id="c12"]').evaluate(e => getComputedStyle(e).backgroundColor)).toBe('rgba(11, 16, 38, 0.5)');
+});
+
+test('narrow portrait screen: the title wraps balanced and stays inside the screen', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 667 });
+  await open(page);
+  await page.locator('.reel[data-id="c8"]').focus(); // "The 6 AM Negotiation"
+  const m = await page.evaluate(() => {
+    const s = document.querySelector('#screen-content strong'), r = s.getBoundingClientRect();
+    const scr = document.getElementById('screen').getBoundingClientRect(), cs = getComputedStyle(s);
+    return { wrap: cs.textWrap || cs.textWrapStyle, l: r.left, r: r.right, sl: scr.left, sr: scr.right };
+  });
+  expect(m.wrap).toMatch(/balance/);
+  expect(m.l).toBeGreaterThanOrEqual(m.sl);
+  expect(m.r).toBeLessThanOrEqual(m.sr);
+});
+
+test('1024x768: the spare band above the scene fades to night', async ({ page }) => {
+  await page.setViewportSize({ width: 1024, height: 768 });
+  await open(page);
+  const bg = await page.locator('#theatre').evaluate(e => getComputedStyle(e, '::before').backgroundImage);
+  expect(bg).toMatch(/^linear-gradient\(rgb\(11, 16, 38\)/);
+});

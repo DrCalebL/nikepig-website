@@ -151,8 +151,10 @@ test('reel hotspots: at least 44 px at 1440, no overlaps, all above the seam, cl
     for (let j = i + 1; j < hs.length; j++) assert.ok(!hits(hs[i], hs[j]), 'reels ' + i + '/' + j + ' overlap');
 });
 
-test('reel hit areas stay apart on a phone-sized scene (430 px tall)', () => {
-  const W = 430 * L.aspect, hs = L.reels.map(s => hot(s, W));
+test('reel hit areas stay apart on a phone-sized scene (410 px tall, the stacked minimum in the page CSS)', () => {
+  const html = require('node:fs').readFileSync(require('node:path').join(__dirname, '../../cartoons/index.html'), 'utf8');
+  assert.match(html, /--scn:max\(var\(--lh\),410px\)/);
+  const W = 410 * L.aspect, hs = L.reels.map(s => hot(s, W));
   for (let i = 1; i < hs.length; i++) assert.ok(!hits(hs[i - 1], hs[i]), 'reels ' + (i - 1) + '/' + i + ' overlap');
 });
 

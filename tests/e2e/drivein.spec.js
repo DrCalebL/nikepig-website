@@ -33,6 +33,15 @@ async function openSynth(page, n = 30, hash = '') {
   return errors;
 }
 
+// Portrait layout geometry: scene size/position and where the seam, the wall bottom and the screen land (viewport px).
+function portraitGeometry() {
+  const L = window.DriveIn.DEFAULT_LAYOUT, sc = document.getElementById('scene').getBoundingClientRect();
+  const s = document.getElementById('screen').getBoundingClientRect(), lot = document.getElementById('lot');
+  return { scH: sc.height, scW: sc.width, scTop: sc.top, seam: sc.top + sc.height * L.seam / 100, wall: sc.top + sc.height * L.wall.b / 100,
+           sTop: s.top, sBot: s.bottom, sL: s.left, sW: s.width, sH: s.height, scrollLeft: lot.scrollLeft, maxScroll: lot.scrollWidth - lot.clientWidth,
+           pageX: document.documentElement.scrollWidth - innerWidth, pageY: document.documentElement.scrollHeight - innerHeight };
+}
+
 for (const [w, h] of [[375, 812], [768, 1024], [1366, 768], [1440, 900], [1920, 1080], [2560, 1440]]) {
   test(`renders 13 reels with no page errors at ${w}px`, async ({ page }) => {
     await page.setViewportSize({ width: w, height: h });
@@ -125,14 +134,6 @@ test('hover previews and the screen changes shape by format', async ({ page }) =
   await expect.poll(async () => { const b = await screen.boundingBox(); return b.width > b.height; }).toBe(true);
 });
 
-test('mobile: screen sits above the lot', async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 });
-  await open(page);
-  const s = await page.locator('#screen').boundingBox();
-  const l = await page.locator('#lot').boundingBox();
-  expect(s.y + s.height).toBeLessThanOrEqual(l.y + 1);
-});
-
 test('landscape phone uses the desktop layout; the reels clear the topbar and each is hit at its centre', async ({ page }) => {
   await page.setViewportSize({ width: 667, height: 375 });
   await open(page);
@@ -150,12 +151,14 @@ test('landscape phone uses the desktop layout; the reels clear the topbar and ea
   expect(wrong).toEqual([]);
 });
 
-test('tablet portrait uses the stacked layout', async ({ page }) => {
+test('tablet portrait uses the portrait layout: the scene fills the height and the screen sits on the seam', async ({ page }) => {
   await page.setViewportSize({ width: 768, height: 1024 });
   await open(page);
-  const s = await page.locator('#screen').boundingBox();
-  const l = await page.locator('#lot').boundingBox();
-  expect(s.y + s.height).toBeLessThanOrEqual(l.y + 1);
+  const m = await page.evaluate(portraitGeometry);
+  expect(Math.abs(m.scH - 1024)).toBeLessThanOrEqual(1);
+  expect(Math.abs(m.sTop - m.seam)).toBeLessThanOrEqual(1);
+  expect(Math.abs(m.sBot - m.wall)).toBeLessThanOrEqual(1);
+  expect(m.scW).toBeGreaterThan(768);
 });
 
 const rectOf = el => { const r = el.getBoundingClientRect(); return { l: r.left, t: r.top, r: r.right, b: r.bottom, id: el.dataset && el.dataset.id }; };
@@ -542,21 +545,6 @@ test('reduced motion also disables the reel glow transition', async ({ page }) =
   expect(await c3.evaluate(e => getComputedStyle(e).transitionDuration)).toBe('0s');
 });
 
-test('phone: the reel strip shows under the sticky screen, newest on the left, and the lot scrolls sideways', async ({ page }) => {
-  await page.setViewportSize({ width: 375, height: 812 });
-  await open(page);
-  const scr = await page.locator('#screen').boundingBox();
-  const first = await page.locator('.reel[data-slot="0"]').boundingBox();
-  expect(first.y).toBeGreaterThanOrEqual(scr.y + scr.height);
-  expect(first.y + first.height).toBeLessThanOrEqual(812);
-  expect(first.x).toBeGreaterThanOrEqual(0);
-  expect(await page.locator('#lot').evaluate(e => e.scrollWidth > e.clientWidth)).toBe(true);
-  expect(await page.locator('#lot').evaluate(e => getComputedStyle(e).zIndex)).toBe('1'); // reels scroll under the screen
-  await page.mouse.move(180, 700);
-  await page.mouse.wheel(0, 300);
-  await expect.poll(() => page.locator('.screen-wrap').evaluate(e => e.getBoundingClientRect().top)).toBeLessThanOrEqual(0.5);
-});
-
 test('the UI marks which end is latest: Latest under the first reel, NEW on the newest released, Older opens the list', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await open(page, '2026-09-28T06:00:00Z'); // c10 and c11 are out; c12-c14 are still coming soon
@@ -616,13 +604,13 @@ test('keyboard: after the play button, focus stays on the page so Esc stops play
   await expect(page.locator('#screen')).toHaveAttribute('data-mode', 'preview');
 });
 
-test('phone: the focused skip link paints above the sticky screen', async ({ page }) => {
+test('phone: the focused skip link paints above the screen', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 });
   await open(page);
   const skip = page.locator('.skip-link');
   await skip.focus();
   const hit = await skip.evaluate(el => {
-    document.querySelector('.screen-wrap').style.pointerEvents = 'auto'; // so the hit test sees the whole sticky layer
+    document.querySelector('.screen-wrap').style.pointerEvents = 'auto'; // so the hit test sees the whole screen layer
     const r = el.getBoundingClientRect();
     return document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2) === el;
   });
@@ -732,21 +720,6 @@ for (const [w, h] of [[390, 844], [768, 1024]]) {
   });
 }
 
-test('stacked phone: a landscape episode shrinks the sticky screen area to the screen and its link', async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 });
-  await open(page);
-  const wrap = page.locator('.screen-wrap');
-  const idle = (await wrap.boundingBox()).height;
-  await page.locator('.reel[data-id="c2"]').focus();
-  await expect(page.locator('#screen')).toHaveAttribute('data-format', 'landscape');
-  const w = await wrap.boundingBox(), link = await page.locator('#watch-link').boundingBox();
-  expect(w.height).toBeLessThan(idle - 40);
-  expect(w.y + w.height - (link.y + link.height)).toBeLessThanOrEqual(20);
-  expect(w.y + w.height).toBeGreaterThanOrEqual(link.y + link.height);
-  const first = await page.locator('.reel[data-slot="0"]').boundingBox();
-  expect(first.y).toBeGreaterThanOrEqual(w.y + w.height);
-});
-
 test('phone: back link and All episodes have 44 px tap targets; small labels stay readable', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 });
   await open(page, '2026-09-28T06:00:00Z');
@@ -786,4 +759,156 @@ test('1024x768: the spare band above the scene fades to night', async ({ page })
   await open(page);
   const bg = await page.locator('#theatre').evaluate(e => getComputedStyle(e, '::before').backgroundImage);
   expect(bg).toMatch(/^linear-gradient\(rgb\(11, 16, 38\)/);
+});
+
+// Portrait phones: the whole scene fills the viewport height and scrolls sideways behind a screen that stays put.
+async function phone(browser, testInfo, w, h) {
+  const ctx = await browser.newContext({ baseURL: testInfo.project.use.baseURL, viewport: { width: w, height: h }, hasTouch: true, isMobile: true });
+  const page = await ctx.newPage();
+  await page.route(/(youtube-nocookie\.com|ytimg\.com|youtube\.com)/, r => r.abort());
+  const errors = await open(page, '2026-09-28T06:00:00Z');
+  return { ctx, page, errors };
+}
+// every reel's hit area (the button or its padded ::before) in viewport px
+const reelsNow = page => page.evaluate(() => [...document.querySelectorAll('.reel')].map(b => {
+  const r = b.getBoundingClientRect(), s = getComputedStyle(b, '::before');
+  const d = Math.max(r.width, parseFloat(s.width)), x = r.left + r.width / 2, y = r.top + r.height / 2;
+  return { id: b.dataset.id, x, y, d, l: x - d / 2, r: x + d / 2, t: y - d / 2, b: y + d / 2 };
+}));
+
+for (const [w, h] of [[375, 812], [390, 844], [412, 915]]) {
+  test(`phone ${w}x${h}: the scene fills the viewport, the screen spans seam to wall bottom and stays put while the lot scrolls`, async ({ browser }, testInfo) => {
+    const { ctx, page, errors } = await phone(browser, testInfo, w, h);
+    const m = await page.evaluate(portraitGeometry);
+    expect(Math.abs(m.scH - h), 'scene fills the height').toBeLessThanOrEqual(1);
+    expect(m.scTop).toBeGreaterThanOrEqual(-0.5);
+    expect(m.scW).toBeGreaterThan(3 * w); // much wider than the phone: it scrolls sideways
+    expect(Math.abs(m.sTop - m.seam), 'screen top on the seam').toBeLessThanOrEqual(1);
+    expect(Math.abs(m.sBot - m.wall), 'screen bottom on the wall bottom').toBeLessThanOrEqual(1);
+    expect(Math.abs(m.sW - m.sH * 9 / 16)).toBeLessThanOrEqual(1);
+    expect(Math.abs(m.sL + m.sW / 2 - w / 2), 'screen centred').toBeLessThanOrEqual(1);
+    expect(m.pageX, 'no horizontal page scroll').toBe(0);
+    expect(m.pageY, 'no vertical page scroll').toBe(0);
+    // the lot starts with the barn wall centred under the screen
+    expect(Math.abs(m.scrollLeft - m.maxScroll / 2)).toBeLessThanOrEqual(1);
+    const before = await reelsNow(page);
+    await page.locator('#lot').evaluate(e => { e.scrollLeft = 0; });
+    const left = await page.evaluate(portraitGeometry), atLeft = await reelsNow(page);
+    expect(left.scrollLeft).toBe(0);
+    expect(Math.abs(left.sL - m.sL), 'screen x unchanged').toBeLessThanOrEqual(0.5);
+    expect(Math.abs(left.sTop - m.sTop)).toBeLessThanOrEqual(0.5);
+    for (const [i, r] of atLeft.entries()) expect(Math.abs(r.x - before[i].x - m.scrollLeft), r.id + ' moves with the scene').toBeLessThanOrEqual(1);
+    await page.locator('#lot').evaluate(e => { e.scrollLeft = e.scrollWidth; });
+    const right = await page.evaluate(portraitGeometry);
+    expect(right.scrollLeft).toBeGreaterThan(m.scrollLeft);
+    expect(Math.abs(right.sL - m.sL), 'screen x unchanged').toBeLessThanOrEqual(0.5);
+    expect(right.pageX).toBe(0);
+    expect(errors).toEqual([]);
+    await ctx.close();
+  });
+
+  test(`phone ${w}x${h}: a horizontal swipe on the scene scrolls the lot, not the page`, async ({ browser }, testInfo) => {
+    const { ctx, page, errors } = await phone(browser, testInfo, w, h);
+    const start = await page.locator('#lot').evaluate(e => e.scrollLeft);
+    const cdp = await ctx.newCDPSession(page);
+    const drag = async (x, y, dx) => {
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
+      for (let i = 1; i <= 10; i++) {
+        await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: x + dx * i / 10, y }] });
+        await page.waitForTimeout(16);
+      }
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+    };
+    // a finger drag right-to-left across the hay bales below the screen
+    await drag(Math.round(w * 0.8), Math.round(h * 0.8), -Math.round(w * 0.5));
+    await expect.poll(() => page.locator('#lot').evaluate(e => e.scrollLeft)).toBeGreaterThan(start + 20);
+    expect(await page.evaluate(() => [scrollX, scrollY])).toEqual([0, 0]);
+    // and over the idle screen too (it lets swipes through to the scene)
+    await page.waitForTimeout(400); // let the fling settle
+    const mid = await page.locator('#lot').evaluate(e => e.scrollLeft);
+    await drag(Math.round(w * 0.3), Math.round(h * 0.4), Math.round(w * 0.4));
+    await expect.poll(() => page.locator('#lot').evaluate(e => e.scrollLeft)).toBeLessThan(mid - 20);
+    expect(errors).toEqual([]);
+    await ctx.close();
+  });
+
+  test(`phone ${w}x${h}: reel hit areas are at least 44 px, never overlap, clear the topbar and are never covered by the screen`, async ({ browser }, testInfo) => {
+    const { ctx, page, errors } = await phone(browser, testInfo, w, h);
+    const hs = await reelsNow(page), bad = [];
+    for (const a of hs) {
+      if (a.d < 44) bad.push(a.id + ' ' + a.d.toFixed(1) + ' px');
+      for (const b of hs) if (a !== b && Math.abs(a.x - b.x) < (a.d + b.d) / 2 && Math.abs(a.y - b.y) < (a.d + b.d) / 2) bad.push(a.id + '/' + b.id);
+    }
+    expect(bad).toEqual([]);
+    const bb = await page.locator('#all-btn').boundingBox();
+    expect(Math.min(...hs.map(r => r.t)), 'reels clear the All episodes tap target').toBeGreaterThanOrEqual(bb.y + bb.height / 2 + 22);
+    const scr = await page.locator('#screen').boundingBox();
+    for (const r of hs) expect(r.y, r.id + ' centre above the screen').toBeLessThan(scr.y);
+    // at every scroll position the reel's centre hits the reel, never the screen
+    const covered = await page.evaluate(() => [...document.querySelectorAll('.reel')].filter(p => {
+      p.scrollIntoView({ inline: 'center', block: 'nearest' });
+      const r = p.getBoundingClientRect(), hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+      return !hit || hit.closest('.reel') !== p;
+    }).map(p => p.dataset.id));
+    expect(covered).toEqual([]);
+    // with the barn wall centred, the reels over the screen sit wholly above it
+    await page.locator('#lot').evaluate(e => { e.scrollLeft = (e.scrollWidth - e.clientWidth) / 2; });
+    const over = (await reelsNow(page)).filter(r => r.r > scr.x && r.l < scr.x + scr.width);
+    expect(over.length).toBeGreaterThan(0);
+    for (const r of over) expect(r.b, r.id).toBeLessThanOrEqual(scr.y);
+    expect(errors).toEqual([]);
+    await ctx.close();
+  });
+
+  test(`phone ${w}x${h}: a landscape episode fits the width with its top on the seam; the link sits under it`, async ({ browser }, testInfo) => {
+    const { ctx, page, errors } = await phone(browser, testInfo, w, h);
+    await page.locator('.reel[data-id="c2"]').tap();
+    await expect(page.locator('#screen')).toHaveAttribute('data-format', 'landscape');
+    await settled(page);
+    const m = await page.evaluate(portraitGeometry);
+    expect(m.sW).toBeLessThanOrEqual(w);
+    expect(m.sL).toBeGreaterThanOrEqual(0);
+    expect(Math.abs(m.sTop - m.seam)).toBeLessThanOrEqual(1);
+    expect(Math.abs(m.sW / m.sH - 16 / 9)).toBeLessThan(0.02);
+    expect(m.sBot).toBeLessThanOrEqual(m.wall + 1);
+    const link = await page.locator('#watch-link').boundingBox();
+    expect(link.y).toBeGreaterThanOrEqual(m.sBot);
+    expect(link.height).toBeGreaterThanOrEqual(32);
+    expect(link.x + link.width).toBeLessThanOrEqual(w);
+    // Older / Latest scroll behind the wide picture instead of covering it (title tags still paint above)
+    const z = sel => page.locator(sel).evaluate(e => +getComputedStyle(e).zIndex);
+    expect(await z('.end-mark.older')).toBeLessThan(await z('.screen-wrap'));
+    expect(await z('.reel[data-id="c2"]')).toBeGreaterThan(await z('.screen-wrap'));
+    expect(m.pageX).toBe(0);
+    expect(errors).toEqual([]);
+    await ctx.close();
+  });
+}
+
+test('phone: tapping a reel previews it, a second tap plays; the title tag paints above the screen and the watch link sits under it', async ({ browser }, testInfo) => {
+  const { ctx, page, errors } = await phone(browser, testInfo, 390, 844);
+  const c9 = page.locator('.reel[data-id="c9"]'); // over the screen at the initial (wall-centred) scroll
+  await c9.tap();
+  await expect(page.locator('#screen')).toHaveAttribute('data-mode', 'preview');
+  await expect(c9.locator('.tag')).toBeVisible();
+  const scr = await page.locator('#screen').boundingBox();
+  const t = await c9.locator('.tag .t').boundingBox();
+  expect(t.x + t.width / 2).toBeGreaterThan(scr.x);
+  expect(t.x + t.width / 2).toBeLessThan(scr.x + scr.width);
+  expect(t.y + t.height, 'the title tag reaches over the screen').toBeGreaterThan(scr.y);
+  // and draws above it: the lot is no stacking context, so the reel (z 12) paints over the screen layer (z 10)
+  expect(await page.locator('#lot').evaluate(e => getComputedStyle(e).zIndex)).toBe('auto');
+  expect(+await c9.evaluate(e => getComputedStyle(e).zIndex)).toBeGreaterThan(+await page.locator('.screen-wrap').evaluate(e => getComputedStyle(e).zIndex));
+  const link = await page.locator('#watch-link').boundingBox();
+  expect(link.height).toBeGreaterThanOrEqual(32);
+  expect(link.y).toBeGreaterThanOrEqual(scr.y + scr.height);
+  expect(link.y + link.height).toBeLessThanOrEqual(844);
+  expect(Math.abs(link.x + link.width / 2 - 195)).toBeLessThanOrEqual(1);
+  for (const r of await reelsNow(page)) expect(boxHit(link, { x: r.l, y: r.t, width: r.d, height: r.d }), r.id).toBe(false);
+  await page.locator('#lot').evaluate(e => { e.scrollLeft = 0; }); // the link stays put when the lot scrolls
+  expect(Math.abs((await page.locator('#watch-link').boundingBox()).x - link.x)).toBeLessThanOrEqual(0.5);
+  await c9.tap();
+  await expect(page.locator('#screen-content iframe')).toHaveAttribute('src', /3mm3QSeXjo8/);
+  expect(errors).toEqual([]);
+  await ctx.close();
 });

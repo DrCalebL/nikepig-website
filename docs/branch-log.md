@@ -6,6 +6,11 @@
 
 ---
 
+## 2026-09-28 — Cartoons phone layout: full-height scene behind a fixed screen
+- Portrait phones/tablets: the stacked sticky-screen layout is gone; the whole barn scene fills the viewport height and scrolls sideways (starting with the barn wall centred) behind a screen that stays centred with its top on the seam and bottom on the wall bottom (spec Revision 3, "Phones (portrait layout)"); new portrait e2e tests at 375/390/412.
+
+---
+
 ## 2026-09-27 — Nikeverse Cartoons page (`cartoons/`): barn movie night on 13 painted reels
 
 **What shipped:** a separate static page, `nikepig.com/cartoons/` (`cartoons/index.html` + pure logic in

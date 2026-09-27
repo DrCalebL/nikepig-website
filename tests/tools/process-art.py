@@ -1,22 +1,23 @@
 """Cut out and encode the Tripo Studio renders for the cartoons page.
 
-Usage: python tests/tools/process-art.py        (from the repo root)
-Needs: rembg (isnet-general-use model under ~/.rembg/models/isnet-general-use), Pillow, numpy, scipy.
+Usage: python tests/tools/process-art.py [bg|props|generics ...]   (from the repo root; no args = all)
+Needs: Pillow (bg); rembg (isnet-general-use model under ~/.rembg/models/isnet-general-use), Pillow, numpy, scipy.
 Sources live outside the repo (override with CARTOONS_ART_SRC).
+`reels` prints the barn seam and the 13 painted reels (centre, radius) of the master, in px and % of the scene,
+for DEFAULT_LAYOUT in cartoons/drivein-core.js.
 Outputs:
-  cartoons/art/bg-{1280,1920,2560,3840}.webp       barn background, several widths
-  cartoons/props/<id>.webp                         alpha cut-outs (episodes, crate, reel), cropped, max 640 px
+  cartoons/art/bg-{1280,1920,2560,3840}.webp       barn background (barn-reels-4k.jpeg: reels on fairy lights), several widths
+  cartoons/props/<id>.webp                         alpha cut-outs (episodes, reel), cropped, max 640 px
   cartoons/props/generic-1..12.webp                seat-savers split from generics-sheet.png (row-major)
 """
 import os
+import sys
 from pathlib import Path
 os.environ.setdefault('U2NET_HOME', str(Path.home() / '.rembg' / 'models' / 'isnet-general-use'))  # local model; avoids a download
 import numpy as np
 from PIL import Image
-from rembg import remove as _remove, new_session
-from scipy import ndimage
 
-SESSION = new_session('isnet-general-use')
+SESSION = None  # rembg is only loaded for the cut-out steps
 ROOT = Path(__file__).resolve().parents[2]
 C = ROOT / 'cartoons'
 SRC = Path(os.environ.get('CARTOONS_ART_SRC', r'C:\Users\loopy\Nikeverse-cartoons\outputs\nikepig-website-cartoons-art-src'))
@@ -29,6 +30,10 @@ FILL_HOLES = {'pilot', 'c5'}
 
 def remove(img):
     """rembg alpha on the untouched source colours (rembg blacks out the RGB it thinks is background)."""
+    global SESSION
+    from rembg import remove as _remove, new_session
+    if SESSION is None:
+        SESSION = new_session('isnet-general-use')
     rgb = img.convert('RGB')
     out = rgb.copy()
     out.putalpha(_remove(rgb, session=SESSION, only_mask=True))
@@ -62,13 +67,14 @@ def save_webp(img, out, q, limit_kb=None, alpha=False):
 
 
 def background():
-    bg = Image.open(SRC / 'barn-cinema-bg-B-0936-4k-gflegs.jpeg').convert('RGB')
+    bg = Image.open(SRC / 'barn-reels-4k.jpeg').convert('RGB')
     for w in (1280, 1920, 2560, 3840):
         img = bg.resize((w, round(bg.height * w / bg.width)), Image.LANCZOS)
         save_webp(img, C / f'art/bg-{w}.webp', 82, BG_KB if w <= 1920 else None)
 
 
 def props():
+    from scipy import ndimage
     for src in sorted((SRC / 'props').glob('*.png')):
         if src.stem == 'generics-sheet':
             continue
@@ -83,6 +89,7 @@ def props():
 def generics(cols=4, rows=3, max_side=480):
     """Split the 4x3 seat-saver sheet: connected components of the alpha mask, grouped by grid cell (so the two
     boots stay one prop), numbered row-major as generic-1..12."""
+    from scipy import ndimage
     cut = remove(Image.open(SRC / 'props' / 'generics-sheet.png'))
     a = np.array(cut.getchannel('A'))
     lab, n = ndimage.label(a >= ALPHA_MIN)
@@ -105,7 +112,36 @@ def generics(cols=4, rows=3, max_side=480):
         save_webp(fit(img, max_side), C / 'props' / f'generic-{k + 1}.webp', 85, PROP_KB, alpha=True)
 
 
+def reels():
+    """Reels are warm-grey discs (low saturation, mid-bright) with dark holes in the top band; fill the holes, then
+    take each blob's distance-transform peak as centre and radius (robust where a reel touches the roof trim). The
+    radius excludes the ~3 px dark outline."""
+    from scipy import ndimage
+    rgb = np.asarray(Image.open(SRC / 'barn-reels-4k.jpeg').convert('RGB')).astype(float)
+    H, W = rgb.shape[:2]
+    band = rgb[:450]
+    mx, mn = band.max(-1), band.min(-1)
+    m = ((mx - mn) / np.maximum(mx, 1) < 0.42) & (mx > 115) & (band[..., 0] >= band[..., 2]) & (band[..., 1] > 0.6 * band[..., 0])
+    m = ndimage.binary_opening(ndimage.binary_fill_holes(ndimage.binary_closing(m, iterations=5)), iterations=6)
+    lab, _ = ndimage.label(m)
+    d = ndimage.distance_transform_edt(m)
+    out = []
+    for i in range(1, lab.max() + 1):
+        dd = np.where(lab == i, d, 0)
+        r = dd.max()
+        if r >= 50:
+            ys, xs = np.nonzero(dd >= r - 1)
+            out.append((xs.mean(), ys.mean(), r))
+    out.sort()
+    seam = np.median(np.asarray(Image.open(SRC / 'barn-reels-4k.jpeg').convert('L'))[:, 1150:2950], axis=1)
+    dark = 200 + np.nonzero(seam[200:400] < 40)[0]  # the painted seam line is a few px thick; take its middle
+    y0 = (dark.min() + dark.max()) / 2
+    print(f'seam y {y0:.1f} px = {100 * y0 / H:.3f}%   reels: {len(out)}')
+    for x, y, r in out:
+        print(f'  x {x:7.1f} y {y:6.1f} r {r:5.1f} px   -> x {100 * x / W:.2f}% y {100 * y / H:.2f}% r {100 * r / W:.3f}% of width')
+
+
 if __name__ == '__main__':
-    background()
-    props()
-    generics()
+    steps = {'bg': background, 'props': props, 'generics': generics, 'reels': reels}
+    for name in sys.argv[1:] or ['bg', 'props', 'generics']:
+        steps[name]()

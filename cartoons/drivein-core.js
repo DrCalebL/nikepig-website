@@ -50,16 +50,16 @@
   // Measured from the barn background (barn-reels-4k.jpeg, 4096x2336) with `python tests/tools/process-art.py reels`.
   // x and y are % of the scene width / height; REEL_R is % of the scene WIDTH (painted radius incl. the dark outline,
   // 64 px of 4096; all 13 reels are the same size). The screen's top edge sits on the barn's horizontal board seam
-  // (y 282 px). Blank barn wall: x 878-3214 px (21.4-78.5%), bottom y 1442 px (61.73%).
+  // (y 282 px). Blank barn wall: x 878-3214 px (21.4-78.5%), bottom seam line y 1444-1446 px; screen bottom at its lower edge y 1446 (61.90%).
   var SEAM = 282 / 2336 * 100;
   var REEL_R = 1.57;
   var HIT_PAD = 1.1; // hotspot diameter = 2 * REEL_R * HIT_PAD (the glow ring sits just outside the painted rim)
   var DEFAULT_LAYOUT = {
     aspect: 4096 / 2336,
     seam: SEAM,
-    wall: { l: 21.4, r: 78.5, b: 1442 / 2336 * 100 },
+    wall: { l: 21.4, r: 78.5, b: 1446 / 2336 * 100 },
     // The page applies this via --st/--sh in cartoons/index.html (a unit test keeps them in sync). Landscape: x 24.8-75.2%.
-    screen: { x: 50, top: SEAM, height: (1442 - 282) / 2336 * 100 },  // seam (y 282) to wall bottom (y 1442): full wall height
+    screen: { x: 50, top: SEAM, height: (1446 - 282) / 2336 * 100 },  // top seam (y 282) to bottom seam (y 1446): full wall height
     reelR: REEL_R,
     hitPad: HIT_PAD,
     reels: [ // left to right along the fairy-light string

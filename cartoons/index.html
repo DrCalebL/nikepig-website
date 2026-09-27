@@ -111,10 +111,10 @@ body{background:var(--night);color:#fff;font-family:'Nunito',sans-serif;min-heig
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 /* --sh screen height, --st screen top, --swp/--swl portrait/landscape screen widths; shared by .screen and .watch-link.
    Projected on the barn wall: the top edge sits on the barn's board seam (282/2336 = 12.072% of the scene) and the
-   bottom on the wall bottom (1442/2336), height 49.658% (keep DEFAULT_LAYOUT.screen in drivein-core.js in sync; a unit
+   bottom on the wall's bottom seam (1446/2336), height 49.829% (keep DEFAULT_LAYOUT.screen in drivein-core.js in sync; a unit
    test checks these two numbers). */
 .screen-wrap{position:absolute;inset:0;pointer-events:none;z-index:10;
-  --sh:calc(var(--sch)*.49658);--st:calc(var(--top) + var(--sch)*.12072);--swp:calc(var(--sh)*9/16);--swl:min(calc(var(--sh)*16/9),96vw)}
+  --sh:calc(var(--sch)*.49829);--st:calc(var(--top) + var(--sch)*.12072);--swp:calc(var(--sh)*9/16);--swl:min(calc(var(--sh)*16/9),96vw)}
 .screen:focus{outline:none}
 .screen{position:absolute;left:50%;top:var(--st);height:var(--sh);width:var(--swp);transform:translateX(-50%);
   /* projector light on the barn wall: a warm wash and a soft glow, no frame */

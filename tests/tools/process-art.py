@@ -7,7 +7,7 @@ Sources live outside the repo (override with CARTOONS_ART_SRC).
 for DEFAULT_LAYOUT in cartoons/drivein-core.js.
 Outputs:
   cartoons/art/bg-{1280,1920,2560,3840}.webp       barn background (barn-reels-4k.jpeg: reels on fairy lights), several widths
-  cartoons/props/<id>.webp                         alpha cut-outs (episodes, reel), cropped, max 640 px
+  cartoons/props/<id>.webp                         episode alpha cut-outs, cropped, max 256 px (48 px list thumbnails, coming-soon card)
   cartoons/props/generic-1..12.webp                seat-savers split from generics-sheet.png (row-major)
 """
 import os
@@ -21,7 +21,7 @@ SESSION = None  # rembg is only loaded for the cut-out steps
 ROOT = Path(__file__).resolve().parents[2]
 C = ROOT / 'cartoons'
 SRC = Path(os.environ.get('CARTOONS_ART_SRC', r'C:\Users\loopy\Nikeverse-cartoons\outputs\nikepig-website-cartoons-art-src'))
-PROP_MAX, PROP_KB, BG_KB = 640, 120, 600
+PROP_MAX, PROP_KB, BG_KB = 256, 40, 600
 ALPHA_MIN = 12  # alpha below this is treated as empty when cropping (drops faint shadow haze)
 # rembg reads near-white paint (the pilot poster paper, the c5 bedsheet) as see-through. For these, fill the enclosed
 # holes of the solid mask. Not applied globally: chairs, coat racks etc. have real see-through gaps.
@@ -76,7 +76,7 @@ def background():
 def props():
     from scipy import ndimage
     for src in sorted((SRC / 'props').glob('*.png')):
-        if src.stem == 'generics-sheet':
+        if src.stem in ('generics-sheet', 'reel'):  # the sheet is split by generics(); the reel cut-out is unused
             continue
         cut = remove(Image.open(src))
         if src.stem in FILL_HOLES:

@@ -96,6 +96,7 @@ body{background:var(--night);color:#fff;font-family:'Nunito',sans-serif;min-heig
 .ep-item{display:flex;align-items:center;gap:.7rem;width:100%;text-align:left;background:rgba(255,255,255,.06);border:0;border-radius:.5rem;padding:.35rem .6rem;color:inherit;font:inherit;cursor:pointer}
 .ep-item:hover,.ep-item:focus-visible{background:rgba(255,211,110,.2);outline:2px solid var(--glow)}
 .ep-item img{width:3rem;height:3rem;object-fit:contain;flex:none}
+.ep-item img.yt{object-fit:cover;border-radius:.35rem}
 .ep-item .t{font-weight:800;flex:1;min-width:0}
 .ep-item .d{color:var(--wheat);font-size:.85rem;white-space:nowrap}
 .ep-item .badge{background:var(--glow);color:#111;font-weight:800;font-size:.75rem;padding:.1rem .4rem;border-radius:.4rem;white-space:nowrap}
@@ -208,7 +209,7 @@ body{background:var(--night);color:#fff;font-family:'Nunito',sans-serif;min-heig
   <ul id="all-list"></ul>
   <p id="all-empty" hidden>No episodes match.</p>
 </dialog>
-<script type="application/json" id="episodes-fallback">[{"id":"pilot","title":"The Apple Chip Ledger","youtube":"KCV8nHowlpo","format":"landscape","premiere":"2026-09-01T00:00:00+08:00","prop":"poster","image":"props/pilot.webp","alt":"Notice board poster of Charles holding the apple-chip ledger"},{"id":"c2","title":"Do Your Cutest Thing","youtube":"NR6ogdyPKVI","format":"landscape","premiere":"2026-09-01T00:00:00+08:00","prop":"poster","image":"props/c2.webp","alt":"Notice board poster of Poppy doing her cutest face"},{"id":"c3","title":"45-Minute Diner Wait","youtube":"rt7cQLtGyEE","format":"portrait","premiere":"2026-09-01T00:00:00+08:00","prop":"car","image":"props/c3.webp","alt":"An old diner stool with a kitchen timer on it"},{"id":"c4","title":"Apple Chip Intervention","youtube":"irGVaTJJyb4","format":"portrait","premiere":"2026-09-01T00:00:00+08:00","prop":"car","image":"props/c4.webp","alt":"A wooden crate overflowing with apple-chip bags"},{"id":"c5","title":"Time for chores!","youtube":"wCXxBkEbMgI","format":"portrait","premiere":"2026-09-01T00:00:00+08:00","prop":"car","image":"props/c5.webp","alt":"A bedsheet-covered lump with one pig trotter sticking out"},{"id":"c6","title":"Moral Support","youtube":"s4WUUF-3D_Y","format":"portrait","premiere":"2026-09-01T00:00:00+08:00","prop":"car","image":"props/c6.webp","alt":"A small mattress propped against a hay bale"},{"id":"c7","title":"Father-in-Law Chat","youtube":"P4_XraZPen0","format":"portrait","premiere":"2026-09-01T00:00:00+08:00","prop":"car","image":"props/c7.webp","alt":"Two garden chairs facing each other with coffee mugs"},{"id":"c8","title":"The 6 AM Negotiation","youtube":"aTbG9rtgaa8","format":"portrait","premiere":"2026-09-01T00:00:00+08:00","prop":"car","image":"props/c8.webp","alt":"A giant alarm clock showing 6:00"},{"id":"c9","title":"The Void","youtube":"3mm3QSeXjo8","format":"portrait","premiere":"2026-09-01T00:00:00+08:00","prop":"booth","image":"props/c9.webp","alt":"An empty chip bag hanging from a nail on a post"},{"id":"c10","title":"Order in the Yard","youtube":"sbbO2273RNc","format":"portrait","premiere":"2026-09-27T01:00:00+08:00","prop":"car","image":"props/c10.webp","alt":"A judge's gavel on a tree stump beside a single apple chip"},{"id":"c11","title":"The Coat Rack","youtube":"0tqDl-UKomE","format":"portrait","premiere":"2026-09-28T01:00:00+08:00","prop":"car","image":"props/c11.webp","alt":"A coat rack with a grocery bag hanging on it"},{"id":"c12","title":"Low-Maintenance","youtube":"fTT7cx6ap8s","format":"portrait","premiere":"2026-09-29T01:00:00+08:00","prop":"car","image":"props/c12.webp","alt":"A watering can with a butterfly on the spout"},{"id":"c13","title":"Worth It","youtube":"vIue1jLRDuw","format":"portrait","premiere":"2026-09-30T01:00:00+08:00","prop":"snack","image":"props/c13.webp","alt":"Snack-stand sign reading HUGS — 4 CHIPS"},{"id":"c14","title":"Forever Hungry","youtube":"4COtDWxmMLQ","format":"portrait","premiere":"2026-10-01T01:00:00+08:00","prop":"car","image":"props/c14.webp","alt":"A milk can with a white daisy in it"}]</script>
+<script type="application/json" id="episodes-fallback">[{"id":"pilot","title":"The Apple Chip Ledger","youtube":"KCV8nHowlpo","format":"landscape","premiere":"2026-09-01T00:00:00+08:00","prop":"poster"},{"id":"c2","title":"Do Your Cutest Thing","youtube":"NR6ogdyPKVI","format":"landscape","premiere":"2026-09-01T00:00:00+08:00","prop":"poster"},{"id":"c3","title":"45-Minute Diner Wait","youtube":"rt7cQLtGyEE","format":"portrait","premiere":"2026-09-01T00:00:00+08:00","prop":"car"},{"id":"c4","title":"Apple Chip Intervention","youtube":"irGVaTJJyb4","format":"portrait","premiere":"2026-09-01T00:00:00+08:00","prop":"car"},{"id":"c5","title":"Time for chores!","youtube":"wCXxBkEbMgI","format":"portrait","premiere":"2026-09-01T00:00:00+08:00","prop":"car"},{"id":"c6","title":"Moral Support","youtube":"s4WUUF-3D_Y","format":"portrait","premiere":"2026-09-01T00:00:00+08:00","prop":"car"},{"id":"c7","title":"Father-in-Law Chat","youtube":"P4_XraZPen0","format":"portrait","premiere":"2026-09-01T00:00:00+08:00","prop":"car"},{"id":"c8","title":"The 6 AM Negotiation","youtube":"aTbG9rtgaa8","format":"portrait","premiere":"2026-09-01T00:00:00+08:00","prop":"car"},{"id":"c9","title":"The Void","youtube":"3mm3QSeXjo8","format":"portrait","premiere":"2026-09-01T00:00:00+08:00","prop":"booth"},{"id":"c10","title":"Order in the Yard","youtube":"sbbO2273RNc","format":"portrait","premiere":"2026-09-27T01:00:00+08:00","prop":"car"},{"id":"c11","title":"The Coat Rack","youtube":"0tqDl-UKomE","format":"portrait","premiere":"2026-09-28T01:00:00+08:00","prop":"car"},{"id":"c12","title":"Low-Maintenance","youtube":"fTT7cx6ap8s","format":"portrait","premiere":"2026-09-29T01:00:00+08:00","prop":"car"},{"id":"c13","title":"Worth It","youtube":"vIue1jLRDuw","format":"portrait","premiere":"2026-09-30T01:00:00+08:00","prop":"snack"},{"id":"c14","title":"Forever Hungry","youtube":"4COtDWxmMLQ","format":"portrait","premiere":"2026-10-01T01:00:00+08:00","prop":"car"}]</script>
 <script src="drivein-core.js"></script>
 <script>
 (async function () {
@@ -220,7 +221,10 @@ body{background:var(--night);color:#fff;font-family:'Nunito',sans-serif;min-heig
   function reelOf(id) { return document.querySelector('.reel[data-id="' + id + '"]'); }
 
   // an image that falls back to the reel icon if it fails
-  function fallbackImg(img) { img.onerror = function () { img.onerror = null; img.src = D.REEL_IMAGE; }; return img; }
+  function fallbackImg(img) {
+    img.onerror = function () { img.onerror = null; img.classList.remove('yt'); img.src = D.REEL_IMAGE; };
+    return img;
+  }
 
   // Light the current reel; the Older marker steps aside while the last reel's title tag is showing.
   function markCurrent() {
@@ -242,7 +246,8 @@ body{background:var(--night);color:#fff;font-family:'Nunito',sans-serif;min-heig
       return;
     }
     if (D.isComingSoon(ep, now())) {
-      var art = fallbackImg(el('img', 'soon-art')); art.src = D.propImage(ep); art.alt = ep.alt;
+      // the reel icon, never the YouTube thumbnail: no request to YouTube before the premiere (no spoilers)
+      var art = fallbackImg(el('img', 'soon-art')); art.src = D.REEL_IMAGE; art.alt = '';
       c.append(art, el('strong', '', ep.title), el('em', 'soon-label', 'Premieres ' + D.formatPremiere(ep.premiereMs)));
       scr.dataset.mode = 'soon';
       return;
@@ -256,8 +261,7 @@ body{background:var(--night);color:#fff;font-family:'Nunito',sans-serif;min-heig
       c.append(f);
       return;
     }
-    var t = el('img', 'thumb'); t.alt = ''; t.src = D.thumbUrl(ep.youtube);
-    t.onerror = function () { fallbackImg(t); t.src = D.propImage(ep); }; // YouTube thumbnail, then prop art, then reel icon
+    var t = fallbackImg(el('img', 'thumb')); t.alt = ''; t.src = D.thumbUrl(ep.youtube); // reel icon if YouTube fails
     var play = el('button', 'play', '▶'); play.type = 'button'; play.setAttribute('aria-label', 'Play ' + ep.title);
     play.onclick = function () {
       var id = ep.id;
@@ -286,9 +290,10 @@ body{background:var(--night);color:#fff;font-family:'Nunito',sans-serif;min-heig
       history.replaceState(history.state, '', D.formatHash(next.id));
   }
 
-  // list thumbnails: the episode's prop art (or its generic seat-saver), reel icon if that fails
-  function propImg(ep) {
-    var img = fallbackImg(el('img')); img.src = D.propImage(ep); img.alt = ''; img.decoding = 'async'; img.loading = 'lazy';
+  // list thumbnails: the YouTube thumbnail once released, the reel icon while coming soon or if the thumbnail fails
+  function listImg(ep, t) {
+    var src = D.episodeImage(ep, t), img = fallbackImg(el('img', src === D.REEL_IMAGE ? '' : 'yt'));
+    img.src = src; img.alt = ''; img.decoding = 'async'; img.loading = 'lazy';
     return img;
   }
 
@@ -301,7 +306,7 @@ body{background:var(--night);color:#fff;font-family:'Nunito',sans-serif;min-heig
       .forEach(function (x) {
         var ep = x.e, li = el('li'), b = el('button', 'ep-item'), soon = D.isComingSoon(ep, t);
         b.type = 'button'; b.dataset.id = ep.id;
-        b.append(propImg(ep), el('span', 't', ep.title));
+        b.append(listImg(ep, t), el('span', 't', ep.title));
         b.append(soon ? el('span', 'badge', 'Premieres ' + D.formatPremiere(ep.premiereMs)) : el('span', 'd', D.formatPremiere(ep.premiereMs)));
         b.addEventListener('click', function () { choose(ep.id); });
         li.append(b); ul.append(li);

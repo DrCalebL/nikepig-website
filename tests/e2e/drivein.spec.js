@@ -1,7 +1,8 @@
 const { test, expect } = require('@playwright/test');
-const GENERIC_E27 = require('../../cartoons/drivein-core.js').propImage({ id: 'e27' });
+// A 1x1 PNG standing in for a YouTube thumbnail where a test needs one to load.
+const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 'base64');
 
-// Never hit YouTube from tests: thumbnails fall back to prop art, iframes stay blank.
+// Never hit YouTube from tests: thumbnails fall back to the reel icon, iframes stay blank.
 test.beforeEach(async ({ page }) => {
   await page.route(/(youtube-nocookie\.com|ytimg\.com|youtube\.com)/, r => r.abort());
 });
@@ -15,12 +16,12 @@ async function open(page, when = '2026-10-05T00:00:00Z') {
   return errors;
 }
 
-// Synthetic catalogue, one day apart, oldest first. Odd ids ship without an image (generic seat-saver in the list).
+// Synthetic catalogue, one day apart, oldest first. Even ids carry a legacy `image` field, which the page ignores.
 const day = i => new Date(Date.parse('2026-01-01T00:00:00+08:00') + i * 864e5).toISOString().replace('.000Z', 'Z');
 const synthCat = n => Array.from({ length: n }, (_, i) => Object.assign({
   id: 'e' + i, title: 'Episode ' + i, youtube: ('y' + String(i).padStart(10, '0')).slice(0, 11), format: 'portrait',
-  premiere: day(i), prop: ['poster', 'poster', 'snack', 'booth'][i] || 'car', alt: 'Prop ' + i,
-}, i % 2 ? {} : { image: 'props/placeholder-car.svg' }));
+  premiere: day(i), prop: ['poster', 'poster', 'snack', 'booth'][i] || 'car',
+}, i % 2 ? {} : { image: 'props/e' + i + '.webp', alt: 'Prop ' + i }));
 
 async function openSynth(page, n = 30, hash = '') {
   const errors = [];
@@ -323,16 +324,49 @@ test('the launch catalogue\'s oldest episode (pilot) is list-only and still play
   await expect(page.locator('#screen-content iframe')).toHaveAttribute('src', /KCV8nHowlpo/);
 });
 
-test('list thumbnails: prop art, a generic seat-saver when there is none, the reel icon when an image fails', async ({ page }) => {
+test('list thumbnails: YouTube thumbnails for released episodes, the reel icon when one fails', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.route(/props\/generic-\d+\.webp$/, r => r.request().url().endsWith(GENERIC_E27) ? r.fulfill({ status: 404, body: '' }) : r.fallback());
-  await openSynth(page);
-  const expected = await page.evaluate(() => window.DriveIn.propImage({ id: 'e5' }));
+  const failId = synthCat(30)[27].youtube;
+  await page.route(/i\.ytimg\.com/, r => r.request().url().includes(failId) ? r.abort() : r.fulfill({ status: 200, contentType: 'image/png', body: PNG }));
+  const errors = await openSynth(page);
   await page.locator('#all-btn').click();
-  await expect(page.locator('.ep-item[data-id="e5"] img')).toHaveAttribute('src', expected);
-  await expect(page.locator('.ep-item[data-id="e28"] img')).toHaveAttribute('src', 'props/placeholder-car.svg');
+  const e5 = page.locator('.ep-item[data-id="e5"] img');
+  await expect(e5).toHaveAttribute('src', 'https://i.ytimg.com/vi/' + synthCat(30)[5].youtube + '/hqdefault.jpg');
+  await expect(e5).toHaveClass('yt');
+  expect(await e5.evaluate(i => getComputedStyle(i).objectFit)).toBe('cover');
   await page.locator('.ep-item[data-id="e27"]').scrollIntoViewIfNeeded();
-  await expect(page.locator('.ep-item[data-id="e27"] img')).toHaveAttribute('src', 'props/placeholder-reel.svg');
+  const e27 = page.locator('.ep-item[data-id="e27"] img');
+  await expect(e27).toHaveAttribute('src', 'art/reel.svg');
+  await expect(e27).not.toHaveClass('yt');
+  expect(errors).toEqual([]);
+});
+
+test('list thumbnails: coming-soon episodes show the reel icon and never request their YouTube thumbnail', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  const ytRequests = [];
+  page.on('request', r => { if (/ytimg\.com/.test(r.url())) ytRequests.push(r.url()); });
+  await open(page, '2026-09-27T12:00:00Z'); // c10 is out; c11..c14 are coming soon
+  await page.locator('#all-btn').click();
+  for (const id of ['c11', 'c12', 'c13', 'c14'])
+    await expect(page.locator(`.ep-item[data-id="${id}"] img`)).toHaveAttribute('src', 'art/reel.svg');
+  await expect(page.locator('.ep-item[data-id="c10"] img')).toHaveAttribute('src', /i\.ytimg\.com\/vi\/sbbO2273RNc\/hqdefault\.jpg$|art\/reel\.svg$/);
+  for (const yt of ['0tqDl-UKomE', 'fTT7cx6ap8s', 'vIue1jLRDuw', '4COtDWxmMLQ'])
+    expect(ytRequests.filter(u => u.includes(yt))).toEqual([]);
+});
+
+test('no prop art anywhere: no img points at props/ and nothing requests it', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  const propRequests = [];
+  page.on('request', r => { if (/\/cartoons\/props\//.test(r.url())) propRequests.push(r.url()); });
+  const errors = await openSynth(page); // even ids carry a legacy image: props/eN.webp
+  await page.locator('.reel[data-id="e29"]').hover();
+  await page.locator('#all-btn').click();
+  await page.locator('.ep-item[data-id="e0"]').scrollIntoViewIfNeeded();
+  await page.locator('.ep-item[data-id="e0"]').click(); // archive-only: previews on the screen
+  await expect(page.locator('#screen')).toHaveAttribute('data-mode', 'preview');
+  expect(await page.locator('img').evaluateAll(is => is.map(i => i.getAttribute('src')).filter(s => /props\//.test(s || '')))).toEqual([]);
+  expect(propRequests).toEqual([]);
+  expect(errors).toEqual([]);
 });
 
 test('Esc closes the list without stopping playback', async ({ page }) => {
@@ -595,15 +629,27 @@ test('phone: the focused skip link paints above the sticky screen', async ({ pag
   expect(hit).toBe(true);
 });
 
-test('coming-soon art and a failed thumbnail fall back to the reel icon when the prop image fails', async ({ page }) => {
+test('coming-soon card shows the reel icon (no YouTube request); a failed thumbnail falls back to the reel icon', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.route(/props\/c1[01]\.webp$/, r => r.fulfill({ status: 404, body: '' }));
+  const ytRequests = [];
+  page.on('request', r => { if (/ytimg\.com/.test(r.url())) ytRequests.push(r.url()); });
   await open(page, '2026-09-27T12:00:00Z'); // c10 is out, c11 is coming soon
   await page.locator('.reel[data-id="c11"]').hover();
   await expect(page.locator('#screen')).toHaveAttribute('data-mode', 'soon');
-  await expect(page.locator('#screen-content .soon-art')).toHaveAttribute('src', 'props/placeholder-reel.svg');
-  await page.locator('.reel[data-id="c10"]').hover(); // YouTube thumbnail aborted, then the prop art 404s
-  await expect(page.locator('#screen-content .thumb')).toHaveAttribute('src', 'props/placeholder-reel.svg');
+  await expect(page.locator('#screen-content .soon-art')).toHaveAttribute('src', 'art/reel.svg');
+  expect(ytRequests.filter(u => u.includes('0tqDl-UKomE'))).toEqual([]);
+  await page.locator('.reel[data-id="c10"]').hover(); // YouTube thumbnail aborted (beforeEach)
+  await expect(page.locator('#screen-content .thumb')).toHaveAttribute('src', 'art/reel.svg');
+});
+
+test('released preview shows the YouTube thumbnail when it loads', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.route(/i\.ytimg\.com/, r => r.fulfill({ status: 200, contentType: 'image/png', body: PNG }));
+  await open(page, '2026-09-27T12:00:00Z');
+  await page.locator('.reel[data-id="c10"]').hover();
+  const t = page.locator('#screen-content .thumb');
+  await expect(t).toHaveAttribute('src', 'https://i.ytimg.com/vi/sbbO2273RNc/hqdefault.jpg');
+  expect(await t.evaluate(i => i.complete && i.naturalWidth > 0)).toBe(true);
 });
 
 for (const [w, h] of [[375, 812], [390, 844]]) {

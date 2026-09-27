@@ -4,7 +4,7 @@ const D = require('../../cartoons/drivein-core.js');
 
 const ep = (o = {}) => Object.assign({
   id: 'c3', title: '45-Minute Diner Wait', youtube: 'rt7cQLtGyEE', format: 'portrait',
-  premiere: '2026-09-01T00:00:00+08:00', prop: 'car', image: 'props/placeholder-car.svg', alt: 'A car',
+  premiere: '2026-09-01T00:00:00+08:00', prop: 'car',
 }, o);
 
 test('validateEpisodes accepts a good entry and adds premiereMs', () => {
@@ -22,21 +22,13 @@ test('validateEpisodes rejects bad input', () => {
   assert.throws(() => D.validateEpisodes([ep(), ep()]), /duplicate id/);
 });
 
-test('image is optional; propImage falls back to a generic seat-saver', () => {
-  const e = ep(); delete e.image;
-  const [v] = D.validateEpisodes([e]);
-  assert.match(D.propImage(v), /^props\/generic-(\d|1[0-2])\.webp$/);
-  assert.equal(D.propImage(D.validateEpisodes([ep()])[0]), 'props/placeholder-car.svg');
-  assert.throws(() => D.validateEpisodes([ep({ image: '' })]), /bad image/);
-  assert.throws(() => D.validateEpisodes([ep({ image: 5 })]), /bad image/);
-});
-
-test('image must be a props/ file name (webp, svg or png)', () => {
-  for (const ok of ['props/c15.webp', 'props/placeholder-car.svg', 'props/a-b-9.png'])
-    assert.doesNotThrow(() => D.validateEpisodes([ep({ image: ok })]), ok);
-  for (const bad of ['https://evil.example/x.webp', '../props/c15.webp', 'props/../c15.webp', 'props/C15.webp',
-    'props/c15.gif', 'props/c15.webp?x', 'art/bg-1280.webp', 'props/sub/c15.webp', 'javascript:alert(1)'])
-    assert.throws(() => D.validateEpisodes([ep({ image: bad })]), /bad image/, bad);
+test('legacy image and alt fields are tolerated and dropped (episodes have no art of their own)', () => {
+  for (const legacy of [{ image: 'props/c3.webp', alt: 'A stool' }, { image: '' }, { image: 5 }, { alt: '' }, { image: 'https://evil.example/x.webp' }]) {
+    const [v] = D.validateEpisodes([ep(legacy)]);
+    assert.ok(!('image' in v) && !('alt' in v), JSON.stringify(legacy));
+  }
+  const e = ep(); delete e.prop;
+  assert.doesNotThrow(() => D.validateEpisodes([e]), 'id, title, youtube, format and premiere are all an entry needs');
 });
 
 test('prop is optional metadata: it defaults to "car" and never affects the reels', () => {
@@ -53,18 +45,24 @@ test('the inline fallback catalogue in cartoons/index.html matches episodes.json
   assert.equal(r.status, 0, (r.stderr || r.stdout).trim() + ' (run: cd tests && npm run sync)');
 });
 
-test('generic seat-saver is stable per id, spread over all 12, and an explicit image wins', () => {
-  assert.equal(D.GENERIC_COUNT, 12);
-  assert.equal(D.REEL_IMAGE, 'props/placeholder-reel.svg');
-  const g = id => D.propImage({ id });
-  assert.equal(g('c15'), g('c15'));
-  assert.equal(g('c15'), D.propImage({ id: 'c15', image: undefined }));
-  const seen = new Set(Array.from({ length: 200 }, (_, i) => g('c' + i)));
-  assert.equal(seen.size, 12);
-  for (const f of seen) assert.match(f, /^props\/generic-(\d|1[0-2])\.webp$/);
-  assert.equal(D.propImage({ id: 'c15', image: 'props/c15.webp' }), 'props/c15.webp');
-  for (let k = 1; k <= 12; k++)
-    assert.ok(require('node:fs').existsSync(require('node:path').join(__dirname, '../../cartoons/props/generic-' + k + '.webp')), 'generic-' + k + ' missing');
+test('episodeImage: YouTube thumbnail once released, the reel icon before the premiere (no spoiler request)', () => {
+  assert.equal(D.REEL_IMAGE, 'art/reel.svg');
+  assert.equal(D.propImage, undefined);
+  assert.equal(D.GENERIC_COUNT, undefined);
+  const [v] = D.validateEpisodes([ep({ premiere: '2026-09-29T01:00:00+08:00' })]);
+  assert.equal(D.episodeImage(v, v.premiereMs - 1), 'art/reel.svg');
+  assert.equal(D.episodeImage(v, v.premiereMs), 'https://i.ytimg.com/vi/rt7cQLtGyEE/hqdefault.jpg');
+  assert.equal(D.episodeImage(v, v.premiereMs + 864e5), D.thumbUrl(v.youtube));
+});
+
+test('no per-episode prop art ships: cartoons/props has no images and nothing references props/', () => {
+  const fs = require('node:fs'), path = require('node:path'), dir = path.join(__dirname, '../../cartoons');
+  const props = path.join(dir, 'props');
+  const files = fs.existsSync(props) ? fs.readdirSync(props) : [];
+  assert.deepEqual(files.filter(f => /\.(webp|png|svg|jpe?g)$/i.test(f)), []);
+  for (const f of ['index.html', 'drivein-core.js', 'episodes.json'])
+    assert.doesNotMatch(fs.readFileSync(path.join(dir, f), 'utf8'), /props\//, f + ' still references props/');
+  assert.ok(fs.existsSync(path.join(dir, D.REEL_IMAGE)), D.REEL_IMAGE + ' missing');
 });
 
 test('validateEpisodes rejects a premiere without an explicit UTC offset', () => {
@@ -251,7 +249,7 @@ test('launch catalogue is valid, has 14 episodes: 13 on the reels, the oldest in
   assert.equal(reels.length, 13);
   assert.equal(reels[0].id, 'c14');
   assert.deepEqual(archive, ['pilot']); // pilot..c9 share a premiere; later in the catalogue = newer, so the pilot is oldest
-  for (const e of eps) assert.ok(fs.existsSync(path.join(__dirname, '../../cartoons', D.propImage(e))), D.propImage(e) + ' missing');
-  for (const e of eps) assert.doesNotMatch(e.alt, /\bcar\b|drive-in|poster board|projector-booth|pickup|sedan/i, e.id + ' alt still describes the drive-in');
+  for (const e of JSON.parse(fs.readFileSync(CAT, 'utf8')))
+    assert.ok(!('image' in e) && !('alt' in e), e.id + ': image/alt are no longer used');
   assert.ok(fs.existsSync(path.join(__dirname, '../../cartoons', D.REEL_IMAGE)), D.REEL_IMAGE + ' missing');
 });

@@ -7,9 +7,11 @@
   // prop: optional legacy metadata (defaults to 'car'); it has no effect on the reels or the layout.
   var PROP_TYPES = ['car', 'poster', 'snack', 'booth'], DEFAULT_PROP = 'car';
   var FORMATS = ['portrait', 'landscape'];
-  var FIELDS = ['id', 'title', 'youtube', 'format', 'premiere', 'alt']; // prop and image are optional
-  var IMAGE_FORMAT = /^props\/[a-z0-9-]+\.(webp|svg|png)$/; // a file in cartoons/props/, nothing else
-  var REEL_IMAGE = 'props/placeholder-reel.svg'; // last-resort onerror fallback
+  var FIELDS = ['id', 'title', 'youtube', 'format', 'premiere']; // prop is optional
+  // Episodes have no art of their own (user decision 2026-09-27): released ones show their YouTube thumbnail, coming-soon
+  // ones (and any thumbnail that fails) the plain reel icon. Legacy `image` and `alt` fields are ignored and dropped.
+  var LEGACY_FIELDS = ['image', 'alt'];
+  var REEL_IMAGE = 'art/reel.svg';
   var YT_ID = /^[A-Za-z0-9_-]{11}$/;
   var ID_FORMAT = /^[a-z0-9-]+$/;
   var PREMIERE_FORMAT = /^\d{4}-\d\d-\d\dT\d\d:\d\d(:\d\d)?(Z|[+-]\d\d:\d\d)$/;
@@ -23,7 +25,6 @@
       FIELDS.forEach(function (k) {
         if (typeof e[k] !== 'string' || !e[k]) throw new Error(where + ': missing ' + k);
       });
-      if ('image' in e && (typeof e.image !== 'string' || !IMAGE_FORMAT.test(e.image))) throw new Error(where + ': bad image');
       if (!ID_FORMAT.test(e.id)) throw new Error(where + ': bad id');
       if (Object.prototype.hasOwnProperty.call(seen, e.id)) throw new Error(where + ': duplicate id ' + e.id);
       seen[e.id] = true;
@@ -33,21 +34,18 @@
       if (!PREMIERE_FORMAT.test(e.premiere)) throw new Error(where + ': premiere needs ISO datetime with offset');
       var t = Date.parse(e.premiere);
       if (isNaN(t)) throw new Error(where + ': bad premiere');
-      return Object.assign({}, e, { prop: e.prop || DEFAULT_PROP, premiereMs: t });
+      var out = Object.assign({}, e, { prop: e.prop || DEFAULT_PROP, premiereMs: t });
+      LEGACY_FIELDS.forEach(function (k) { delete out[k]; });
+      return out;
     });
   }
 
   // Premiere gating is client-side only (the visitor's clock): it hides the player, not the video. Schedule the
   // premiere on YouTube too (or keep the video private/unlisted) so nobody can watch early via the YouTube id.
   function isComingSoon(ep, nowMs) { return nowMs < ep.premiereMs; }
-  // Episodes without their own art borrow a generic seat-saver, picked by a stable hash of the id (FNV-1a).
-  var GENERIC_COUNT = 12;
-  function hashId(id) {
-    var h = 2166136261;
-    for (var i = 0; i < id.length; i++) { h ^= id.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
-    return h;
-  }
-  function propImage(ep) { return ep.image || 'props/generic-' + (hashId(ep.id) % GENERIC_COUNT + 1) + '.webp'; }
+  // The list / screen picture: the YouTube thumbnail once released; before the premiere the reel icon (no request to
+  // YouTube, so the thumbnail can't spoil the episode).
+  function episodeImage(ep, nowMs) { return isComingSoon(ep, nowMs) ? REEL_IMAGE : thumbUrl(ep.youtube); }
 
   // Measured from the barn background (barn-reels-4k.jpeg, 4096x2336) with `python tests/tools/process-art.py reels`.
   // x and y are % of the scene width / height; REEL_R is % of the scene WIDTH (painted radius incl. the dark outline,
@@ -124,8 +122,8 @@
     return new Date(ms).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'Asia/Singapore' });
   }
 
-  return { validateEpisodes: validateEpisodes, isComingSoon: isComingSoon, propImage: propImage, layoutReels: layoutReels,
-           DEFAULT_LAYOUT: DEFAULT_LAYOUT, REEL_COUNT: REEL_COUNT, GENERIC_COUNT: GENERIC_COUNT, REEL_IMAGE: REEL_IMAGE, INITIAL: INITIAL, reduce: reduce,
+  return { validateEpisodes: validateEpisodes, isComingSoon: isComingSoon, episodeImage: episodeImage, layoutReels: layoutReels,
+           DEFAULT_LAYOUT: DEFAULT_LAYOUT, REEL_COUNT: REEL_COUNT, REEL_IMAGE: REEL_IMAGE, INITIAL: INITIAL, reduce: reduce,
            embedUrl: embedUrl, thumbUrl: thumbUrl, watchUrl: watchUrl, parseHash: parseHash, formatHash: formatHash,
            formatPremiere: formatPremiere };
 });

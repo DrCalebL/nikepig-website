@@ -404,6 +404,7 @@ test('#ep=<id> deep link preselects that episode, and hashchange follows', async
   await page.setViewportSize({ width: 1440, height: 900 });
   const errors = [];
   page.on('pageerror', e => errors.push(e.message));
+  await page.route('**/cartoons/episodes.json', r => r.fulfill({ status: 200, contentType: 'application/json', body: FIXTURE }));
   await page.clock.setFixedTime(new Date('2026-10-05T00:00:00Z'));
   await page.goto('/cartoons/#ep=c10');
   await expect(page.locator('#screen')).toHaveAttribute('data-mode', 'preview');
@@ -418,6 +419,7 @@ test('#ep=<id> deep link preselects that episode, and hashchange follows', async
 
 test('deep link to a coming-soon episode shows its premiere card', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
+  await page.route('**/cartoons/episodes.json', r => r.fulfill({ status: 200, contentType: 'application/json', body: FIXTURE }));
   await page.clock.setFixedTime(new Date('2026-09-26T12:00:00Z'));
   await page.goto('/cartoons/#ep=c10');
   await expect(page.locator('#screen')).toHaveAttribute('data-mode', 'soon');
@@ -463,6 +465,7 @@ test('play button keeps focus in the page instead of dropping to body', async ({
 
 test('coming-soon flips at the premiere instant and never plays before it', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
+  await page.route('**/cartoons/episodes.json', r => r.fulfill({ status: 200, contentType: 'application/json', body: FIXTURE }));
   await page.clock.install({ time: new Date('2026-09-26T16:59:30Z') });
   await page.goto('/cartoons/');
   await expect(page.locator('.reel[data-id]')).toHaveCount(13);
@@ -572,6 +575,7 @@ test('the premiere refresh does not restart a playing video, but still moves the
   await page.setViewportSize({ width: 1440, height: 900 });
   const errors = [];
   page.on('pageerror', e => errors.push(e.message));
+  await page.route('**/cartoons/episodes.json', r => r.fulfill({ status: 200, contentType: 'application/json', body: FIXTURE }));
   await page.clock.install({ time: new Date('2026-09-27T16:59:30Z') }); // c11 premieres at 17:00Z
   await page.goto('/cartoons/');
   await expect(page.locator('.reel[data-id="c10"] .new')).toHaveCount(1);
@@ -589,6 +593,7 @@ test('the premiere refresh does not restart a playing video, but still moves the
 
 test('the premiere refresh turns a previewed coming-soon card into a playable preview', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
+  await page.route('**/cartoons/episodes.json', r => r.fulfill({ status: 200, contentType: 'application/json', body: FIXTURE }));
   await page.clock.install({ time: new Date('2026-09-27T16:59:30Z') });
   await page.goto('/cartoons/#ep=c11');
   await expect(page.locator('#screen')).toHaveAttribute('data-mode', 'soon');

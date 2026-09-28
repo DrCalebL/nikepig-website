@@ -165,7 +165,7 @@ test('the page CSS matches DEFAULT_LAYOUT (screen top/height, reel size)', () =>
   const html = require('node:fs').readFileSync(require('node:path').join(__dirname, '../../cartoons/index.html'), 'utf8');
   const num = re => { const m = re.exec(html); assert.ok(m, 'missing ' + re); return parseFloat(m[1]); };
   assert.ok(Math.abs(num(/--st:calc\(var\(--top\) \+ var\(--sch\)\*([\d.]+) \+ 1px\)/) * 100 - L.screen.top) < 0.01, '--st');
-  assert.ok(Math.abs(num(/--sh:calc\(var\(--sch\)\*([\d.]+)\)/) * 100 - L.screen.height) < 0.01, '--sh');
+  assert.ok(Math.abs(num(/--sh:calc\(var\(--sch\)\*([\d.]+) - 1px\)/) * 100 - L.screen.height) < 0.01, '--sh');
 });
 
 const soon = new Set(['c10']);

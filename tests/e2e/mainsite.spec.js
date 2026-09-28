@@ -49,25 +49,34 @@ const gridGeom = page => page.evaluate(() => {
   return { g: { l: g.left, r: g.right }, cards: cards.map(c => ({ l: c.left, r: c.right, t: Math.round(c.top), w: c.width })) };
 });
 
-test('3-column Nikeverse grid centres the trailing pair', async ({ page }) => {
+test('3-column Nikeverse grid centres a trailing pair or a lone last card', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/index.html');
   const { g, cards } = await gridGeom(page);
-  const [a, b] = cards.slice(-2);
-  expect(a.t).toBe(b.t);
-  expect(Math.abs((a.l + b.r) / 2 - (g.l + g.r) / 2)).toBeLessThanOrEqual(5);
-  expect(Math.abs(a.w - cards[0].w)).toBeLessThanOrEqual(1);
-  expect(new Set(cards.slice(0, 9).map(c => c.t)).size).toBe(3);
+  const n = cards.length, rem = n % 3, mid = (g.l + g.r) / 2;
+  for (const c of cards) expect(Math.abs(c.w - cards[0].w)).toBeLessThanOrEqual(1);
+  expect(new Set(cards.slice(0, n - rem).map(c => c.t)).size).toBe((n - rem) / 3);
+  if (rem === 2) {
+    const [a, b] = cards.slice(-2);
+    expect(a.t).toBe(b.t);
+    expect(Math.abs((a.l + b.r) / 2 - mid)).toBeLessThanOrEqual(5);
+  } else if (rem === 1) {
+    const last = cards[n - 1];
+    expect(Math.abs((last.l + last.r) / 2 - mid)).toBeLessThanOrEqual(5);
+  }
 });
 
 test('2-column Nikeverse grid centres an odd last card', async ({ page }) => {
   await page.setViewportSize({ width: 800, height: 900 });
   await page.goto('/index.html');
   const { g, cards } = await gridGeom(page);
-  const last = cards[cards.length - 1];
-  expect(Math.abs((last.l + last.r) / 2 - (g.l + g.r) / 2)).toBeLessThanOrEqual(5);
-  expect(Math.abs(last.w - cards[0].w)).toBeLessThanOrEqual(1);
-  expect(new Set(cards.slice(0, 10).map(c => c.t)).size).toBe(5);
+  const n = cards.length, even = n - (n % 2);
+  for (const c of cards) expect(Math.abs(c.w - cards[0].w)).toBeLessThanOrEqual(1);
+  expect(new Set(cards.slice(0, even).map(c => c.t)).size).toBe(even / 2);
+  if (n % 2) {
+    const last = cards[n - 1];
+    expect(Math.abs((last.l + last.r) / 2 - (g.l + g.r) / 2)).toBeLessThanOrEqual(5);
+  }
 });
 
 test('1-column Nikeverse grid keeps full-width cards', async ({ page }) => {

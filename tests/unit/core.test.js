@@ -247,13 +247,14 @@ const fs = require('node:fs');
 const path = require('node:path');
 const CAT = path.join(__dirname, '../../cartoons/episodes.json');
 
-test('launch catalogue is valid, has 14 episodes: 13 on the reels, the oldest in the archive', () => {
+test('live catalogue is valid: the 13 newest on the reels (newest first), the rest in the archive', () => {
   const eps = D.validateEpisodes(JSON.parse(fs.readFileSync(CAT, 'utf8')));
-  assert.equal(eps.length, 14);
+  assert.ok(eps.length >= 14);
   const { reels, archive } = D.layoutReels(eps, D.DEFAULT_LAYOUT);
   assert.equal(reels.length, 13);
-  assert.equal(reels[0].id, 'c14');
-  assert.deepEqual(archive, ['pilot']); // pilot..c9 share a premiere; later in the catalogue = newer, so the pilot is oldest
+  assert.equal(reels[0].id, eps[eps.length - 1].id); // the catalogue is in release order: last entry = newest reel
+  assert.equal(archive.length, eps.length - 13);
+  assert.equal(archive[archive.length - 1], 'pilot'); // pilot..c9 share a premiere; later in the catalogue = newer
   for (const e of JSON.parse(fs.readFileSync(CAT, 'utf8')))
     assert.ok(!('image' in e) && !('alt' in e), e.id + ': image/alt are no longer used');
   assert.ok(fs.existsSync(path.join(__dirname, '../../cartoons', D.REEL_IMAGE)), D.REEL_IMAGE + ' missing');

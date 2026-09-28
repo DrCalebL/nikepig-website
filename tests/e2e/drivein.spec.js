@@ -1,4 +1,6 @@
 const { test, expect } = require('@playwright/test');
+const fs = require('node:fs');
+const path = require('node:path');
 // A 1x1 PNG standing in for a YouTube thumbnail where a test needs one to load.
 const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 'base64');
 
@@ -7,9 +9,14 @@ test.beforeEach(async ({ page }) => {
   await page.route(/(youtube-nocookie\.com|ytimg\.com|youtube\.com)/, r => r.abort());
 });
 
+// Layout tests run on a frozen 14-episode catalogue (pilot..c14, c2 landscape on the last reel), so adding a new
+// episode to cartoons/episodes.json never shifts the reels under them. The live catalogue has its own test below.
+const FIXTURE = fs.readFileSync(path.join(__dirname, 'fixtures/episodes-14.json'), 'utf8');
+
 async function open(page, when = '2026-10-05T00:00:00Z') {
   const errors = [];
   page.on('pageerror', e => errors.push(e.message));
+  await page.route('**/cartoons/episodes.json', r => r.fulfill({ status: 200, contentType: 'application/json', body: FIXTURE }));
   await page.clock.setFixedTime(new Date(when));
   await page.goto('/cartoons/');
   await expect(page.locator('.reel[data-id]')).toHaveCount(13);
@@ -263,8 +270,7 @@ test('a hovered reel glows and its title tag paints above the screen', async ({ 
 
 test('All episodes button lists every episode newest first with premiere badges', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.clock.setFixedTime(new Date('2026-09-27T12:00:00Z'));
-  await page.goto('/cartoons/');
+  await open(page, '2026-09-27T12:00:00Z');
   await page.locator('#all-btn').click();
   const items = page.locator('#all-list .ep-item');
   await expect(items).toHaveCount(14);
@@ -926,4 +932,17 @@ test('phones show a swipe hint on the idle screen; desktop keeps "Pick a reel to
   await expect(desk.locator('#screen-content .hint-desk')).toBeVisible();
   await expect(desk.locator('#screen-content .hint-touch').first()).toBeHidden();
   await desk.close();
+});
+
+test('live catalogue: newest episode hangs on the first reel, the 13 newest fill the reels', async ({ page }) => {
+  const live = JSON.parse(fs.readFileSync(path.join(__dirname, '../../cartoons/episodes.json'), 'utf8'));
+  const newest = live.map((e, i) => ({ e, i })).sort((a, b) => (Date.parse(b.e.premiere) - Date.parse(a.e.premiere)) || (b.i - a.i))
+    .slice(0, 13).map(x => x.e.id);
+  const errors = [];
+  page.on('pageerror', e => errors.push(e.message));
+  await page.clock.setFixedTime(new Date('2026-10-05T00:00:00Z'));
+  await page.goto('/cartoons/');
+  await expect(page.locator('.reel[data-id]')).toHaveCount(Math.min(live.length, 13));
+  expect(await page.locator('.reel[data-id]').evaluateAll(els => els.map(e => e.dataset.id))).toEqual(newest);
+  expect(errors).toEqual([]);
 });

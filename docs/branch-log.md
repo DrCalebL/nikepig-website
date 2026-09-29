@@ -153,5 +153,5 @@ Playwright).
   `summary_large_image` tags pointing at it (absolute https URL).
 - Same day: C15/C16 catalogue entries; Massive Rocket card kept but its Sign Up button removed; Instagram,
   Facebook, TikTok and YouTube links (Simple Icons glyphs) added to the hero row and Join the Herd.
-- Homepage share card: `assets/art/og-nikepig.jpg` (1200x630) = the Nike hero photo (the original-tweet photo)
-  at full height over a blurred fill of itself; Open Graph + Twitter tags added to `index.html`.
+- Homepage share card: `assets/art/og-nikepig.jpg` (1200x630) = Charles's Jun 18 2024 "Fun Fact: I have a pig named
+  Nike" tweet screenshot (`assets/tweets/tweet-01-jun18-fun-fact.png`) centred over a blurred Nike photo; Open Graph + Twitter tags added to `index.html`.

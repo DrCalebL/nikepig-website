@@ -148,8 +148,8 @@ Playwright).
   font fetches failing under `file://`, unrelated).
 
 ## 2026-09-29 — Cartoons social share card
-- `cartoons/art/og-cartoons.jpg` (1200x630): the barn scene with the Nikeverse Cartoons title sticker and a
-  "NEW CARTOON EVERY NIGHT · NIKEPIG.COM/CARTOONS" pill. `cartoons/index.html` gets Open Graph + Twitter
+- `cartoons/art/og-cartoons.jpg` (1200x630): the barn scene with the Nikeverse Cartoons title sticker only
+  (owner: no "every night" promise and no URL on the image). `cartoons/index.html` gets Open Graph + Twitter
   `summary_large_image` tags pointing at it (absolute https URL).
 - Same day: C15/C16 catalogue entries; Massive Rocket card kept but its Sign Up button removed; Instagram,
   Facebook, TikTok and YouTube links (Simple Icons glyphs) added to the hero row and Join the Herd.

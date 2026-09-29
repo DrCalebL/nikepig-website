@@ -146,3 +146,10 @@ Playwright).
 - Verified: repo-wide `grep -rni ascend` on tracked content is clean; Playwright shows 2 cards,
   2 equal columns on desktop, 1 column at 375px, 0 page errors (the 2 console lines are external
   font fetches failing under `file://`, unrelated).
+
+## 2026-09-29 — Cartoons social share card
+- `cartoons/art/og-cartoons.jpg` (1200x630): the barn scene with the Nikeverse Cartoons title sticker and a
+  "NEW CARTOON EVERY NIGHT · NIKEPIG.COM/CARTOONS" pill. `cartoons/index.html` gets Open Graph + Twitter
+  `summary_large_image` tags pointing at it (absolute https URL).
+- Same day: C15/C16 catalogue entries; Massive Rocket card kept but its Sign Up button removed; Instagram,
+  Facebook, TikTok and YouTube links (Simple Icons glyphs) added to the hero row and Join the Herd.

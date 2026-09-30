@@ -155,3 +155,5 @@ Playwright).
   Facebook, TikTok and YouTube links (Simple Icons glyphs) added to the hero row and Join the Herd.
 - Homepage share card: `assets/art/og-nikepig.jpg` (1200x630) = Charles's Jun 18 2024 "Fun Fact: I have a pig named
   Nike" tweet screenshot (`assets/tweets/tweet-01-jun18-fun-fact.png`) centred over a blurred Nike photo; Open Graph + Twitter tags added to `index.html`.
+
+- 2026-09-30: Cartoons: add C17 "Blind Spot" (YouTube aI1yZ3pTKcQ, premieres 4 Oct 2026 01:00 SGT); fallback synced; unit + 99 e2e pass.

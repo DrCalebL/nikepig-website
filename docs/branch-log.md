@@ -159,3 +159,4 @@ Playwright).
 - 2026-09-30: Cartoons: add C17 "Blind Spot" (YouTube aI1yZ3pTKcQ, premieres 4 Oct 2026 01:00 SGT); fallback synced; unit + 99 e2e pass.
 - 2026-09-30: Cartoons: add C18 "Close Enough" (YouTube gCUDb4cxNMk, premieres 5 Oct 2026 01:00 SGT); fallback synced; unit + 99 e2e pass.
 - 2026-09-30: Cartoons: add C19 "I'll Drive" (YouTube 9WeBBMs2HWw, premieres 6 Oct 2026 01:00 SGT); fallback synced; unit + 99 e2e pass.
+- 2026-10-01: Cartoons: add C20 "Just a Lady" (YouTube Dz28VqkbTHs, premieres 7 Oct 2026 01:00 SGT); fallback synced; unit + 99 e2e pass.

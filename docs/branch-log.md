@@ -157,3 +157,4 @@ Playwright).
   Nike" tweet screenshot (`assets/tweets/tweet-01-jun18-fun-fact.png`) centred over a blurred Nike photo; Open Graph + Twitter tags added to `index.html`.
 
 - 2026-09-30: Cartoons: add C17 "Blind Spot" (YouTube aI1yZ3pTKcQ, premieres 4 Oct 2026 01:00 SGT); fallback synced; unit + 99 e2e pass.
+- 2026-09-30: Cartoons: add C18 "Close Enough" (YouTube gCUDb4cxNMk, premieres 5 Oct 2026 01:00 SGT); fallback synced; unit + 99 e2e pass.

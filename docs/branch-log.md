@@ -160,3 +160,4 @@ Playwright).
 - 2026-09-30: Cartoons: add C18 "Close Enough" (YouTube gCUDb4cxNMk, premieres 5 Oct 2026 01:00 SGT); fallback synced; unit + 99 e2e pass.
 - 2026-09-30: Cartoons: add C19 "I'll Drive" (YouTube 9WeBBMs2HWw, premieres 6 Oct 2026 01:00 SGT); fallback synced; unit + 99 e2e pass.
 - 2026-10-01: Cartoons: add C20 "Just a Lady" (YouTube Dz28VqkbTHs, premieres 7 Oct 2026 01:00 SGT); fallback synced; unit + 99 e2e pass.
+- 2026-10-02: Cartoons: C10/C11/C12 pointed back to the public YouTube uploads (rlubzu5TNZ8, R1lDhWt_96g, F7CV6N0rygE); the unlisted logo-v2 copies (sbbO2273RNc, 0tqDl-UKomE, fTT7cx6ap8s) now 404 and showed "Video unavailable"; fallback synced.
